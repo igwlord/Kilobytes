@@ -1,0 +1,192 @@
+.dashboard {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  padding-bottom: 80px;
+}
+
+.dashboard-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-grid-compact {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+/* Force 2 columns on very small screens so 4 KPIs quepan en 2 filas */
+@media (max-width: 480px) {
+  .kpi-grid-mobile-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .kpi-card.kpi-compact h3 { font-size: 0.95rem; }
+}
+
+.kpi-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.kpi-card.kpi-compact { padding: 1rem; }
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.kpi-card h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 1rem 0 0.5rem;
+}
+
+.kpi-card p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.progress-ring-container {
+  position: relative;
+  margin: 0 auto 1rem;
+}
+
+.progress-ring {
+  width: 100%;
+  height: 100%;
+}
+
+.progress-percentage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.metabolism-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.metabolism-card.compact { padding: 1rem; }
+
+.wellbeing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.wellbeing-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.wellbeing-card h3 { margin: 0 0 0.5rem; font-size: 1rem; color: var(--text-primary); }
+.wb-sub { margin: 0 0 0.75rem; color: var(--text-secondary); font-size: 0.85rem; }
+.wb-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.wb-row label { color: var(--text-secondary); font-size: 0.9rem; }
+.wb-row input { width: 90px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 8px; padding: 0.4rem 0.5rem; }
+.wb-input-group { display: inline-flex; align-items: center; gap: 0.4rem; }
+.wb-btn { background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 8px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.wb-btn:hover { background: var(--bg-secondary); }
+.wb-btn.ghost { width: 36px; }
+
+.metabolism-card h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.metabolism-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.metabolism-item h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.tmb-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.tdee-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--color-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.metabolism-item span {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+@media (min-width: 768px) {
+  .dashboard {
+    padding-bottom: 0;
+  }
+  
+  .dashboard-content {
+    padding: 2rem;
+  }
+  
+  .kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Clean API project folder",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"& { Remove-Item -Recurse -Force -ErrorAction SilentlyContinue 'c:\\Users\\juego\\OneDrive\\Escritorio\\KiloByte\\Kilobyte\\apps\\api'; if (-not (Test-Path 'c:\\Users\\juego\\OneDrive\\Escritorio\\KiloByte\\Kilobyte\\apps\\api')) { Write-Output 'API folder removed' } else { Write-Output 'API folder still exists' } }"
+			]
+		}
+	]
+}

@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@400;500&family=Inter:wght@400;500;600&family=Source+Code+Pro:wght@400;600&display=swap');
+
+:root {
+  --font-title: 'Poppins', 'Inter', sans-serif;
+  --font-body: 'Roboto', 'Inter', sans-serif;
+  --font-mono: 'Source Code Pro', monospace;
+
+  /* Light */
+  --bg-primary: #FFF7F2;
+  --bg-secondary: #FFFFFF;
+  --color-primary: #FFC7A6;
+  --color-secondary: #BFE8C6;
+  --color-accent: #E6A5D8;
+  --text-primary: #2A2A2A;
+  --text-secondary: #5f5f5f;
+  --border-color: #e0e0e0;
+  --btn-active-bg: #f0f0f0;
+}
+
+.dark {
+  --bg-primary: #0B0A1A;
+  --bg-secondary: #0B1E3A;
+  --color-primary: #6C4ED9;
+  --color-secondary: #D4AF37;
+  --color-accent: #1e293b;
+  --text-primary: #F2F2F2;
+  --text-secondary: #a0a0a0;
+  --border-color: #2a3a5a;
+  --btn-active-bg: #2a3a5a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+}
+
+.app {
+  min-height: 100vh;
+}
+
+button {
+  font-family: inherit;
+}
+
+input {
+  font-family: inherit;
+}
+
+.card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.dark .card {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-align: center;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #0B0A1A;
+}
+
+.dark .btn-primary {
+  color: var(--text-primary);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}

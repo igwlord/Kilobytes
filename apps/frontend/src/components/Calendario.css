@@ -1,0 +1,282 @@
+.calendario-container {
+  padding: 1rem;
+}
+
+.calendario-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.calendario-card {
+  background: var(--bg-secondary);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.calendario-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  background-color: rgba(108, 78, 217, 0.1);
+  transform: scale(1.1);
+}
+
+.month-year {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding: 0.5rem;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.calendar-day.empty {
+  cursor: default;
+}
+
+.calendar-day.today {
+  border: 2px solid var(--color-primary);
+  font-weight: bold;
+}
+
+.calendar-day:not(.empty):hover {
+  transform: scale(1.1);
+}
+
+/* Adherence colors */
+.calendar-day.good-adherence {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.calendar-day.moderate-adherence {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.calendar-day.poor-adherence {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+/* Dark theme adherence colors */
+.dark .calendar-day.good-adherence {
+  background-color: #14532d;
+  color: #bbf7d0;
+}
+
+.dark .calendar-day.moderate-adherence {
+  background-color: #451a03;
+  color: #fde047;
+}
+
+.dark .calendar-day.poor-adherence {
+  background-color: #450a0a;
+  color: #fca5a5;
+}
+
+.calendar-legend {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-primary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.legend-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.legend-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.legend-color {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-color.good-adherence {
+  background-color: #dcfce7;
+}
+
+.legend-color.moderate-adherence {
+  background-color: #fef3c7;
+}
+
+.legend-color.poor-adherence {
+  background-color: #fecaca;
+}
+
+.legend-color.no-data {
+  background-color: var(--border-color);
+}
+
+/* Dark theme legend colors */
+.dark .legend-color.good-adherence {
+  background-color: #14532d;
+}
+
+.dark .legend-color.moderate-adherence {
+  background-color: #451a03;
+}
+
+.dark .legend-color.poor-adherence {
+  background-color: #450a0a;
+}
+
+.calendar-stats {
+  padding: 1rem;
+  background: var(--bg-primary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.stats-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.stat-item.good {
+  background-color: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.stat-item.moderate {
+  background-color: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.stat-item.poor {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.stat-item.none {
+  background-color: rgba(156, 163, 175, 0.1);
+  border-color: rgba(156, 163, 175, 0.2);
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.overall-adherence {
+  text-align: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.overall-adherence p {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.overall-adherence strong {
+  color: var(--color-primary);
+  font-size: 1.125rem;
+}
+
+/* Dark theme specific adjustments */
+.dark .calendario-card {
+  background: var(--bg-secondary);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.dark .calendar-legend,
+.dark .calendar-stats {
+  background: var(--bg-primary);
+}

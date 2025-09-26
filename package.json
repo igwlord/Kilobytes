@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix apps/frontend",
+    "build": "npm run build --prefix apps/frontend",
+    "preview": "npm run preview --prefix apps/frontend",
+    "lint": "npm run lint --prefix apps/frontend"
+  },
+  "dependencies": {
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9"
+  }
+}

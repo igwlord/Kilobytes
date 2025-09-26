@@ -1,0 +1,11 @@
+# Netlify configuration for Vite + React app inside apps/frontend
+[build]
+  base = "apps/frontend"
+  command = "npm run build"
+  publish = "apps/frontend/dist"
+
+# Redirect all routes to index.html for SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

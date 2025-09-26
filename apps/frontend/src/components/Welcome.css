@@ -1,0 +1,256 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@400;500&family=Inter:wght@400;500;600&family=Source+Code+Pro:wght@400;600&display=swap');
+
+:root {
+  --font-title: 'Poppins', 'Inter', sans-serif;
+  --font-body: 'Roboto', 'Inter', sans-serif;
+  --font-mono: 'Source Code Pro', monospace;
+
+  /* Dark Theme - Violetas y Dorados */
+  --bg-primary: #0B0A1A;
+  --bg-secondary: #1A0F2E;
+  --color-primary: #6C4ED9;
+  --color-secondary: #D4AF37;
+  --color-accent: #9D4EDD;
+  --text-primary: #F2F2F2;
+  --text-secondary: #B8860B;
+  --border-color: #2a1f3d;
+  --glow-primary: #6C4ED9;
+  --glow-secondary: #D4AF37;
+}
+
+.welcome-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 20% 50%, #1A0F2E 0%, #0B0A1A 25%), 
+              radial-gradient(circle at 80% 50%, #2D1B69 0%, #0B0A1A 25%),
+              linear-gradient(135deg, #0B0A1A 0%, #1A0F2E 50%, #2D1B69 100%);
+  background-size: 400% 400%, 400% 400%, 100% 100%;
+  animation: gradient-bg 15s ease infinite;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(108, 78, 217, 0.1) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+
+.welcome-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 30% 20%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(157, 78, 221, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.welcome-content {
+  text-align: center;
+  max-width: 700px;
+  padding: 4rem 3rem;
+  background: rgba(26, 15, 46, 0.85);
+  backdrop-filter: blur(25px);
+  border-radius: 2.5rem;
+  border: 2px solid rgba(108, 78, 217, 0.3);
+  box-shadow: 
+    0 0 50px rgba(108, 78, 217, 0.3),
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(212, 175, 55, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-content::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--color-primary), var(--color-secondary), var(--color-accent));
+  border-radius: 2.5rem;
+  z-index: -1;
+  opacity: 0.6;
+  filter: blur(8px);
+}
+
+.typewriter-title {
+  font-family: var(--font-title);
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 50%, var(--color-accent) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(108, 78, 217, 0.5);
+  overflow: hidden;
+  border-right: 4px solid var(--color-secondary);
+  white-space: nowrap;
+  margin: 0 auto 1.5rem;
+  width: 0;
+  animation: typing 4s steps(8, end), blink-caret 1s step-end infinite;
+  animation-fill-mode: forwards;
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+}
+
+.typewriter-title.complete {
+  border-right: none;
+  animation: typing 4s steps(8, end);
+  animation-fill-mode: forwards;
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: fadeInUp 1.5s ease 2s both;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.input-group {
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: fadeInUp 1.5s ease 3s both;
+  position: relative;
+}
+
+.name-input {
+  width: 100%;
+  padding: 1.5rem 2rem;
+  font-size: 1.3rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  border: 2px solid rgba(108, 78, 217, 0.4);
+  border-radius: 1.5rem;
+  background: rgba(11, 10, 26, 0.8);
+  color: var(--text-primary);
+  transition: all 0.4s ease;
+  text-align: center;
+  outline: none;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.name-input::placeholder {
+  color: rgba(242, 242, 242, 0.6);
+  font-weight: 400;
+}
+
+.name-input:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 
+    0 0 25px rgba(212, 175, 55, 0.4),
+    0 8px 25px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: scale(1.02);
+  background: rgba(26, 15, 46, 0.9);
+}
+
+.error-message {
+  color: #FF6B6B;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 1rem;
+  opacity: 0;
+  animation: fadeInUp 0.3s ease forwards;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.start-button {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-accent) 100%);
+  color: #FFFFFF;
+  padding: 1.5rem 3rem;
+  border: none;
+  border-radius: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  opacity: 0;
+  animation: fadeInUp 1.5s ease 4s both;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    0 15px 35px rgba(108, 78, 217, 0.3),
+    0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.start-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.start-button:hover::before {
+  left: 100%;
+}
+
+.start-button:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 
+    0 25px 50px rgba(108, 78, 217, 0.4),
+    0 15px 30px rgba(212, 175, 55, 0.3),
+    0 5px 15px rgba(0, 0, 0, 0.3);
+  filter: brightness(1.1);
+}
+
+.start-button:active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+@keyframes gradient-bg {
+  0% { background-position: 0% 50%, 0% 50%; }
+  50% { background-position: 100% 50%, 100% 50%; }
+  100% { background-position: 0% 50%, 0% 50%; }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: var(--color-secondary); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,365 @@
+.plan-container {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.plan-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.plan-card {
+  background: var(--bg-secondary);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.plan-section {
+  margin-bottom: 1.5rem;
+}
+
+.plan-section:last-child {
+  margin-bottom: 0;
+}
+
+.plan-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.plan-select {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.plan-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(108, 78, 217, 0.1);
+}
+
+.plan-subsection-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+/* Accordion */
+.accordion .accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem;
+  background: linear-gradient(180deg, var(--bg-primary), rgba(255,255,255,0.02));
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 0.6rem;
+  cursor: pointer;
+}
+
+.accordion .accordion-header:hover {
+  border-color: var(--color-primary);
+}
+
+.accordion .chevron { transition: transform .2s ease; }
+.accordion .chevron.open { transform: rotate(180deg); }
+
+.accordion .accordion-content {
+  padding: 1rem 0.5rem 0 0.5rem;
+}
+
+.plan-macros-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .plan-macros-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .plan-macros-grid { grid-template-columns: 1fr; }
+}
+
+.plan-input-label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.plan-input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.plan-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(108, 78, 217, 0.1);
+}
+
+.plan-calculate-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 0.5rem;
+  transition: color 0.2s;
+}
+
+.plan-calculate-btn:hover {
+  color: var(--color-secondary);
+}
+
+.plan-exclusions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.plan-exclusion-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.plan-checkbox {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  cursor: pointer;
+}
+
+.plan-checkbox:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.plan-apply-btn {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.2s;
+}
+
+.plan-apply-btn:hover {
+  background-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 78, 217, 0.3);
+}
+
+/* Clear, functional field styles */
+.field-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+/* Keep unit nicely centered relative to the input */
+.input-with-unit {
+  position: relative;
+}
+.input-with-unit .field-unit {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.field-group-full {
+  margin-bottom: 1.5rem;
+}
+
+.field-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.plan-input-clear {
+  width: 100%;
+  padding: 0.75rem;
+  padding-right: 3.25rem; /* space for unit (kg, cm, años, etc.) */
+  border-radius: 0.5rem;
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.plan-input-clear:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.plan-select-clear {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.plan-select-clear:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.field-unit {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 1rem;           /* match input text size */
+  font-weight: 500;          /* slight emphasis for readability */
+  font-family: inherit;      /* same font as input */
+  line-height: 1;            /* avoid vertical drift */
+  pointer-events: none;
+}
+
+.fasting-section {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .fasting-section { grid-template-columns: 1fr; }
+}
+
+/* Profile grid for desktop better density */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+}
+
+@media (max-width: 1024px) {
+  .profile-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+@media (max-width: 640px) {
+  .profile-grid { grid-template-columns: 1fr; }
+}
+
+.plan-kpi {
+  padding: 0.75rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  background: rgba(255,255,255,0.02);
+}
+
+.plan-estimations { color: var(--text-secondary); margin: 0.25rem 0 0.5rem; }
+
+.quick-plans-section {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-primary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.quick-plans {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.quick-plan-btn {
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-plan-btn:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.quick-plan-btn.lose {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.quick-plan-btn.gain {
+  border-color: #4ecdc4;
+  color: #4ecdc4;
+}
+
+.quick-plan-btn.maintain {
+  border-color: #45b7d1;
+  color: #45b7d1;
+}
+
+/* Dark theme specific adjustments */
+.dark .plan-card {
+  background: var(--bg-secondary);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.dark .plan-select,
+.dark .plan-input {
+  background-color: var(--bg-primary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark .plan-checkbox {
+  background-color: var(--bg-primary);
+  border-color: var(--border-color);
+}
+
+.dark .plan-checkbox:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}

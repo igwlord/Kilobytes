@@ -1,0 +1,14 @@
+.water-tracker{display:flex;flex-direction:column;gap:.5rem}
+.water-cups{display:flex;flex-wrap:wrap;gap:.5rem}
+.glass{position:relative;width:28px;height:40px;border-radius:6px 6px 4px 4px;border:2px solid var(--border-color);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));overflow:hidden;cursor:pointer;padding:0}
+.glass:focus{outline:2px solid var(--color-primary)}
+.glass-fill{position:absolute;left:0;right:0;bottom:0;background:var(--color-accent);transition:height .2s ease}
+.glass.empty .glass-fill{height:0}
+.glass.filled{border-color:var(--color-accent)}
+.glass.partial{border-color:var(--color-accent)}
+.water-actions{display:flex;gap:.5rem}
+.water-actions .wb-btn{padding:.35rem .6rem;border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);border-radius:.4rem;cursor:pointer}
+.water-actions .wb-btn:hover{border-color:var(--color-primary)}
+.water-info .bar{height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+.water-info .bar-fill{height:100%;background:var(--color-accent)}
+.water-info .text{color:var(--text-secondary);font-size:.9rem;margin-top:.25rem}
