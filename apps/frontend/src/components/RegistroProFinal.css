@@ -312,7 +312,7 @@
 }
 
 .quick-btn-final.copy { border-left: 4px solid #4ECDC4; }
-.quick-btn-final.favorite { border-left: 4px solid #FF6B6B; }
+.quick-btn-final.favorite { border-left: 4px solid var(--macro-kcal); }
 .quick-btn-final.scanner { border-left: 4px solid #45B7D1; }
 .quick-btn-final.suggestions { border-left: 4px solid #96CEB4; }
 
@@ -1420,16 +1420,16 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
   border-radius: 50%;
   opacity: 0.9;
 }
-.macro-kcal::after { background: #FF6B6B; }
-.macro-prot::after { background: #4ECDC4; }
-.macro-carbs::after { background: #45B7D1; }
-.macro-grasa::after { background: #96CEB4; }
+.macro-kcal::after { background: var(--macro-kcal); }
+.macro-prot::after { background: var(--macro-protein); }
+.macro-carbs::after { background: var(--macro-carbs); }
+.macro-grasa::after { background: var(--macro-fat); }
 
 /* Subtle color accents on the left edge per macro for instant recognition */
-.macro-kcal { border-left: 3px solid #FF6B6B; }
-.macro-prot { border-left: 3px solid #4ECDC4; }
-.macro-carbs { border-left: 3px solid #45B7D1; }
-.macro-grasa { border-left: 3px solid #96CEB4; }
+.macro-kcal { border-left: 3px solid var(--macro-kcal); }
+.macro-prot { border-left: 3px solid var(--macro-protein); }
+.macro-carbs { border-left: 3px solid var(--macro-carbs); }
+.macro-grasa { border-left: 3px solid var(--macro-fat); }
 
 /* Extra-compact only for very narrow phones */
 @media (max-width: 380px) {

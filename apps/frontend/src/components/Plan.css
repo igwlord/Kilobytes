@@ -45,9 +45,10 @@
 }
 
 .plan-select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(108, 78, 217, 0.1);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-color: var(--focus-ring);
+  box-shadow: none;
 }
 
 .plan-subsection-title {
@@ -77,10 +78,10 @@
 
 /* Active section highlight: fuerte contraste para distinguir sección actual */
 .accordion .accordion-header.active {
-  background: linear-gradient(135deg, var(--color-primary), #8B5CF6);
+  background: linear-gradient(135deg, var(--color-primary), color-mix(in oklab, var(--color-primary), #ffffff 20%));
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 6px 16px rgba(108, 78, 217, 0.3);
+  box-shadow: 0 6px 16px color-mix(in oklab, var(--color-primary) 30%, transparent);
   font-weight: 800;
 }
 .accordion .accordion-header.active .chevron { color: #fff; }
@@ -127,9 +128,10 @@
 }
 
 .plan-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(108, 78, 217, 0.1);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-color: var(--focus-ring);
+  box-shadow: none;
 }
 
 .plan-calculate-btn {
@@ -192,7 +194,7 @@
 .plan-apply-btn:hover {
   background-color: var(--color-primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(108, 78, 217, 0.3);
+  box-shadow: 0 4px 12px color-mix(in oklab, var(--color-primary) 30%, transparent);
 }
 
 /* Clear, functional field styles */

@@ -300,9 +300,9 @@
 .recipe-card.disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(80%); }
 
 /* Acentos por plan */
-.recipe-group.goal-lose .recipe-group-header { background: linear-gradient(135deg, var(--color-secondary), #FFD700); color: #000; }
-.recipe-group.goal-gain .recipe-group-header { background: linear-gradient(135deg, var(--color-primary), #8B5CF6); color: #fff; }
-.recipe-group.goal-maintain .recipe-group-header { background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; }
+.recipe-group.goal-lose .recipe-group-header { background: linear-gradient(135deg, var(--color-secondary), color-mix(in oklab, var(--color-secondary), #ffffff 25%)); color: #000; }
+.recipe-group.goal-gain .recipe-group-header { background: linear-gradient(135deg, var(--color-primary), color-mix(in oklab, var(--color-primary), #ffffff 20%)); color: #fff; }
+.recipe-group.goal-maintain .recipe-group-header { background: linear-gradient(135deg, var(--success-600, #16a34a), var(--success-500, #22c55e)); color: #fff; }
 .recipe-group.goal-lose .recipe-group-header h3,
 .recipe-group.goal-gain .recipe-group-header h3,
 .recipe-group.goal-maintain .recipe-group-header h3 { color: inherit; }

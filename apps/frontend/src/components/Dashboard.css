@@ -15,7 +15,7 @@
 .onboarding-steps li.done .step-title { opacity: 0.7; text-decoration: line-through; }
 .step-cta { background: var(--glass-15); border: 1px solid var(--glass-25); padding: 0.4rem 0.6rem; border-radius: 8px; color: var(--text-primary); cursor: pointer; }
 .onboarding-actions { display: flex; gap: 0.5rem; }
-.onboarding-actions .primary { background: linear-gradient(135deg, var(--color-primary), #8B5CF6); border: none; color: white; padding: 0.5rem 0.8rem; border-radius: 10px; cursor: pointer; }
+.onboarding-actions .primary { background: linear-gradient(135deg, var(--color-primary), color-mix(in oklab, var(--color-primary), #ffffff 20%)); border: none; color: white; padding: 0.5rem 0.8rem; border-radius: 10px; cursor: pointer; }
 .onboarding-actions .secondary { background: var(--glass-12); border: 1px solid var(--glass-25); color: var(--text-primary); padding: 0.5rem 0.8rem; border-radius: 10px; cursor: pointer; }
 
 /* Full-screen onboarding overlay */

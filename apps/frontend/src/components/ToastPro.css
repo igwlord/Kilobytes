@@ -4,7 +4,7 @@
   position: fixed;
   top: 20px;
   left: 20px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in oklab, var(--bg-secondary), #000 10%) 100%);
   border-radius: 12px;
   padding: 1rem 1.5rem;
   min-width: 320px;
@@ -30,23 +30,23 @@
 }
 
 .toast-pro.success {
-  border-left: 4px solid #4CAF50;
-  background: linear-gradient(135deg, #1a1a2e 0%, #0d4d1a 100%);
+  border-left: 4px solid var(--success-500, #22c55e);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in oklab, var(--success-900, #064e3b), var(--bg-secondary)) 100%);
 }
 
 .toast-pro.error {
-  border-left: 4px solid #F44336;
-  background: linear-gradient(135deg, #1a1a2e 0%, #4d0d0d 100%);
+  border-left: 4px solid var(--danger-500, #ef4444);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in oklab, var(--danger-900, #7f1d1d), var(--bg-secondary)) 100%);
 }
 
 .toast-pro.warning {
-  border-left: 4px solid #FF9800;
-  background: linear-gradient(135deg, #1a1a2e 0%, #4d3d0d 100%);
+  border-left: 4px solid var(--warn-500, #f59e0b);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in oklab, var(--warn-900, #78350f), var(--bg-secondary)) 100%);
 }
 
 .toast-pro.info {
-  border-left: 4px solid #2196F3;
-  background: linear-gradient(135deg, #1a1a2e 0%, #0d2a4d 100%);
+  border-left: 4px solid var(--info-500, #3b82f6);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in oklab, var(--info-900, #1e3a8a), var(--bg-secondary)) 100%);
 }
 
 .toast-content {
@@ -106,7 +106,7 @@
 
 .toast-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #6C4ED9, #D4AF37, #6C4ED9);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary), var(--color-primary));
   background-size: 200% 100%;
   animation: toastProgress linear, toastGlow 2s ease-in-out infinite;
   border-radius: 0 0 12px 12px;
@@ -132,22 +132,22 @@
 
 /* Diferentes estilos para diferentes tipos */
 .toast-pro.success .toast-progress-bar {
-  background: linear-gradient(90deg, #4CAF50, #8BC34A, #4CAF50);
+  background: linear-gradient(90deg, var(--success-600, #16a34a), var(--success-500, #22c55e), var(--success-600, #16a34a));
   background-size: 200% 100%;
 }
 
 .toast-pro.error .toast-progress-bar {
-  background: linear-gradient(90deg, #F44336, #FF5722, #F44336);
+  background: linear-gradient(90deg, var(--danger-600, #dc2626), var(--danger-500, #ef4444), var(--danger-600, #dc2626));
   background-size: 200% 100%;
 }
 
 .toast-pro.warning .toast-progress-bar {
-  background: linear-gradient(90deg, #FF9800, #FFC107, #FF9800);
+  background: linear-gradient(90deg, var(--warn-600, #d97706), var(--warn-500, #f59e0b), var(--warn-600, #d97706));
   background-size: 200% 100%;
 }
 
 .toast-pro.info .toast-progress-bar {
-  background: linear-gradient(90deg, #2196F3, #03A9F4, #2196F3);
+  background: linear-gradient(90deg, var(--info-600, #2563eb), var(--info-500, #3b82f6), var(--info-600, #2563eb));
   background-size: 200% 100%;
 }
 
