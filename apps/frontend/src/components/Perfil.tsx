@@ -89,62 +89,12 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
     return calculateTMB() * parseFloat(perfil.actividad);
   };
 
-  const cambiarTema = (nuevoTema: string) => {
-    actualizarCampo('theme', nuevoTema);
-    const isDark = nuevoTema === 'dark';
-    document.body.classList.toggle('dark', isDark);
-    document.body.classList.toggle('light', !isDark);
-    // Persist also immediately
-    const saved = localStorage.getItem('kiloByteData');
-    try {
-      const state = saved ? JSON.parse(saved) : { perfil: {}, metas: {}, log: {} };
-      state.perfil = { ...(state.perfil || {}), theme: nuevoTema };
-      localStorage.setItem('kiloByteData', JSON.stringify(state));
-    } catch (err) {
-      // Fallback: ignore persistence errors silently in non-supported environments
-      void err;
-    }
-    showToast(`Tema cambiado a ${isDark ? 'oscuro' : 'claro'} ✨`);
+  // Theme selection moved to Settings. Keep a helper to nudge users there.
+  const abrirTemasEnConfiguracion = () => {
+    showToast('Abrí Configuración para cambiar el tema 🎨');
   };
 
-  const exportarDatos = () => {
-    const dataStr = JSON.stringify(appState, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `kilobyte_backup_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    URL.revokeObjectURL(url);
-    showToast('Datos exportados correctamente ✅');
-  };
-
-  const importarDatos = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const importedState = JSON.parse(e.target?.result as string);
-        if (importedState.perfil && importedState.metas) {
-          updateAppState(importedState);
-          setPerfil(importedState.perfil);
-          showToast('Datos importados correctamente ✅');
-        } else {
-          throw new Error('Formato de archivo no válido.');
-        }
-      } catch (error) {
-        alert('Error al importar el archivo: ' + (error as Error).message);
-      }
-    };
-    reader.readAsText(file);
-    event.target.value = ''; // Reset input
-  };
+  // Respaldo (exportar/importar) se maneja exclusivamente desde Configuración.
 
   const tmb = Math.round(calculateTMB());
   const tdee = Math.round(calculateTDEE());
@@ -338,65 +288,22 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
         </div>
       </div>
 
-      {/* Preferencias */}
+      {/* Preferencias: tema ahora se configura desde Configuración */}
       <div className="perfil-card">
         <h2 className="card-title">Preferencias</h2>
-        
         <div className="preferencias-section">
           <div className="preferencia-item">
             <span className="preferencia-label">Tema de la App</span>
             <div className="theme-toggle">
-              <button
-                className={`theme-btn ${perfil.theme === 'light' ? 'active' : ''}`}
-                onClick={() => cambiarTema('light')}
-              >
-                ☀️
-              </button>
-              <button
-                className={`theme-btn ${perfil.theme === 'dark' ? 'active' : ''}`}
-                onClick={() => cambiarTema('dark')}
-              >
-                🌙
+              <button className="btn btn-secondary" onClick={abrirTemasEnConfiguracion}>
+                Cambiar tema en Configuración
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Gestión de datos */}
-      <div className="perfil-card">
-        <h2 className="card-title">Gestión de Datos</h2>
-        
-        <div className="datos-section">
-          <p className="datos-descripcion">
-            Exporta tu información para crear una copia de respaldo o importa datos desde un archivo previo.
-          </p>
-          
-          <div className="datos-buttons">
-            <button
-              onClick={exportarDatos}
-              className="btn-datos export"
-            >
-              📤 Exportar JSON
-            </button>
-            
-            <label htmlFor="import-file" className="btn-datos import">
-              📥 Importar JSON
-            </label>
-            <input
-              type="file"
-              id="import-file"
-              accept=".json"
-              onChange={importarDatos}
-              style={{ display: 'none' }}
-            />
-          </div>
-
-          <div className="datos-warning">
-            <p>⚠️ Importar datos sobrescribirá toda tu información actual. Asegúrate de exportar una copia de respaldo antes.</p>
-          </div>
-        </div>
-      </div>
+      {/* Gestión de datos movida a Configuración (única fuente) */}
     </div>
   );
 };

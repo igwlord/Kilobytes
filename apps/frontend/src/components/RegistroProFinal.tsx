@@ -128,7 +128,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     show: false, content: '', x: 0, y: 0
   });
   const [openMeal, setOpenMeal] = useState<string | null>(null);
-  const alertsOn = appState.perfil?.mostrarAlertasMacros ?? true;
+  // Macro/field alerts deshabilitadas globalmente
+  const alertsOn = false;
 
   // Navegación por fecha
   const shiftDate = useCallback((days: number) => {

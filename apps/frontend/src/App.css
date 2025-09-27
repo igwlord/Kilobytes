@@ -53,6 +53,54 @@
   --macro-fat: #96CEB4;
 }
 
+.theme-banana {
+  /* Banana Split (light playful) */
+  --bg-primary: #FFF9E8;       /* banana cream */
+  --bg-secondary: #FFFFFF;
+  --color-primary: #FFD166;     /* banana */
+  --color-secondary: #FFADBC;   /* strawberry */
+  --color-accent: #D4A373;      /* caramel/choco accent */
+  --text-primary: #2A2A2A;
+  --text-secondary: #5f5f5f;
+  --border-color: #EFE6CC;
+  --btn-active-bg: #F7F1DF;
+  --focus-ring: var(--color-primary);
+
+  /* keep light glass tokens */
+  --glass-05: rgba(0, 0, 0, 0.05);
+  --glass-08: rgba(0, 0, 0, 0.08);
+  --glass-10: rgba(0, 0, 0, 0.10);
+  --glass-12: rgba(0, 0, 0, 0.12);
+  --glass-15: rgba(0, 0, 0, 0.15);
+  --glass-20: rgba(0, 0, 0, 0.20);
+  --glass-25: rgba(0, 0, 0, 0.25);
+  --glass-30: rgba(0, 0, 0, 0.30);
+}
+
+.theme-sandia {
+  /* Sandía Party (light vibrant) */
+  --bg-primary: #FFE5EA;        /* stronger pastel red background */
+  --bg-secondary: #FFD3DB;      /* containers tinted red */
+  --color-primary: #06D6A0;     /* mint green as primary accent (buttons, focus) */
+  --color-secondary: #0AA574;   /* darker mint secondary */
+  --color-accent: #0AA574;      /* align accent to mint */
+  --text-primary: #111111;      /* near-black for strong contrast */
+  --text-secondary: #4a4a4a;
+  --border-color: #FFB8C3;      /* soft red border */
+  --btn-active-bg: #FFDADF;     /* pressed/active surfaces */
+  --focus-ring: var(--color-primary);
+
+  /* keep light glass tokens */
+  --glass-05: rgba(0, 0, 0, 0.05);
+  --glass-08: rgba(0, 0, 0, 0.08);
+  --glass-10: rgba(0, 0, 0, 0.10);
+  --glass-12: rgba(0, 0, 0, 0.12);
+  --glass-15: rgba(0, 0, 0, 0.15);
+  --glass-20: rgba(0, 0, 0, 0.20);
+  --glass-25: rgba(0, 0, 0, 0.25);
+  --glass-30: rgba(0, 0, 0, 0.30);
+}
+
 .dark {
   --bg-primary: #0B0A1A;
   --bg-secondary: #0B1E3A;
@@ -95,6 +143,51 @@
   --info-900: #1e3a8a;
 
   /* Macro tokens (dark) */
+  --macro-kcal: #FF6B6B;
+  --macro-protein: #4ECDC4;
+  --macro-carbs: #45B7D1;
+  --macro-fat: #96CEB4;
+}
+
+/* Uva Fit: keep the current dark palette under a dedicated theme class as well */
+.theme-uva {
+  --bg-primary: #0B0A1A;
+  --bg-secondary: #0B1E3A;
+  --color-primary: #6C4ED9; /* grape-ish primary */
+  --color-secondary: #D4AF37;
+  --color-accent: #1e293b;
+  --text-primary: #F2F2F2;
+  --text-secondary: #a0a0a0;
+  --border-color: #2a3a5a;
+  --btn-active-bg: #2a3a5a;
+  --focus-ring: var(--color-primary);
+
+  --glass-05: rgba(255, 255, 255, 0.05);
+  --glass-08: rgba(255, 255, 255, 0.08);
+  --glass-10: rgba(255, 255, 255, 0.10);
+  --glass-12: rgba(255, 255, 255, 0.12);
+  --glass-15: rgba(255, 255, 255, 0.15);
+  --glass-20: rgba(255, 255, 255, 0.20);
+  --glass-25: rgba(255, 255, 255, 0.25);
+  --glass-30: rgba(255, 255, 255, 0.30);
+
+  --alert-bg: rgba(244, 63, 94, 0.15);
+  --alert-border: #F87171;
+  --alert-strong: #FB7185;
+
+  --success-500: #22c55e;
+  --success-600: #16a34a;
+  --success-900: #064e3b;
+  --warn-500: #f59e0b;
+  --warn-600: #d97706;
+  --warn-900: #78350f;
+  --danger-500: #ef4444;
+  --danger-600: #dc2626;
+  --danger-900: #7f1d1d;
+  --info-500: #3b82f6;
+  --info-600: #2563eb;
+  --info-900: #1e3a8a;
+
   --macro-kcal: #FF6B6B;
   --macro-protein: #4ECDC4;
   --macro-carbs: #45B7D1;

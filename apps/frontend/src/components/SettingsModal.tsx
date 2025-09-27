@@ -43,45 +43,69 @@ interface SettingsModalProps {
   updateAppState: (newState: unknown) => void;
   showToast: (message: string) => void;
   onShowOnboarding?: () => void;
-  onGoToPerfil?: () => void;
 }
 
-const THEMES = [
-  { id: 'dark', label: 'Oscuro', className: 'dark' },
-  { id: 'light', label: 'Claro', className: 'light' },
+type ThemeId = 'banana' | 'sandia' | 'uva';
+const THEMES: { id: ThemeId; label: string; className: string; hint?: string }[] = [
+  { id: 'banana', label: 'Banana Split', className: 'theme-banana', hint: 'Claro juguetón' },
+  { id: 'sandia', label: 'Sandía Party', className: 'theme-sandia', hint: 'Claro vibrante' },
+  { id: 'uva', label: 'Uva Fit', className: 'theme-uva', hint: 'Oscuro elegante' },
 ];
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, updateAppState, showToast, onShowOnboarding, onGoToPerfil }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, updateAppState, showToast, onShowOnboarding }) => {
   // Nombre ahora se edita únicamente en la pantalla Perfil
-  const [theme, setTheme] = useState(appState.perfil?.theme || 'dark');
+  // Map legacy 'dark'/'light' to new defaults (dark->uva, light->banana)
+  const mapLegacy = (t?: string): ThemeId => (t === 'light' ? 'banana' : t === 'dark' ? 'uva' : (t as ThemeId) || 'uva');
+  const [theme, setTheme] = useState<ThemeId>(mapLegacy(appState.perfil?.theme));
   const [unlockRecipes, setUnlockRecipes] = useState(!!appState.perfil?.desbloquearRecetas);
   const [muteToasts, setMuteToasts] = useState(!!appState.perfil?.silenciarNotificaciones);
-  const [showAlerts, setShowAlerts] = useState(appState.perfil?.mostrarAlertasMacros ?? true);
+  // Macro field alerts deshabilitadas globalmente: ya no se configuran desde aquí
   const [busy, setBusy] = useState<'export' | 'import' | null>(null);
 
   useEffect(() => {
     if (open) {
-      setTheme(appState.perfil?.theme || 'dark');
+  setTheme(mapLegacy(appState.perfil?.theme));
       setUnlockRecipes(!!appState.perfil?.desbloquearRecetas);
       setMuteToasts(!!appState.perfil?.silenciarNotificaciones);
-      setShowAlerts(appState.perfil?.mostrarAlertasMacros ?? true);
+  // no-op for macro alerts (si existiera, se ignora)
     }
-  }, [open, appState.perfil?.theme, appState.perfil?.desbloquearRecetas, appState.perfil?.silenciarNotificaciones, appState.perfil?.mostrarAlertasMacros]);
+  }, [open, appState.perfil?.theme, appState.perfil?.desbloquearRecetas, appState.perfil?.silenciarNotificaciones]);
 
   if (!open) return null;
 
-  const applyTheme = (id: string) => {
-    // Remove all known theme classes (cleanup), then apply only dark/light
-    document.body.classList.remove('dark', 'light', 'theme-pastel-magenta', 'theme-pastel-green', 'theme-gold');
-    if (id === 'light') document.body.classList.add('light');
-    else document.body.classList.add('dark');
+  const applyTheme = (id: ThemeId) => {
+    // Clean previous classes and apply the selected one
+    document.body.classList.remove('dark', 'light', 'theme-banana', 'theme-sandia', 'theme-uva', 'theme-pastel-magenta', 'theme-pastel-green', 'theme-gold');
+    const map: Record<ThemeId, string> = { banana: 'theme-banana', sandia: 'theme-sandia', uva: 'theme-uva' };
+    document.body.classList.add(map[id]);
+    // Maintain legacy dark-scoped rules for uva
+    if (id === 'uva') {
+      document.body.classList.add('dark');
+      document.body.classList.remove('light');
+    } else {
+      document.body.classList.add('light');
+      document.body.classList.remove('dark');
+    }
+  };
+
+  const onThemePick = (id: ThemeId) => {
+    setTheme(id);
+    applyTheme(id);
+    // Persist immediately
+    const newState = {
+      ...appState,
+      perfil: { ...appState.perfil, theme: id }
+    };
+    updateAppState(newState);
+  try { localStorage.setItem('kiloByteData', JSON.stringify(newState)); } catch { /* ignore storage errors */ }
+    showToast('Tema aplicado 🎨');
   };
 
   const handleSaveProfile = () => {
     const newState = {
       ...appState,
       // Solo guardamos preferencias, el nombre se edita en Perfil
-      perfil: { ...appState.perfil, theme, desbloquearRecetas: unlockRecipes, silenciarNotificaciones: muteToasts, mostrarAlertasMacros: showAlerts }
+      perfil: { ...appState.perfil, theme, desbloquearRecetas: unlockRecipes, silenciarNotificaciones: muteToasts }
     };
     updateAppState(newState);
     applyTheme(theme);
@@ -139,7 +163,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
         if (!newState?.perfil || !newState?.metas || !newState?.log) throw new Error('Formato inválido');
         updateAppState(newState);
         localStorage.setItem('kiloByteData', JSON.stringify(newState));
-        applyTheme(newState.perfil?.theme || 'dark');
+        applyTheme(mapLegacy(newState.perfil?.theme));
         showToast('Datos importados ✅');
         onClose();
       } catch (err) {
@@ -173,38 +197,39 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
 
         <div className="settings-section">
           <h3>Tema</h3>
-          <div className="theme-grid">
+          <div className="theme-segmented" role="tablist" aria-label="Elegir tema">
             {THEMES.map(t => (
-              <label key={t.id} className={`theme-option ${theme === t.id ? 'active' : ''}`}>
-                <input
-                  type="radio"
-                  name="theme"
-                  value={t.id}
-                  checked={theme === t.id}
-                  onChange={() => setTheme(t.id)}
-                />
-                <span className={`swatch ${t.className}`}></span>
-                <span className="theme-label">{t.label}</span>
-              </label>
+              <button
+                key={t.id}
+                role="tab"
+                aria-selected={theme === t.id}
+                className={`seg-btn ${theme === t.id ? 'active' : ''}`}
+                onClick={() => onThemePick(t.id)}
+                title={t.hint || t.label}
+              >
+                <span className={`swatch ${t.className}`} aria-hidden></span>
+                <span className="seg-label">{t.label}</span>
+              </button>
             ))}
           </div>
+          <p className="hint">Se aplica al instante. Probá los tres para ver cuál te motiva más.</p>
         </div>
 
-        <div className="settings-section">
-          <h3>Perfil</h3>
-          <p className="hint">Para editar tu información personal, abrí la pantalla de Perfil.</p>
-          <button className="btn btn-secondary" onClick={() => { onGoToPerfil?.(); }}>Abrir Perfil</button>
-        </div>
+        {/* Se elimina acceso a Perfil desde Configuración para evitar dobles modales. Accesible desde navegación/Metas. */}
 
         <div className="settings-section">
           <h3>Recetas y plan</h3>
-          <label className="toggle-row">
-            <input
-              type="checkbox"
-              checked={unlockRecipes}
-              onChange={(e) => setUnlockRecipes(e.target.checked)}
-            />
+          <label className="switch-row">
             <span>Desbloquear recetas de otros planes</span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={unlockRecipes}
+              className={`ios-switch ${unlockRecipes ? 'on' : ''}`}
+              onClick={() => setUnlockRecipes(v => !v)}
+            >
+              <span className="knob" />
+            </button>
           </label>
           <p className="hint" style={{ marginTop: 8 }}>
             Al habilitarlo, podrás elegir cualquier receta aunque no sea parte de tu plan actual.
@@ -212,21 +237,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
           </p>
           <div style={{ height: 10 }}></div>
           <h3>Notificaciones y alertas</h3>
-          <label className="toggle-row">
-            <input
-              type="checkbox"
-              checked={muteToasts}
-              onChange={(e) => setMuteToasts(e.target.checked)}
-            />
+          <label className="switch-row">
             <span>Silenciar notificaciones</span>
-          </label>
-          <label className="toggle-row">
-            <input
-              type="checkbox"
-              checked={!!showAlerts}
-              onChange={(e) => setShowAlerts(e.target.checked)}
-            />
-            <span>Mostrar alertas de macros (tarjetas y campos)</span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={muteToasts}
+              className={`ios-switch ${muteToasts ? 'on' : ''}`}
+              onClick={() => setMuteToasts(v => !v)}
+            >
+              <span className="knob" />
+            </button>
           </label>
         </div>
 

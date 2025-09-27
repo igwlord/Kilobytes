@@ -10,11 +10,27 @@ function App() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem('kiloByteData');
-      const theme = saved ? (JSON.parse(saved)?.perfil?.theme as string | undefined) : undefined;
-      const isDark = (theme ?? 'dark') === 'dark';
-      document.body.classList.toggle('dark', isDark);
-      document.body.classList.toggle('light', !isDark);
+      const raw = saved ? (JSON.parse(saved)?.perfil?.theme as string | undefined) : undefined;
+      // Map legacy and ensure a valid theme class is applied
+      const mapLegacy = (t?: string): 'banana' | 'sandia' | 'uva' => {
+        if (t === 'light') return 'banana';
+        if (t === 'dark') return 'uva';
+        if (t === 'banana' || t === 'sandia' || t === 'uva') return t;
+        return 'uva';
+      };
+      const theme: 'banana' | 'sandia' | 'uva' = mapLegacy(raw);
+      document.body.classList.remove('dark', 'light', 'theme-banana', 'theme-sandia', 'theme-uva');
+      const classMap: Record<'banana' | 'sandia' | 'uva', string> = { banana: 'theme-banana', sandia: 'theme-sandia', uva: 'theme-uva' };
+      document.body.classList.add(classMap[theme]);
+      if (theme === 'uva') {
+        document.body.classList.add('dark');
+        document.body.classList.remove('light');
+      } else {
+        document.body.classList.add('light');
+        document.body.classList.remove('dark');
+      }
     } catch {
+      document.body.classList.add('theme-uva');
       document.body.classList.add('dark');
     }
   }, []);
