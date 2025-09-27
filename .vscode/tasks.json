@@ -72,7 +72,7 @@
 			],
 			"problemMatcher": [
 				"$tsc",
-				"$eslint - stylish"
+				"$eslint-stylish"
 			]
 		}
 	]
