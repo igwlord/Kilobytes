@@ -1,14 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import './Perfil.css';
 
+type PerfilModel = {
+  nombre: string;
+  peso: number;
+  altura_cm: number;
+  edad: number;
+  genero: 'masculino' | 'femenino';
+  actividad: string; // factor as string e.g. "1.375"
+  theme: 'dark' | 'light' | string;
+};
+// Accept a broader app state shape coming from Dashboard (actividad can be number or string)
+type PerfilInput = {
+  nombre?: string;
+  peso?: number;
+  altura_cm?: number;
+  edad?: number;
+  genero?: 'masculino' | 'femenino';
+  actividad?: number | string;
+  theme?: 'dark' | 'light' | string;
+};
+type AppStateLite = { perfil?: PerfilInput; metas?: unknown; log?: unknown };
+
 interface PerfilProps {
-  appState: any;
-  updateAppState: (newState: any) => void;
+  appState: AppStateLite;
+  updateAppState: (newState: unknown) => void;
   showToast: (message: string) => void;
 }
 
 const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) => {
-  const [perfil, setPerfil] = useState({
+  const [perfil, setPerfil] = useState<PerfilModel>({
     nombre: '',
     peso: 70,
     altura_cm: 175,
@@ -20,11 +41,21 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
 
   useEffect(() => {
     if (appState.perfil) {
-      setPerfil({ ...appState.perfil });
+      const actividad = appState.perfil.actividad;
+      const actividadStr = typeof actividad === 'number' ? String(actividad) : (actividad || '1.375');
+      setPerfil({
+        nombre: appState.perfil.nombre ?? '',
+        peso: (appState.perfil.peso as number) ?? 70,
+        altura_cm: (appState.perfil.altura_cm as number) ?? 175,
+        edad: (appState.perfil.edad as number) ?? 30,
+        genero: (appState.perfil.genero as 'masculino' | 'femenino') ?? 'masculino',
+        actividad: actividadStr,
+        theme: (appState.perfil.theme as string) ?? 'dark'
+      });
     }
   }, [appState.perfil]);
 
-  const actualizarCampo = (campo: string, valor: any) => {
+  const actualizarCampo = (campo: keyof PerfilModel, valor: PerfilModel[keyof PerfilModel]) => {
     const nuevoPerfil = { ...perfil, [campo]: valor };
     setPerfil(nuevoPerfil);
     
@@ -49,9 +80,20 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
 
   const cambiarTema = (nuevoTema: string) => {
     actualizarCampo('theme', nuevoTema);
-    document.body.classList.toggle('dark', nuevoTema === 'dark');
-    document.body.classList.toggle('light', nuevoTema !== 'dark');
-    showToast(`Tema cambiado a ${nuevoTema === 'dark' ? 'oscuro' : 'claro'} ✨`);
+    const isDark = nuevoTema === 'dark';
+    document.body.classList.toggle('dark', isDark);
+    document.body.classList.toggle('light', !isDark);
+    // Persist also immediately
+    const saved = localStorage.getItem('kiloByteData');
+    try {
+      const state = saved ? JSON.parse(saved) : { perfil: {}, metas: {}, log: {} };
+      state.perfil = { ...(state.perfil || {}), theme: nuevoTema };
+      localStorage.setItem('kiloByteData', JSON.stringify(state));
+    } catch (err) {
+      // Fallback: ignore persistence errors silently in non-supported environments
+      void err;
+    }
+    showToast(`Tema cambiado a ${isDark ? 'oscuro' : 'claro'} ✨`);
   };
 
   const exportarDatos = () => {

@@ -1,20 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import './Metas.css';
 
+type PerfilLite = { peso?: number; peso_inicial?: number };
+type MetasLite = {
+  peso_objetivo?: number;
+  agua_ml?: number;
+  pasos_dia?: number;
+  ejercicio_min?: number;
+  comidas_saludables?: number;
+};
+type AppStateLite = { perfil?: PerfilLite; metas?: MetasLite };
+
 interface MetasProps {
-  appState: any;
-  updateAppState: (newState: any) => void;
+  appState: AppStateLite;
+  updateAppState: (newState: AppStateLite) => void;
   showToast: (message: string) => void;
 }
 
 const Metas: React.FC<MetasProps> = ({ appState, updateAppState, showToast }) => {
   const [pesoObjetivo, setPesoObjetivo] = useState(65);
-  const [metasPersonalizadas, setMetasPersonalizadas] = useState({
+  const [metasPersonalizadas, setMetasPersonalizadas] = useState<Required<Pick<MetasLite, 'agua_ml' | 'pasos_dia' | 'ejercicio_min' | 'comidas_saludables'>>>(
+    {
     agua_ml: 2000,
     pasos_dia: 8000,
     ejercicio_min: 30,
     comidas_saludables: 5
-  });
+    }
+  );
 
   useEffect(() => {
     if (appState.metas) {
@@ -55,7 +67,10 @@ const Metas: React.FC<MetasProps> = ({ appState, updateAppState, showToast }) =>
     showToast('Meta de peso actualizada ✅');
   };
 
-  const actualizarMetaPersonalizada = (campo: string, valor: number) => {
+  const actualizarMetaPersonalizada = (
+    campo: keyof typeof metasPersonalizadas,
+    valor: number
+  ) => {
     const nuevasMetas = { ...metasPersonalizadas, [campo]: valor };
     setMetasPersonalizadas(nuevasMetas);
     

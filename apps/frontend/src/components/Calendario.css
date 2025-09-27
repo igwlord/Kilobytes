@@ -17,6 +17,20 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+/* Desktop: compact layout so it doesn't look oversized */
+@media (min-width: 1024px) {
+  .calendario-card {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .calendar-weekdays { gap: 0.4rem; }
+  .calendar-grid { gap: 0.4rem; }
+  .weekday { font-size: 0.7rem; padding: 0.4rem; }
+  .calendar-day { font-size: 0.8rem; }
+  .month-year { font-size: 1.1rem; }
+  .nav-btn { font-size: 1.25rem; }
+}
+
 .calendario-header {
   display: flex;
   justify-content: space-between;

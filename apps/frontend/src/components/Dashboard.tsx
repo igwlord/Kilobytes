@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
+import SettingsModal from './SettingsModal';
 import ProgressRing from './ProgressRing';
 import Plan from './Plan';
 import WaterTracker from './WaterTracker';
@@ -23,6 +24,8 @@ interface UserProfile {
   objetivo: string;
   theme: string;
   peso_inicial?: number;
+  desbloquearRecetas?: boolean;
+  silenciarNotificaciones?: boolean;
 }
 
 interface Goals {
@@ -50,6 +53,7 @@ interface AppState {
   metas: Goals;
   log: { [date: string]: DayLogMin };
 }
+type AppStateLike = AppState; // For SettingsModal prop compatibility
 
 type DayLogMap = { [date: string]: DayLogMin };
 
@@ -57,6 +61,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('inicio');
   const [toast, setToast] = useState({ message: '', isVisible: false });
+  const [settingsOpen, setSettingsOpen] = useState(false);
   
   const [appState, setAppState] = useState<AppState>({
     perfil: {
@@ -68,7 +73,8 @@ const Dashboard: React.FC = () => {
       actividad: 1.375,
       exclusiones: [],
       objetivo: 'mantener',
-      theme: 'dark'
+      theme: 'dark',
+      desbloquearRecetas: false
     },
     metas: {
       kcal: 2000,
@@ -103,11 +109,7 @@ const Dashboard: React.FC = () => {
         const data = JSON.parse(userData);
         setAppState(data);
         
-        // Apply theme
-        if (data.perfil?.theme) {
-          document.body.classList.toggle('dark', data.perfil.theme === 'dark');
-          document.body.classList.toggle('light', data.perfil.theme !== 'dark');
-        }
+        // Theme is applied in App on load; keep single source of truth
 
         // Calculate current progress from today's log
         const today = new Date().toISOString().split('T')[0];
@@ -155,6 +157,7 @@ const Dashboard: React.FC = () => {
   };
 
   const showToast = (message: string) => {
+    if (appState.perfil?.silenciarNotificaciones) return;
     setToast({ message, isVisible: true });
   };
 
@@ -163,8 +166,14 @@ const Dashboard: React.FC = () => {
   };
 
   const navigateToSection = (section: string) => {
+    if (section === 'settings') {
+      setSettingsOpen(true);
+      return;
+    }
     setActiveSection(section);
   };
+
+  const closeSettings = () => setSettingsOpen(false);
 
   const calculateTMB = (): number => {
     if (appState.perfil.genero === 'masculino') {
@@ -197,14 +206,14 @@ const Dashboard: React.FC = () => {
           />
         );
       case 'calendario':
-        return <Calendario appState={appState} updateAppState={updateAppState} />;
+        return <Calendario appState={appState} updateAppState={updateAppState as unknown as (s: unknown) => void} />;
       case 'progreso':
         return <Progreso appState={appState} />;
       case 'metas':
         // Metas y Plan unificados: usamos el componente Plan como única experiencia
         return <Plan appState={appState} updateAppState={updateAppState} showToast={showToast} />;
       case 'perfil':
-        return <Perfil appState={appState} updateAppState={updateAppState} showToast={showToast} />;
+        return <Perfil appState={appState} updateAppState={updateAppState as unknown as (s: unknown) => void} showToast={showToast} />;
       default:
         return (
           <div className="dashboard-content">
@@ -438,6 +447,13 @@ const Dashboard: React.FC = () => {
           onClose={hideToast} 
         />
       )}
+      <SettingsModal
+        open={settingsOpen}
+        onClose={closeSettings}
+        appState={appState as AppStateLike}
+        updateAppState={(ns: unknown) => updateAppState(ns as AppState)}
+        showToast={showToast}
+      />
     </div>
   );
 };

@@ -75,6 +75,16 @@
   border-color: var(--color-primary);
 }
 
+/* Active section highlight: fuerte contraste para distinguir sección actual */
+.accordion .accordion-header.active {
+  background: linear-gradient(135deg, var(--color-primary), #8B5CF6);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 16px rgba(108, 78, 217, 0.3);
+  font-weight: 800;
+}
+.accordion .accordion-header.active .chevron { color: #fff; }
+
 .accordion .chevron { transition: transform .2s ease; }
 .accordion .chevron.open { transform: rotate(180deg); }
 

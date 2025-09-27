@@ -46,7 +46,8 @@
 .progress-card .weight-summary,
 .progress-card .trends-summary,
 .progress-card .daily-trends,
-.progress-card .insights {
+.progress-card .insights,
+.progress-card .recipes {
   padding: 1rem 1.25rem 1.25rem;
 }
 
@@ -282,6 +283,29 @@
   margin: 0;
   line-height: 1.4;
 }
+
+/* Recetas */
+.recipes { display: flex; flex-direction: column; gap: 1rem; }
+.recipe-group { border: 1px solid var(--border-color); border-radius: 0.5rem; overflow: hidden; }
+.recipe-group.enabled { background: var(--bg-primary); }
+.recipe-group.disabled { background: var(--glass-05); }
+.recipe-group-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); }
+.recipe-group-header h3 { margin: 0; font-size: 1rem; color: var(--text-primary); }
+.badge-disabled { background: var(--glass-15); color: var(--text-secondary); padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+.recipe-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; padding: 0.75rem; }
+.recipe-card { border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.75rem; cursor: pointer; background: var(--bg-secondary); transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease; }
+.recipe-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+.recipe-card .recipe-title { font-size: 0.95rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem; }
+.recipe-card .recipe-meta { font-size: 0.8rem; color: var(--text-secondary); }
+.recipe-card.disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(80%); }
+
+/* Acentos por plan */
+.recipe-group.goal-lose .recipe-group-header { background: linear-gradient(135deg, var(--color-secondary), #FFD700); color: #000; }
+.recipe-group.goal-gain .recipe-group-header { background: linear-gradient(135deg, var(--color-primary), #8B5CF6); color: #fff; }
+.recipe-group.goal-maintain .recipe-group-header { background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; }
+.recipe-group.goal-lose .recipe-group-header h3,
+.recipe-group.goal-gain .recipe-group-header h3,
+.recipe-group.goal-maintain .recipe-group-header h3 { color: inherit; }
 
 /* Dark theme specific adjustments */
 .dark .progress-card {

@@ -192,7 +192,7 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
       <div className="plan-card">
         {/* Perfil */}
         <div className="plan-section accordion">
-          <button className="accordion-header" onClick={()=> setOpenPerfil(o=>!o)}>
+          <button className={`accordion-header ${openPerfil ? 'active' : ''}`} onClick={()=> setOpenPerfil(o=>!o)}>
             <span>Mi Perfil</span>
             <span className={`chevron ${openPerfil ? 'open' : ''}`}>▾</span>
           </button>
@@ -340,7 +340,7 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
         </div>
 
         <div className="plan-section accordion">
-          <button className="accordion-header" onClick={()=> setOpenObjetivo(o=>!o)}>
+          <button className={`accordion-header ${openObjetivo ? 'active' : ''}`} onClick={()=> setOpenObjetivo(o=>!o)}>
             <span>Mi objetivo principal</span>
             <span className={`chevron ${openObjetivo ? 'open' : ''}`}>▾</span>
           </button>
@@ -399,7 +399,7 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
         </div>
 
         <div className="plan-section accordion">
-          <button className="accordion-header" onClick={()=> setOpenAuto(o=>!o)}>
+          <button className={`accordion-header ${openAuto ? 'active' : ''}`} onClick={()=> setOpenAuto(o=>!o)}>
             <span>Objetivos diarios (automáticos)</span>
             <span className={`chevron ${openAuto ? 'open' : ''}`}>▾</span>
           </button>
@@ -431,7 +431,7 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
 
         {/* Ayuno intermitente */}
         <div className="plan-section accordion">
-          <button className="accordion-header" onClick={()=> setOpenAyuno(o=>!o)}>
+          <button className={`accordion-header ${openAyuno ? 'active' : ''}`} onClick={()=> setOpenAyuno(o=>!o)}>
             <span>Ayuno Intermitente</span>
             <span className={`chevron ${openAyuno ? 'open' : ''}`}>▾</span>
           </button>
@@ -476,6 +476,8 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
                       setAyunoHorasStr(String(ayunoHoras));
                     }
                   }}
+                  disabled={ayunoPreset !== 'custom'}
+                  title={ayunoPreset !== 'custom' ? 'Cambiá a Personalizado para editar las horas' : ''}
                 />
                 <span className="field-unit">horas</span>
               </div>
@@ -486,7 +488,7 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
         </div>
 
         <div className="plan-section accordion">
-          <button className="accordion-header" onClick={()=> setOpenExclusiones(o=>!o)}>
+          <button className={`accordion-header ${openExclusiones ? 'active' : ''}`} onClick={()=> setOpenExclusiones(o=>!o)}>
             <span>Exclusiones alimentarias</span>
             <span className={`chevron ${openExclusiones ? 'open' : ''}`}>▾</span>
           </button>

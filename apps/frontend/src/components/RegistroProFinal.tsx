@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { foodDatabase, searchFoods, calculateNutritionFromUnits, calculateNutrition, getAllFoodsDeduped } from '../data/foodDatabaseNew';
 import type { FoodItem } from '../data/foodDatabaseNew';
 import './RegistroProFinal.css';
@@ -16,6 +16,7 @@ interface FoodEntry {
   meal: string;
   units?: number;
   unit_name?: string;
+  hora?: string; // HH:MM opcional
 }
 
 // Estructuras mínimas usadas por este componente
@@ -74,6 +75,7 @@ interface LoggedFood {
   grasa_g: number;
   units?: number;
   unit_name?: string;
+  hora?: string;
 }
 
 const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, showToast }) => {
@@ -81,17 +83,69 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   const [currentEntries, setCurrentEntries] = useState<FoodEntry[]>([]);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [selectedMeal, setSelectedMeal] = useState<string>('desayuno');
+  const [selectedTime, setSelectedTime] = useState<string>(() => {
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${hh}:${mm}`;
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [customGrams, setCustomGrams] = useState('100');
   const [customUnits, setCustomUnits] = useState('1');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [quickActions, setQuickActions] = useState(false);
+  // Acciones compactas: no se necesita estado de panel
   const [inputMethod, setInputMethod] = useState<'units' | 'grams'>('units');
   const [tooltip, setTooltip] = useState<{ show: boolean; content: string; x: number; y: number }>({
     show: false, content: '', x: 0, y: 0
   });
   const [openMeal, setOpenMeal] = useState<string | null>(null);
+
+  // Mobile detection to apply a two-step flow on phones
+  // Use a slightly broader width to include larger phones but avoid tablets
+  const mobileQuery = '(max-width: 600px)';
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== 'undefined' && window.matchMedia(mobileQuery).matches
+  );
+  useEffect(() => {
+    const mq: MediaQueryList = window.matchMedia(mobileQuery);
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    if ('addEventListener' in mq) {
+      mq.addEventListener('change', onChange as EventListener);
+    } else if ('addListener' in mq) {
+      // Fallback for older browsers
+      (mq as unknown as { addListener: (cb: (e: MediaQueryListEvent) => void) => void }).addListener(onChange);
+    }
+    setIsMobile(mq.matches);
+    return () => {
+      if ('removeEventListener' in mq) {
+        mq.removeEventListener('change', onChange as EventListener);
+      } else if ('removeListener' in mq) {
+        (mq as unknown as { removeListener: (cb: (e: MediaQueryListEvent) => void) => void }).removeListener(onChange);
+      }
+    };
+  }, []);
+
+  // Reflect isMobile on the <body> to allow CSS gating even on wider-but-touch devices
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const body = document.body;
+      if (isMobile) body.classList.add('is-mobile');
+      else body.classList.remove('is-mobile');
+    }
+  }, [isMobile]);
+
+  // Ref para el selector de porciones
+  const portionRef = useRef<HTMLDivElement | null>(null);
+
+  // Al seleccionar un alimento, hacer scroll al selector de porciones (en desktop mantiene visibilidad, en mobile se abre el paso 2)
+  useEffect(() => {
+    if (selectedFood && !isMobile) {
+      setTimeout(() => {
+        portionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 0);
+    }
+  }, [selectedFood, isMobile]);
 
   // Cargar entradas del día seleccionado
   useEffect(() => {
@@ -100,7 +154,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
       const entries: FoodEntry[] = [];
       Object.entries(dayLog.comidas).forEach(([meal, foods]) => {
         if (Array.isArray(foods)) {
-          foods.forEach((food: { id: string; nombre: string; emoji?: string; cantidad_g: number; kcal: number; prot_g: number; carbs_g: number; grasa_g: number; units?: number; unit_name?: string; }) => {
+          foods.forEach((food: { id: string; nombre: string; emoji?: string; cantidad_g: number; kcal: number; prot_g: number; carbs_g: number; grasa_g: number; units?: number; unit_name?: string; hora?: string; }) => {
             entries.push({
               id: `${meal}-${Date.now()}-${Math.random()}`,
               foodId: food.id,
@@ -113,7 +167,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
               grasa: food.grasa_g,
               meal: meal,
               units: food.units ?? undefined,
-              unit_name: food.unit_name ?? undefined
+              unit_name: food.unit_name ?? undefined,
+              hora: food.hora
             });
           });
         }
@@ -152,7 +207,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
       grasa: nutrition.grasa,
       meal: meal,
       units: units,
-      unit_name: food.unidad_base.nombre
+      unit_name: food.unidad_base.nombre,
+      hora: selectedTime
     };
 
     const newEntries = [...currentEntries, newEntry];
@@ -180,7 +236,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
       prot: nutrition.prot,
       carbs: nutrition.carbs,
       grasa: nutrition.grasa,
-      meal: meal
+      meal: meal,
+      hora: selectedTime
     };
 
     const newEntries = [...currentEntries, newEntry];
@@ -250,7 +307,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
           carbs_g: entry.carbs,
           grasa_g: entry.grasa,
           units: entry.units,
-          unit_name: entry.unit_name
+          unit_name: entry.unit_name,
+          hora: entry.hora
         });
       }
     });
@@ -399,8 +457,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
             { key: 'grasa', label: 'Grasas', value: dayTotals.grasa, max: appState.metas?.grasa_g_dia || 65, unit: 'g', color: '#96CEB4' }
           ].map(macro => (
             <div 
-              key={macro.key} 
-              className="macro-progress"
+              key={macro.key}
+              className={`macro-progress macro-${macro.key}`}
               onMouseEnter={(e) => showTooltip(e, `${macro.label}: ${Math.round(macro.value)}${macro.unit} / ${macro.max}${macro.unit}`)}
               onMouseLeave={hideTooltip}
             >
@@ -423,62 +481,31 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
           ))}
         </div>
 
-        <div className="actions-section">
+        <div className="quick-actions-compact" aria-label="Acciones rápidas">
           <button 
-            className="quick-actions-btn-final"
-            onClick={() => setQuickActions(!quickActions)}
-            onMouseEnter={(e) => showTooltip(e, 'Acciones rápidas')}
+            className="qa-btn copy"
+            onClick={copyPreviousDay}
+            onMouseEnter={(e) => showTooltip(e, 'Copiar comidas del día anterior')}
             onMouseLeave={hideTooltip}
+            aria-label="Copiar día anterior"
           >
-            <span className="action-icon">⚡</span>
-            <span className="action-label">Acciones</span>
+            <span className="qa-icon">📋</span>
+            <span className="qa-text">Anterior</span>
+          </button>
+          <button 
+            className="qa-btn fav"
+            onClick={() => showToast('⭐ Próximamente: Comidas favoritas')}
+            onMouseEnter={(e) => showTooltip(e, 'Comidas favoritas')}
+            onMouseLeave={hideTooltip}
+            aria-label="Comidas favoritas"
+          >
+            <span className="qa-icon">⭐</span>
+            <span className="qa-text">Favoritos</span>
           </button>
         </div>
       </div>
 
-      {/* Acciones rápidas mejoradas */}
-      {quickActions && (
-        <div className="quick-actions-final">
-          <div className="quick-actions-container">
-            <button 
-              onClick={copyPreviousDay} 
-              className="quick-btn-final copy"
-              onMouseEnter={(e) => showTooltip(e, 'Copia todas las comidas del día anterior')}
-              onMouseLeave={hideTooltip}
-            >
-              <span className="btn-icon">📋</span>
-              <span className="btn-text">Copiar día anterior</span>
-            </button>
-            <button 
-              onClick={() => showToast('🔄 Próximamente: Repetir comidas favoritas')} 
-              className="quick-btn-final favorite"
-              onMouseEnter={(e) => showTooltip(e, 'Repite tus comidas favoritas guardadas')}
-              onMouseLeave={hideTooltip}
-            >
-              <span className="btn-icon">🔄</span>
-              <span className="btn-text">Comidas favoritas</span>
-            </button>
-            <button 
-              onClick={() => showToast('📸 Próximamente: Scanner de códigos de barras')} 
-              className="quick-btn-final scanner"
-              onMouseEnter={(e) => showTooltip(e, 'Escanea códigos de barras para agregar productos')}
-              onMouseLeave={hideTooltip}
-            >
-              <span className="btn-icon">📸</span>
-              <span className="btn-text">Scanner</span>
-            </button>
-            <button 
-              onClick={() => showToast('🎯 Próximamente: Sugerencias inteligentes')} 
-              className="quick-btn-final suggestions"
-              onMouseEnter={(e) => showTooltip(e, 'Sugerencias basadas en tus objetivos')}
-              onMouseLeave={hideTooltip}
-            >
-              <span className="btn-icon">🎯</span>
-              <span className="btn-text">Sugerencias</span>
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Se eliminaron scanner y sugerencias; acciones compactas arriba */}
 
       {/* Comidas del día con diseño mejorado */}
       <div className="meals-container-final">
@@ -528,7 +555,6 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                   onClick={() => {
                     setSelectedMeal(meal);
                     setOpenMeal(meal);
-                    setQuickActions(false); // asegurar una sola superposición
                     setActiveModal('add-food');
                   }}
                   onMouseEnter={(e) => showTooltip(e, `Agregar alimento a ${info.name}`)}
@@ -545,17 +571,16 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                     <div className="food-info-final">
                       <span className="food-emoji">{entry.emoji}</span>
                       <div className="food-details-final">
-                        <span className="food-name">{entry.nombre}</span>
-                        <div className="food-portions">
-                          {entry.units && entry.unit_name ? (
-                            <span className="portion-units">
-                              {entry.units} {entry.unit_name}{entry.units > 1 ? 's' : ''} • {entry.grams}g
-                            </span>
-                          ) : (
-                            <span className="portion-grams">{entry.grams}g</span>
-                          )}
-                          <span className="food-nutrition">
-                            {Math.round(entry.kcal)} kcal • {Math.round(entry.prot)}g prot
+                        <span className="food-name">
+                          {entry.nombre}
+                          {entry.hora && <span className="entry-time-badge" style={{ marginLeft: 8 }}>{entry.hora}</span>}
+                        </span>
+                        <div className="food-meta">
+                          <span className="food-meta-line">
+                            {entry.units && entry.unit_name
+                              ? `${entry.units} ${entry.unit_name}${entry.units > 1 ? 's' : ''} • ${entry.grams}g`
+                              : `${entry.grams}g`}
+                            {` • ${Math.round(entry.kcal)} kcal • ${Math.round(entry.prot)}g prot`}
                           </span>
                         </div>
                       </div>
@@ -576,7 +601,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                         onMouseEnter={(e) => showTooltip(e, 'Duplicar este alimento')}
                         onMouseLeave={hideTooltip}
                       >
-                        📋
+                        ⎘
                       </button>
                       <button
                         className="remove-food-btn-final"
@@ -596,7 +621,6 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                     onClick={() => {
                       setSelectedMeal(meal);
                       setOpenMeal(meal);
-                      setQuickActions(false);
                       setActiveModal('add-food');
                     }}
                   >
@@ -617,17 +641,38 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
       {/* Modal mejorado para agregar comida */}
       {activeModal === 'add-food' && (
         <div className="modal-overlay-final" onClick={() => setActiveModal(null)}>
-          <div className="modal-content-final" onClick={e => e.stopPropagation()}>
+          <div className={`modal-content-final ${selectedFood ? 'has-selected' : ''} ${isMobile && selectedFood ? 'mobile-portion' : ''}`} onClick={e => e.stopPropagation()}>
             <div className="modal-header-final">
               <div className="modal-title-section">
                 <h3>Agregar a {getMealInfo(selectedMeal).name}</h3>
-                <span className="modal-subtitle">{getMealInfo(selectedMeal).time}</span>
+                <div className="modal-time-control">
+                  <label className="time-label" htmlFor="add-time">Hora</label>
+                  <input
+                    id="add-time"
+                    type="time"
+                    value={selectedTime}
+                    onChange={(e) => setSelectedTime(e.target.value)}
+                    className="time-input-final"
+                  />
+                </div>
               </div>
               <button onClick={() => setActiveModal(null)} className="modal-close-final">
                 <span>×</span>
               </button>
             </div>
 
+            {/* Mobile step header when in portion step */}
+            {isMobile && selectedFood && (
+              <div className="mobile-step-nav" role="navigation">
+                <button className="mobile-back-btn" onClick={() => setSelectedFood(null)} aria-label="Volver a la lista">←</button>
+                <div className="mobile-step-title">
+                  <span className="selected-food-emoji">{selectedFood.emoji}</span>
+                  <span className="selected-food-name">{selectedFood.nombre}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Buscador + categorías (se ocultan en paso 2 móvil) */}
             <div className="food-search-final">
               <div className="search-container">
                 <input
@@ -639,12 +684,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                   autoFocus
                 />
                 {searchQuery && (
-                  <button 
-                    className="clear-search"
-                    onClick={() => setSearchQuery('')}
-                  >
-                    ×
-                  </button>
+                  <button className="clear-search" onClick={() => setSearchQuery('')}>×</button>
                 )}
               </div>
               
@@ -664,27 +704,20 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
               </div>
             </div>
 
+            {/* Lista de alimentos (oculta en paso 2 móvil) */}
             <div className="foods-list-final">
               {getFilteredFoods().length === 0 ? (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#888' }}>
-                  No se encontraron alimentos
-                </div>
+                <div style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No se encontraron alimentos</div>
               ) : (
                 getFilteredFoods().map(food => (
-                  <div
-                    key={food.id}
-                    className="food-item-final"
-                    onClick={() => setSelectedFood(food)}
-                  >
+                  <div key={food.id} className="food-item-final" onClick={() => setSelectedFood(food)}>
                     <div className="food-basic-final">
                       <span className="food-emoji-large">{food.emoji}</span>
                       <div className="food-text-final">
                         <span className="food-name-final">{food.nombre}</span>
                         <span className="food-category-final">{food.subcategoria}</span>
                         <div className="food-unit-info">
-                          <span className="unit-display">
-                            1 {food.unidad_base.nombre} = {food.unidad_base.kcal_unidad} kcal
-                          </span>
+                          <span className="unit-display">1 {food.unidad_base.nombre} = {food.unidad_base.kcal_unidad} kcal</span>
                         </div>
                       </div>
                     </div>
@@ -699,9 +732,9 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
               )}
             </div>
 
-            {/* Selector de porciones mejorado */}
+            {/* Selector de porciones (en móvil reemplaza a la lista) */}
             {selectedFood && (
-              <div className="portion-selector-final">
+              <div className="portion-selector-final" ref={portionRef}>
                 <div className="portion-header">
                   <h4>
                     <span className="selected-food-emoji">{selectedFood.emoji}</span>

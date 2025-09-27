@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Welcome.css';
 
 const Welcome: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [error, setError] = useState('');
+  const [typedTitle, setTypedTitle] = useState('');
+  const [caretVisible, setCaretVisible] = useState(true);
   const [animationComplete, setAnimationComplete] = useState(false);
+  const typingTimerRef = useRef<number | null>(null);
+  const caretTimerRef = useRef<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,12 +23,27 @@ const Welcome: React.FC = () => {
       }
     }
 
-    // Completar la animación después de 4 segundos
-    const timer = setTimeout(() => {
-      setAnimationComplete(true);
-    }, 4000);
-    
-    return () => clearTimeout(timer);
+    // Typewriter suave controlado por JS (evita texto cortado)
+    const fullText = 'KiloByte';
+    let i = 0;
+    typingTimerRef.current = window.setInterval(() => {
+      i++;
+      setTypedTitle(fullText.slice(0, i));
+      if (i >= fullText.length) {
+        if (typingTimerRef.current) window.clearInterval(typingTimerRef.current);
+        setAnimationComplete(true);
+      }
+    }, 110);
+
+    // Parpadeo del caret
+    caretTimerRef.current = window.setInterval(() => {
+      setCaretVisible((v) => !v);
+    }, 500);
+
+    return () => {
+      if (typingTimerRef.current) window.clearInterval(typingTimerRef.current);
+      if (caretTimerRef.current) window.clearInterval(caretTimerRef.current);
+    };
   }, [navigate]);
 
   const validarNombre = (nombre: string) => {
@@ -84,8 +103,9 @@ const Welcome: React.FC = () => {
   return (
     <div className="welcome-container">
       <div className="welcome-content">
-        <h1 className={`typewriter-title ${animationComplete ? 'complete' : ''}`}>
-          KiloByte
+        <h1 className={`typewriter-title ${animationComplete ? 'complete' : ''}`} aria-label="KiloByte">
+          <span className="typewriter-text">{typedTitle}</span>
+          <span className={`typewriter-caret ${caretVisible && !animationComplete ? 'visible' : ''}`} aria-hidden="true">|</span>
         </h1>
         <p className="subtitle">Tu compañero inteligente para el seguimiento nutricional</p>
         
@@ -108,7 +128,7 @@ const Welcome: React.FC = () => {
           onClick={handleEnterApp}
           className="start-button"
         >
-          Comenzar mi viaje nutricional
+          Comenzar
         </button>
       </div>
     </div>

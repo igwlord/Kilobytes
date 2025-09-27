@@ -4,8 +4,9 @@ import './Progreso.css';
 // Tipos mínimos usados en este componente (evita any)
 interface Totals { kcal?: number; prot?: number }
 interface DayLog { totals?: Totals; agua_ml?: number; sueno_h?: number }
+type Objetivo = 'bajar' | 'mantener' | 'subir';
 interface AppStateMin {
-  perfil?: { peso?: number };
+  perfil?: { peso?: number; objetivo?: string; desbloquearRecetas?: boolean };
   metas?: { kcal?: number; prote_g_dia?: number; agua_ml?: number };
   log?: Record<string, DayLog | undefined>;
 }
@@ -15,7 +16,7 @@ interface ProgresoProps {
 }
 
 const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
-  const [openSection, setOpenSection] = useState<'peso' | 'tendencias' | 'analisis' | null>('peso');
+  const [openSection, setOpenSection] = useState<'peso' | 'tendencias' | 'recetas' | null>('peso');
 
   const generateWeightData = () => {
     // Simulamos datos de peso para mostrar la gráfica
@@ -92,90 +93,85 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
   const avgKcalAdherence = Math.round(trends.reduce((sum, day) => sum + day.kcalPercent, 0) / 7);
   const avgProtAdherence = Math.round(trends.reduce((sum, day) => sum + day.protPercent, 0) / 7);
 
-  // Fase 6: Análisis y Consejos inteligentes
-  type InsightKey = 'macros' | 'adherencia' | 'ritmo' | 'sueno' | 'hidratacion';
-  interface InsightCard { key: InsightKey; title: string; summary: string; advice: string; impact: number }
-  const todayKey = new Date().toISOString().split('T')[0];
-  const todayLog = appState.log?.[todayKey];
-  const kcalTarget = appState.metas?.kcal || 2000;
-  const protTarget = appState.metas?.prote_g_dia || 140;
-  const todayKcal = todayLog?.totals?.kcal || 0;
-  const todayProt = todayLog?.totals?.prot || 0;
-  const aguaTarget = appState.metas?.agua_ml ?? 2000;
-  const aguaHoy = todayLog?.agua_ml ?? 0;
-  const suenoHoy = appState.log?.[todayKey]?.sueno_h ?? 0;
+  // Recetas por objetivo (extraídas de Recetas.md)
+  type Recipe = { title: string; group: 'Desayuno' | 'Almuerzo' | 'Cena' | 'Snack' };
+  const recetas: Record<Objetivo, Recipe[]> = {
+    bajar: [
+      { title: 'Omelette de claras con espinaca y tomate', group: 'Desayuno' },
+      { title: 'Tostada integral con palta y sésamo', group: 'Desayuno' },
+      { title: 'Smoothie verde detox', group: 'Desayuno' },
+      { title: 'Yogur descremado con arándanos y chía', group: 'Desayuno' },
+      { title: 'Pancakes de avena y clara', group: 'Desayuno' },
+      { title: 'Ensalada de pollo a la plancha', group: 'Almuerzo' },
+      { title: 'Zoodles de zucchini con salsa de tomate', group: 'Almuerzo' },
+      { title: 'Bowl de quinoa con vegetales al vapor', group: 'Almuerzo' },
+      { title: 'Ensalada de atún mediterránea', group: 'Almuerzo' },
+      { title: 'Revuelto de claras con champiñones y cebolla', group: 'Almuerzo' },
+      { title: 'Salmón al horno con espárragos', group: 'Cena' },
+      { title: 'Tortilla de espinaca y cebolla', group: 'Cena' },
+      { title: 'Pechuga de pollo rellena con espinaca y ricotta', group: 'Cena' },
+      { title: 'Berenjenas rellenas con lentejas', group: 'Cena' },
+      { title: 'Sopa de calabaza y jengibre', group: 'Cena' },
+      { title: 'Rolls de lechuga con pavo', group: 'Snack' },
+      { title: 'Bastones de zanahoria y apio con hummus', group: 'Snack' },
+      { title: 'Ensalada de garbanzos estilo griego', group: 'Snack' },
+      { title: 'Tostada integral con ricotta y frutillas', group: 'Snack' },
+      { title: 'Smoothie de frutos rojos y proteína', group: 'Snack' },
+    ],
+    subir: [
+      { title: 'Omelette de claras y 2 huevos + avena', group: 'Desayuno' },
+      { title: 'Smoothie de proteína post-entrenamiento', group: 'Desayuno' },
+      { title: 'Tostadas integrales con palta y salmón ahumado', group: 'Desayuno' },
+      { title: 'Panqueques de avena y claras con ricotta y frutillas', group: 'Desayuno' },
+      { title: 'Bowl de yogur griego con granola y miel', group: 'Desayuno' },
+      { title: 'Pollo grillado con arroz integral y brócoli', group: 'Almuerzo' },
+      { title: 'Pasta integral con carne magra y salsa casera', group: 'Almuerzo' },
+      { title: 'Wrap integral de pavo y vegetales', group: 'Almuerzo' },
+      { title: 'Bowl de quinoa con atún y verduras salteadas', group: 'Almuerzo' },
+      { title: 'Hamburguesa casera de garbanzos + huevo + ensalada', group: 'Almuerzo' },
+      { title: 'Salmón al horno con batata y espárragos', group: 'Cena' },
+      { title: 'Tacos de carne magra con guacamole', group: 'Cena' },
+      { title: 'Pollo al curry con arroz basmati y verduras', group: 'Cena' },
+      { title: 'Lentejas estofadas con huevo duro y arroz integral', group: 'Cena' },
+      { title: 'Pizza proteica casera', group: 'Cena' },
+      { title: 'Sándwich integral de pavo y queso fresco', group: 'Snack' },
+      { title: 'Bastones + hummus + 1 huevo duro', group: 'Snack' },
+      { title: 'Batido leche + avena + proteína + banana', group: 'Snack' },
+      { title: 'Tostadas con mantequilla de maní + banana', group: 'Snack' },
+      { title: 'Ensalada de garbanzos con atún y huevo duro', group: 'Snack' },
+    ],
+    mantener: [
+      { title: 'Omelette de claras + 1 huevo con espinaca', group: 'Desayuno' },
+      { title: 'Tostadas integrales con palta + huevo duro', group: 'Desayuno' },
+      { title: 'Smoothie de frutos rojos + chía', group: 'Desayuno' },
+      { title: 'Yogur con granola sin azúcar y banana', group: 'Desayuno' },
+      { title: 'Pancakes integrales de avena y claras', group: 'Desayuno' },
+      { title: 'Ensalada de pollo con palmitos', group: 'Almuerzo' },
+      { title: 'Quinoa con vegetales y garbanzos', group: 'Almuerzo' },
+      { title: 'Wrap integral de atún y vegetales', group: 'Almuerzo' },
+      { title: 'Pasta integral con salsa de tomate natural', group: 'Almuerzo' },
+      { title: 'Bowl de arroz integral con huevo pochê y brócoli', group: 'Almuerzo' },
+      { title: 'Merluza a la plancha con puré de calabaza', group: 'Cena' },
+      { title: 'Pechuga rellena con espinaca + ricotta', group: 'Cena' },
+      { title: 'Salmón al vapor con ensalada de kale y palta', group: 'Cena' },
+      { title: 'Tortilla de espárragos y champiñones', group: 'Cena' },
+      { title: 'Berenjena gratinada con ricotta y salsa de tomate', group: 'Cena' },
+      { title: 'Bastones con hummus', group: 'Snack' },
+      { title: 'Queso fresco light con tomate y orégano', group: 'Snack' },
+      { title: 'Tostada integral con ricotta y frutillas', group: 'Snack' },
+      { title: 'Mix frutos secos + 1 manzana', group: 'Snack' },
+      { title: 'Smoothie de kiwi + espinaca + pepino + limón', group: 'Snack' },
+    ],
+  };
 
-  // Impactos aproximados (0 a 100) basados en gap relativo a objetivos
-  const kcalGap = Math.min(100, Math.abs(((todayKcal - kcalTarget) / Math.max(1, kcalTarget)) * 100));
-  const protGap = Math.min(100, Math.max(0, ((protTarget - todayProt) / Math.max(1, protTarget)) * 100));
-  const aguaGap = Math.min(100, Math.max(0, ((aguaTarget - aguaHoy) / Math.max(1, aguaTarget)) * 100));
-  const suenoGap = suenoHoy >= 7 && suenoHoy <= 9 ? 0 : Math.min(100, Math.abs(((suenoHoy - 8) / 8) * 100));
-  const adherenciaAvgGap = 100 - Math.min(100, Math.round(trends.reduce((s, d) => s + d.kcalPercent, 0) / 7));
-
-  const insightCandidates: InsightCard[] = [
-    {
-      key: 'macros',
-      title: 'Macros del día',
-      summary: `Kcal ${Math.round(todayKcal)}/${kcalTarget} • Prot ${Math.round(todayProt)}/${protTarget}g`,
-      advice:
-        todayProt < protTarget
-          ? 'Subí proteínas en la próxima comida (p. ej., 150-200g de pechuga, 2-3 huevos, o 200g de yogur griego) manteniendo calorías controladas.'
-          : todayKcal > kcalTarget
-          ? 'Estás por encima de calorías. Compensá con una cena liviana rica en proteínas y vegetales fibrosos.'
-          : 'Buen balance hoy. Mantené la distribución proteica en cada comida (20–40g).',
-      impact: Math.max(kcalGap, protGap)
-    },
-    {
-      key: 'adherencia',
-      title: 'Adherencia 7 días',
-      summary: `Media kcal: ${trends.map(t => t.kcalPercent).join('% ')}%`,
-      advice:
-        adherenciaAvgGap > 20
-          ? 'Elegí 1-2 ajustes simples: horarios fijos, porciones medidas y snacks de alto volumen (verduras/agua).'
-          : 'Tu adherencia es buena. Seguí trackeando y preparando comidas con antelación.',
-      impact: adherenciaAvgGap
-    },
-    {
-      key: 'ritmo',
-      title: 'Ritmo de cambio de peso',
-      summary: `Cambio total ${weightLoss >= 0 ? '-' : '+'}${Math.abs(weightLoss)} kg / ${weightData.length} sem.`,
-      advice:
-        weightLoss > 0.8
-          ? 'La caída es rápida. Aumentá 150–250 kcal o subí carbohidratos en días de entrenamiento para proteger masa magra.'
-          : weightLoss < 0.2
-          ? 'El ritmo es bajo. Reducí 100–200 kcal o aumentá el NEAT (pasos) para empujar el progreso.'
-          : 'Ritmo saludable. Mantené el plan y descansos adecuados.',
-      impact: Math.min(100, Math.abs(weightLoss - 0.5) * 50)
-    },
-    {
-      key: 'sueno',
-      title: 'Consistencia de sueño',
-      summary: `${suenoHoy}h hoy (objetivo 7–9h)`,
-      advice:
-        suenoHoy < 7
-          ? 'Intentá adelantar tu horario de sueño 30–45 min. Apagá pantallas 60 min antes y ajustá cafeína post-mediodía.'
-          : suenoHoy > 9
-          ? 'Si dormís >9h frecuentemente, revisá calidad/horarios y evaluá estrés/actividad física.'
-          : 'Excelente rango. Mantené rutina estable y luz natural por la mañana.',
-      impact: suenoGap
-    },
-    {
-      key: 'hidratacion',
-      title: 'Hidratación',
-      summary: `${Math.round(aguaHoy/100)/10}L / ${(aguaTarget/1000).toFixed(1)}L`,
-      advice:
-        aguaHoy < aguaTarget
-          ? 'Sumá 1 vaso de agua (250ml) con cada comida y tené una botella visible durante el día.'
-          : 'Buen nivel. Repartí la ingesta y añadí electrolitos si entrenás con calor.',
-      impact: aguaGap
-    }
+  const objetivoRaw = (appState.perfil?.objetivo || 'mantener').toLowerCase();
+  const objetivoActual: Objetivo = objetivoRaw === 'bajar' ? 'bajar' : objetivoRaw === 'subir' ? 'subir' : 'mantener';
+  const desbloquear = !!appState.perfil?.desbloquearRecetas;
+  const grupos: Array<{ key: Objetivo; label: string; colorClass: string }> = [
+    { key: 'bajar', label: 'Pérdida de peso', colorClass: 'goal-lose' },
+    { key: 'subir', label: 'Aumento de masa muscular', colorClass: 'goal-gain' },
+    { key: 'mantener', label: 'Mantener peso', colorClass: 'goal-maintain' },
   ];
-
-  const insightsSorted = insightCandidates
-    .sort((a, b) => b.impact - a.impact)
-    .slice(0, 5);
-
-  const [openAdvice, setOpenAdvice] = useState<InsightKey | null>(insightsSorted[0]?.key ?? null);
 
   return (
     <div className="progreso-container">
@@ -331,32 +327,55 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
         )}
       </div>
 
-      {/* Fase 6 — Cards inteligentes ordenadas por impacto */}
+      {/* Recetas recomendadas según plan */}
       <div className="progress-card collapsible">
         <div className="collapsible-header">
-          <h2 className="card-title">Análisis y Consejos (inteligentes)</h2>
+          <h2 className="card-title">Recetas recomendadas</h2>
+          <button
+            className={`collapse-toggle ${openSection === 'recetas' ? 'open' : ''}`}
+            onClick={() => setOpenSection(prev => (prev === 'recetas' ? null : 'recetas'))}
+            aria-label={openSection === 'recetas' ? 'Colapsar' : 'Expandir'}
+          >
+            ▾
+          </button>
         </div>
-        <div className="insights">
-          {insightsSorted.map((ins) => (
-            <div key={ins.key} className="insight">
-              <div className="insight-icon">💡</div>
-              <div className="insight-content" style={{ width: '100%' }}>
-                <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:8}}>
-                  <h3 style={{margin:0}}>{ins.title}</h3>
-                  <button
-                    className={`collapse-toggle ${openAdvice === ins.key ? 'open' : ''}`}
-                    onClick={() => setOpenAdvice(prev => prev === ins.key ? null : ins.key)}
-                    aria-label={openAdvice === ins.key ? 'Colapsar' : 'Expandir'}
-                  >▾</button>
+        {openSection === 'recetas' && (
+        <div className="recipes">
+          {grupos.map((g) => {
+            const enabled = desbloquear || g.key === objetivoActual;
+            return (
+              <div key={g.key} className={`recipe-group ${g.colorClass} ${enabled ? 'enabled' : 'disabled'}`}>
+                <div className="recipe-group-header">
+                  <h3>{g.label}</h3>
+                  {!enabled && <span className="badge-disabled">Bloqueado por plan</span>}
                 </div>
-                <p style={{margin:'4px 0', color:'var(--text-secondary)'}}>{ins.summary}</p>
-                {openAdvice === ins.key && (
-                  <p style={{margin:'6px 0 0 0'}}>{ins.advice}</p>
-                )}
+                <div className="recipe-grid">
+                  {recetas[g.key].map((r, idx) => (
+                    <div
+                      key={idx}
+                      className={`recipe-card ${enabled ? '' : 'disabled'}`}
+                      title={enabled ? r.title : 'No disponible: esta receta no es parte de tu plan actual'}
+                      onClick={(e) => {
+                        if (!enabled) {
+                          // No-op, bloqueado: solo tooltip nativo del title
+                          e.preventDefault();
+                          return;
+                        }
+                        // Futuro: agregar a favoritos o al plan del día
+                      }}
+                      aria-disabled={!enabled}
+                      role="button"
+                    >
+                      <div className="recipe-title">{r.title}</div>
+                      <div className="recipe-meta">{r.group}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+        )}
       </div>
     </div>
   );

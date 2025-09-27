@@ -4,38 +4,52 @@
   padding: 1rem;
   max-width: 1200px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: var(--bg-primary);
   min-height: 100vh;
-  color: #ffffff;
+  color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+  .modal-content-final .registro-pro-final .meal-header-final { padding: 0.75rem 0.85rem; }
+  .modal-content-final .registro-pro-final .meal-name { font-size: 1rem; }
+  .modal-content-final .registro-pro-final .add-food-btn-final { width: 32px; height: 32px; font-size: 0.9rem; }
+  .modal-content-final .registro-pro-final .meal-foods-final .food-entry-final { padding: 0.5rem 0.6rem; border-radius: 9px; }
+  .modal-content-final .registro-pro-final .meal-foods-final .food-emoji { font-size: 1.05rem; }
+  .modal-content-final .registro-pro-final .meal-foods-final .food-name { font-size: 0.9rem; }
+  .modal-content-final .registro-pro-final .meal-foods-final .food-meta-line { font-size: 0.72rem; }
 
 /* Header mejorado con progress bars */
 .registro-header-final {
-  background: linear-gradient(135deg, #6C4ED9 0%, #8B5CF6 100%);
+  background: var(--bg-secondary);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 0.9rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 10px 25px rgba(108, 78, 217, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  align-items: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+  /* Three-row header on desktop: 1) date, 2) stats, 3) actions */
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "date"
+    "stats"
+    "actions";
+  row-gap: 0.85rem;
+  .modal-content-final .registro-pro-final .meal-foods-final .duplicate-food-btn,
+  .modal-content-final .registro-pro-final .meal-foods-final .remove-food-btn-final { width: 26px; height: 26px; font-size: 0.95rem; }
 }
 
 .date-section {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  grid-area: date;
 }
 
 .date-input-final {
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-15);
+  border: 2px solid var(--glass-20);
   border-radius: 12px;
   padding: 0.75rem 1rem;
-  color: white;
+  color: var(--text-primary);
   font-size: 1rem;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -43,7 +57,7 @@
 }
 
 .date-input-final:hover {
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: var(--glass-30);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -55,7 +69,7 @@
 }
 
 .day-name {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   font-size: 0.9rem;
   text-transform: capitalize;
   font-weight: 500;
@@ -64,18 +78,20 @@
 .progress-section {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+  grid-area: stats;
 }
 
 .macro-progress {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-08);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.6rem 0.7rem;
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--glass-10);
 }
 
 .macro-progress::before {
@@ -85,7 +101,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, var(--glass-10), transparent);
   transition: left 0.6s ease;
 }
 
@@ -94,24 +110,24 @@
 }
 
 .macro-progress:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--glass-15);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .macro-label {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .macro-bar {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-08);
   border-radius: 8px;
-  height: 8px;
+  height: 5px;
   overflow: hidden;
   margin-bottom: 0.5rem;
 }
@@ -130,7 +146,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, var(--glass-30) 50%, transparent 100%);
   animation: shimmer 2s infinite;
 }
 
@@ -142,27 +158,54 @@
 .macro-values {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
-  font-size: 0.9rem;
+  gap: 0.25rem;
+  font-size: 0.82rem;
 }
 
 .current {
   font-weight: 700;
-  color: white;
+  color: var(--text-primary);
 }
 
 .separator {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
 }
 
 .target {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
 }
 
 .actions-section {
   display: flex;
   align-items: center;
 }
+
+/* Compact quick actions row */
+.quick-actions-compact {
+  display: flex;
+  gap: 0.5rem;
+  grid-area: actions;
+  /* row layout: align with left edge, no auto push */
+  margin-left: 0;
+}
+.qa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--glass-15);
+  border: 1px solid var(--glass-25);
+  color: var(--text-primary);
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.qa-btn.copy { border-left: 3px solid #4ECDC4; }
+.qa-btn.fav { border-left: 3px solid #FFD54F; }
+.qa-btn:hover { background: var(--glass-20); }
+.qa-icon { font-size: 1rem; }
+.qa-text { font-size: 0.85rem; }
 
 .quick-actions-btn-final {
   background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
@@ -179,6 +222,9 @@
   box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
 }
 
+/* Hide the old large quick action button/panel */
+.quick-actions-btn-final { display: none !important; }
+
 .quick-actions-btn-final:hover {
   transform: translateY(-3px) scale(1.05);
   box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
@@ -193,14 +239,7 @@
 }
 
 /* Acciones rápidas */
-.quick-actions-final {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: slideDown 0.3s ease-out;
-}
+.quick-actions-final { display: none !important; }
 
 @keyframes slideDown {
   from {
@@ -220,11 +259,11 @@
 }
 
 .quick-btn-final {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-10);
+  border: 1px solid var(--glass-20);
   border-radius: 12px;
   padding: 1rem;
-  color: white;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -235,10 +274,10 @@
 }
 
 .quick-btn-final:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--glass-15);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: var(--glass-30);
 }
 
 .quick-btn-final.copy { border-left: 4px solid #4ECDC4; }
@@ -264,15 +303,15 @@
 }
 
 .meal-section-final {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-05);
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--glass-10);
   transition: all 0.3s ease;
 }
 
 .meal-section-final:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--glass-08);
   transform: translateY(-2px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
@@ -290,9 +329,9 @@
 .meal-header-collapsible .meal-title-row { flex: 1; }
 .meal-toggle-btn {
   margin-left: auto;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
+  background: var(--glass-15);
+  border: 1px solid var(--glass-25);
+  color: var(--text-primary);
   border-radius: 8px;
   width: 32px;
   height: 32px;
@@ -302,7 +341,7 @@
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease;
 }
-.meal-toggle-btn:hover { background: rgba(255, 255, 255, 0.25); }
+.meal-toggle-btn:hover { background: var(--glass-25); }
 .meal-toggle-btn .chevron { display: inline-block; transition: transform 0.2s ease; }
 .meal-toggle-btn.open .chevron { transform: rotate(180deg); }
 
@@ -326,12 +365,12 @@
 .meal-name {
   font-size: 1.3rem;
   font-weight: 700;
-  color: white;
+  color: var(--text-primary);
 }
 
 .meal-count {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: var(--glass-20);
+  color: var(--text-primary);
   padding: 0.2rem 0.6rem;
   border-radius: 12px;
   font-size: 0.8rem;
@@ -340,13 +379,13 @@
 
 .meal-time {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   cursor: help;
   transition: color 0.3s ease;
 }
 
 .meal-time:hover {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
 }
 
 .meal-stats {
@@ -356,21 +395,21 @@
 }
 
 .meal-kcal {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  background: var(--glass-10);
   padding: 0.5rem 1rem;
   border-radius: 20px;
 }
 
 .add-food-btn-final {
-  background: linear-gradient(135deg, #6C4ED9 0%, #8B5CF6 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #8B5CF6 100%);
   border: none;
   border-radius: 12px;
   width: 48px;
   height: 48px;
-  color: white;
+  color: #fff;
   font-size: 1.5rem;
   font-weight: 700;
   cursor: pointer;
@@ -391,11 +430,11 @@
 }
 
 .food-entry-final {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass-08);
+  border: 1px solid var(--glass-10);
   border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  margin-bottom: 0.6rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -411,7 +450,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.03) 50%, transparent 70%);
+  background: linear-gradient(45deg, transparent 30%, var(--glass-05) 50%, transparent 70%);
   transform: translateX(-100%);
   transition: transform 0.6s ease;
 }
@@ -421,10 +460,10 @@
 }
 
 .food-entry-final:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--glass-12);
   transform: translateX(4px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--glass-20);
 }
 
 .food-info-final {
@@ -435,44 +474,25 @@
 }
 
 .food-emoji {
-  font-size: 2rem;
+  font-size: 1.6rem;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .food-details-final {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.18rem;
 }
 
 .food-name {
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 600;
-  color: white;
+  color: var(--text-primary);
 }
 
-.food-portions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.portion-units {
-  color: #D4AF37;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.portion-grams {
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-.food-nutrition {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.85rem;
-}
+/* Compact single-line metadata */
+.food-meta { margin-top: 0.05rem; }
+.food-meta-line { color: var(--text-secondary); font-size: 0.85rem; }
 
 .food-actions {
   display: flex;
@@ -481,12 +501,12 @@
 }
 
 .duplicate-food-btn, .remove-food-btn-final {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-10);
+  border: 1px solid var(--glass-20);
   border-radius: 8px;
   width: 36px;
   height: 36px;
-  color: white;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -508,8 +528,8 @@
 }
 
 .empty-meal-final {
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px dashed rgba(255, 255, 255, 0.2);
+  background: var(--glass-05);
+  border: 2px dashed var(--glass-20);
   border-radius: 12px;
   padding: 2rem;
   text-align: center;
@@ -518,8 +538,8 @@
 }
 
 .empty-meal-final:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--glass-08);
+  border-color: var(--glass-30);
   transform: translateY(-2px);
 }
 
@@ -539,12 +559,12 @@
 .empty-text {
   font-size: 1.1rem;
   font-weight: 600;
-  color: white;
+  color: var(--text-primary);
 }
 
 .empty-hint {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
 }
 
 /* Modal mejorado */
@@ -570,18 +590,43 @@
 }
 
 .modal-content-final {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: var(--bg-secondary);
   border-radius: 20px;
   width: 100%;
   max-width: 800px;
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
   animation: slideUp 0.3s ease-out;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
+
+/* Ensure modal content can scroll */
+.modal-content-final { overflow-y: auto; position: relative; }
+
+/* Keep header visible while scrolling */
+@media (max-width: 420px) {
+  .modal-header-final { position: sticky; top: 0; z-index: 10; }
+}
+body.is-mobile .modal-header-final { position: sticky; top: 0; z-index: 10; }
+
+/* Phone layout: scrollable list + sticky portion selector at bottom */
+@media (max-width: 420px) {
+  .foods-list-final { max-height: 42vh; overflow-y: auto; }
+  .portion-selector-final {
+    position: sticky;
+    bottom: 0;
+    z-index: 9;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--glass-12);
+  }
+}
+body.is-mobile .foods-list-final { max-height: 42vh; overflow-y: auto; }
+body.is-mobile .portion-selector-final { position: sticky; bottom: 0; z-index: 9; background: var(--bg-secondary); border-top: 1px solid var(--glass-12); }
 
 @keyframes slideUp {
   from {
@@ -595,34 +640,35 @@
 }
 
 .modal-header-final {
-  background: linear-gradient(135deg, #6C4ED9 0%, #8B5CF6 100%);
-  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #8B5CF6 100%);
+  padding: 0.9rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--glass-10);
 }
 
+.modal-title-section { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
 .modal-title-section h3 {
   margin: 0;
-  color: white;
-  font-size: 1.4rem;
+  color: #fff;
+  font-size: 1.2rem;
   font-weight: 700;
 }
 
-.modal-subtitle {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
-  margin-top: 0.25rem;
-}
+/* subtitle intentionally removed when time input is present */
+.modal-time-control { display: flex; align-items: center; gap: 0.4rem; }
+.time-label { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; }
+.time-input-final { background: var(--glass-15); border: 1px solid var(--glass-25); color: var(--text-primary); border-radius: 6px; padding: 0.3rem 0.45rem; font-weight: 600; }
 
 .modal-close-final {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--glass-20);
   border: none;
   border-radius: 8px;
   width: 40px;
   height: 40px;
-  color: white;
+  color: var(--text-primary);
   font-size: 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -632,13 +678,13 @@
 }
 
 .modal-close-final:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--glass-30);
   transform: scale(1.1);
 }
 
 .food-search-final {
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--glass-10);
 }
 
 .search-container {
@@ -648,25 +694,25 @@
 
 .search-input-final {
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-10);
+  border: 2px solid var(--glass-20);
   border-radius: 12px;
   padding: 1rem 1.5rem;
-  color: white;
+  color: var(--text-primary);
   font-size: 1rem;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
 }
 
 .search-input-final::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
 }
 
 .search-input-final:focus {
   outline: none;
   border-color: #D4AF37;
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--glass-15);
 }
 
 .clear-search {
@@ -674,12 +720,12 @@
   right: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--glass-20);
   border: none;
   border-radius: 6px;
   width: 28px;
   height: 28px;
-  color: white;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -688,7 +734,7 @@
 }
 
 .clear-search:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--glass-30);
   transform: translateY(-50%) scale(1.1);
 }
 
@@ -704,21 +750,21 @@
 }
 
 .category-filters-final::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-10);
   border-radius: 2px;
 }
 
 .category-filters-final::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--glass-30);
   border-radius: 2px;
 }
 
 .category-btn-final {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-10);
+  border: 1px solid var(--glass-20);
   border-radius: 25px;
   padding: 0.75rem 1rem;
-  color: white;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -730,15 +776,15 @@
 }
 
 .category-btn-final:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--glass-15);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .category-btn-final.active {
-  background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-  color: #1a1a2e;
-  border-color: #D4AF37;
+  background: linear-gradient(135deg, var(--color-secondary) 0%, #FFD700 100%);
+  color: var(--bg-primary);
+  border-color: var(--color-secondary);
   font-weight: 600;
 }
 
@@ -758,8 +804,8 @@
 }
 
 .food-item-final {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass-05);
+  border: 1px solid var(--glass-10);
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 0.75rem;
@@ -771,8 +817,8 @@
 }
 
 .food-item-final:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--glass-10);
+  border-color: var(--glass-20);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
@@ -798,12 +844,111 @@
 .food-name-final {
   font-size: 1.1rem;
   font-weight: 600;
-  color: white;
+  color: var(--text-primary);
+}
+
+/* ——— Mobile density refinements for the add-food modal ——— */
+/* Apply on narrow viewports and when the app flags mobile via body.is-mobile */
+@media (max-width: 430px) {
+  /* Header even tighter on phones */
+  .modal-content-final .modal-header-final { padding: 0.6rem 0.75rem; gap: 0.4rem; }
+  .modal-content-final .modal-title-section { gap: 0.5rem; }
+  .modal-content-final .modal-title-section h3 { font-size: 1rem; }
+  .modal-content-final .modal-close-final { width: 32px; height: 32px; font-size: 1.1rem; }
+  .modal-content-final .time-label { font-size: 0.72rem; }
+  .modal-content-final .time-input-final { padding: 0.25rem 0.4rem; font-size: 0.82rem; border-radius: 5px; }
+
+  /* Search input a bit shorter and crisper */
+  .modal-content-final .food-search-final { padding: 0.8rem 0.9rem; }
+  .modal-content-final .search-container { margin-bottom: 0.5rem; }
+  .modal-content-final .search-input-final {
+    padding: 0.52rem 0.8rem;
+    font-size: 0.92rem;
+    border-radius: 10px;
+  }
+  .modal-content-final .clear-search { width: 24px; height: 24px; right: 0.5rem; }
+
+  /* Chips tighter spacing */
+  .modal-content-final .category-filters-final { gap: 0.35rem; padding: 0.25rem 0; }
+  .modal-content-final .category-btn-final { padding: 0.4rem 0.55rem; gap: 0.3rem; font-size: 0.82rem; border-radius: 18px; }
+  .modal-content-final .cat-emoji { font-size: 0.98rem; }
+  .modal-content-final .cat-name { font-size: 0.8rem; }
+
+  /* List compaction: smaller container, emoji, fonts, and spacing */
+  .modal-content-final .foods-list-final { padding: 0.4rem 0.6rem 0.9rem; max-height: 44vh; }
+  .modal-content-final .food-item-final { padding: 0.56rem; gap: 0.42rem; border-radius: 9px; }
+  .modal-content-final .food-basic-final { gap: 0.5rem; }
+  .modal-content-final .food-emoji-large { font-size: 1.35rem; }
+  .modal-content-final .food-text-final { gap: 0.18rem; }
+  .modal-content-final .food-name-final {
+    font-size: 0.93rem;
+    line-height: 1.18;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .modal-content-final .food-category-final { font-size: 0.68rem; }
+  .modal-content-final .nutrition-per-100g { font-size: 0.74rem; }
+
+  /* Portion cards slightly smaller even when not in the dedicated step */
+  .modal-content-final .portion-btn-final { padding: 0.7rem; border-radius: 9px; }
+  .modal-content-final .portion-name { font-size: 0.93rem; }
+  .modal-content-final .portion-quantity, .portion-weight { font-size: 0.8rem; }
+  .modal-content-final .portion-kcal { font-size: 0.73rem; }
+}
+
+/* JS-driven mobile flag for wider/touch devices: replicate key compact rules */
+body.is-mobile .modal-content-final .modal-header-final { padding: 0.6rem 0.75rem; gap: 0.4rem; }
+body.is-mobile .modal-content-final .modal-title-section { gap: 0.5rem; }
+body.is-mobile .modal-content-final .modal-title-section h3 { font-size: 1rem; }
+body.is-mobile .modal-content-final .modal-close-final { width: 32px; height: 32px; font-size: 1.1rem; }
+body.is-mobile .modal-content-final .time-label { font-size: 0.72rem; }
+body.is-mobile .modal-content-final .time-input-final { padding: 0.25rem 0.4rem; font-size: 0.82rem; border-radius: 5px; }
+
+body.is-mobile .modal-content-final .food-search-final { padding: 0.8rem 0.9rem; }
+body.is-mobile .modal-content-final .search-container { margin-bottom: 0.5rem; }
+body.is-mobile .modal-content-final .search-input-final { padding: 0.52rem 0.8rem; font-size: 0.92rem; border-radius: 10px; }
+body.is-mobile .modal-content-final .clear-search { width: 24px; height: 24px; right: 0.5rem; }
+
+body.is-mobile .modal-content-final .category-filters-final { gap: 0.35rem; padding: 0.25rem 0; }
+body.is-mobile .modal-content-final .category-btn-final { padding: 0.4rem 0.55rem; gap: 0.3rem; font-size: 0.82rem; border-radius: 18px; }
+body.is-mobile .modal-content-final .cat-emoji { font-size: 0.98rem; }
+body.is-mobile .modal-content-final .cat-name { font-size: 0.8rem; }
+
+body.is-mobile .modal-content-final .foods-list-final { padding: 0.4rem 0.6rem 0.9rem; max-height: 44vh; }
+body.is-mobile .modal-content-final .food-item-final { padding: 0.56rem; gap: 0.42rem; border-radius: 9px; }
+body.is-mobile .modal-content-final .food-basic-final { gap: 0.5rem; }
+body.is-mobile .modal-content-final .food-emoji-large { font-size: 1.35rem; }
+body.is-mobile .modal-content-final .food-text-final { gap: 0.18rem; }
+body.is-mobile .modal-content-final .food-name-final { font-size: 0.93rem; line-height: 1.18; display: -webkit-box; line-clamp: 2; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+body.is-mobile .modal-content-final .food-category-final { font-size: 0.68rem; }
+body.is-mobile .modal-content-final .nutrition-per-100g { font-size: 0.74rem; }
+
+body.is-mobile .modal-content-final .portion-btn-final { padding: 0.7rem; border-radius: 9px; }
+body.is-mobile .modal-content-final .portion-name { font-size: 0.93rem; }
+body.is-mobile .modal-content-final .portion-quantity, body.is-mobile .modal-content-final .portion-weight { font-size: 0.8rem; }
+body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
+
+/* Emoji-only chips on very narrow devices, but keep label on active */
+@media (max-width: 380px) {
+  .category-btn-final .cat-name { display: none; }
+  .category-btn-final.active .cat-name { display: inline; font-weight: 700; margin-left: 0.15rem; }
+  .category-btn-final { padding: 0.4rem 0.5rem; }
+}
+
+@media (max-width: 360px) {
+  .modal-content-final .food-item-final { padding: 0.48rem; border-radius: 8px; }
+  .modal-content-final .food-emoji-large { font-size: 1.2rem; }
+  .modal-content-final .food-name-final { font-size: 0.9rem; line-clamp: 2; -webkit-line-clamp: 2; }
+  .modal-content-final .nutrition-per-100g { font-size: 0.68rem; }
+  .modal-content-final .search-input-final { padding: 0.42rem 0.65rem; font-size: 0.86rem; }
 }
 
 .food-category-final {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -831,13 +976,13 @@
   align-items: flex-end;
   gap: 0.1rem;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
 }
 
 /* Selector de porciones */
 .portion-selector-final {
-  background: rgba(255, 255, 255, 0.05);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass-05);
+  border-top: 1px solid var(--glass-10);
   padding: 1.5rem;
 }
 
@@ -853,7 +998,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: white;
+  color: var(--text-primary);
   font-size: 1.2rem;
   font-weight: 700;
 }
@@ -864,7 +1009,7 @@
 
 .input-method-toggle {
   display: flex;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-10);
   border-radius: 8px;
   padding: 0.25rem;
 }
@@ -874,7 +1019,7 @@
   border: none;
   border-radius: 6px;
   padding: 0.5rem 1rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
@@ -882,14 +1027,14 @@
 }
 
 .toggle-btn.active {
-  background: linear-gradient(135deg, #6C4ED9 0%, #8B5CF6 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #8B5CF6 100%);
+  color: #fff;
   font-weight: 600;
 }
 
 .toggle-btn:not(.active):hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  background: var(--glass-10);
 }
 
 .units-input-section, .grams-input-section {
@@ -929,11 +1074,11 @@
 }
 
 .portion-btn-final {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-08);
+  border: 1px solid var(--glass-20);
   border-radius: 12px;
   padding: 1rem;
-  color: white;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -952,7 +1097,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, var(--glass-10), transparent);
   transition: left 0.6s ease;
 }
 
@@ -961,8 +1106,8 @@
 }
 
 .portion-btn-final:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--glass-12);
+  border-color: var(--glass-30);
   transform: translateY(-3px) scale(1.02);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
@@ -978,7 +1123,7 @@
 .portion-name {
   font-weight: 600;
   font-size: 1rem;
-  color: white;
+  color: var(--text-primary);
 }
 
 .portion-quantity, .portion-weight {
@@ -989,18 +1134,18 @@
 
 .portion-kcal {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
 }
 
 .custom-units-section, .custom-grams-section {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-05);
   border-radius: 12px;
   padding: 1rem;
 }
 
 .custom-units-section label, .custom-grams-section label {
   display: block;
-  color: white;
+  color: var(--text-primary);
   font-weight: 600;
   margin-bottom: 0.75rem;
   font-size: 0.95rem;
@@ -1014,11 +1159,11 @@
 }
 
 .custom-input-final {
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-10);
+  border: 2px solid var(--glass-20);
   border-radius: 8px;
   padding: 0.75rem;
-  color: white;
+  color: var(--text-primary);
   font-size: 1rem;
   width: 120px;
   transition: all 0.3s ease;
@@ -1028,22 +1173,22 @@
   outline: none;
   border-color: #D4AF37;
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--glass-15);
 }
 
 .input-unit {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 0.9rem;
   min-width: 60px;
 }
 
 .add-custom-btn-final {
-  background: linear-gradient(135deg, #6C4ED9 0%, #8B5CF6 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #8B5CF6 100%);
   border: none;
   border-radius: 8px;
   padding: 0.75rem 1.5rem;
-  color: white;
+  color: #fff;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1056,10 +1201,10 @@
 }
 
 .custom-nutrition-final {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   font-size: 0.9rem;
   padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-05);
   border-radius: 6px;
   border-left: 3px solid #D4AF37;
 }
@@ -1067,15 +1212,15 @@
 /* Tooltip profesional */
 .tooltip-final {
   position: fixed;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  color: white;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   padding: 0.75rem 1rem;
   border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 500;
   z-index: 1001;
   pointer-events: none;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-color);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
   animation: tooltipFadeIn 0.2s ease-out;
@@ -1097,18 +1242,14 @@
 /* Responsive */
 @media (max-width: 768px) {
   .registro-pro-final {
-    padding: 0.5rem;
+    font-size: 0.95rem;
+    margin-bottom: 0.35rem;
   }
 
-  .registro-header-final {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
+  /* Keep three-row layout; spacing a bit larger on tablets */
+  .registro-header-final { gap: 0.8rem; }
 
-  .progress-section {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .progress-section { grid-template-columns: repeat(2, 1fr); }
 
   .modal-content-final {
     margin: 0.5rem;
@@ -1139,24 +1280,239 @@
   }
 }
 
+/* ——— Mobile compaction for meal list (outside modal) ——— */
+@media (max-width: 430px) {
+  .meal-header-final { padding: 0.9rem 1rem; }
+  .meal-title-row { gap: 0.6rem; }
+  .meal-emoji { font-size: 1.2rem; }
+  .meal-name { font-size: 1.05rem; }
+  .meal-count { font-size: 0.72rem; padding: 0.1rem 0.45rem; }
+  .meal-kcal { font-size: 0.95rem; padding: 0.35rem 0.8rem; }
+  .add-food-btn-final { width: 36px; height: 36px; font-size: 1rem; }
+
+  .meal-foods-final { padding: 0 1rem 1rem; }
+  .meal-foods-final .food-entry-final { padding: 0.55rem 0.65rem; border-radius: 10px; }
+  .meal-foods-final .food-info-final { gap: 0.6rem; }
+  .meal-foods-final .food-emoji { font-size: 1.15rem; }
+  .meal-foods-final .food-name { font-size: 0.94rem; }
+  .meal-foods-final .food-meta-line { font-size: 0.75rem; }
+  .meal-foods-final .entry-time-badge { font-size: 0.68rem; padding: 0.08rem 0.3rem; }
+  .meal-foods-final .duplicate-food-btn,
+  .meal-foods-final .remove-food-btn-final { width: 28px; height: 28px; font-size: 1rem; }
+}
+
+@media (max-width: 360px) {
+  .meal-header-final { padding: 0.75rem 0.85rem; }
+  .meal-name { font-size: 1rem; }
+  .add-food-btn-final { width: 32px; height: 32px; font-size: 0.9rem; }
+  .meal-foods-final .food-entry-final { padding: 0.5rem 0.6rem; border-radius: 9px; }
+  .meal-foods-final .food-emoji { font-size: 1.05rem; }
+  .meal-foods-final .food-name { font-size: 0.9rem; }
+  .meal-foods-final .food-meta-line { font-size: 0.72rem; }
+  .meal-foods-final .duplicate-food-btn,
+  .meal-foods-final .remove-food-btn-final { width: 26px; height: 26px; font-size: 0.95rem; }
+}
+
 @media (max-width: 480px) {
-  .progress-section {
-    grid-template-columns: 1fr;
+  .food-entry-final { padding: 0.6rem 0.7rem; border-radius: 10px; }
+  .food-emoji { font-size: 1.4rem; }
+  .food-name { font-size: 0.95rem; }
+  .food-meta-line { font-size: 0.8rem; }
+  .registro-pro-final { padding: 0.5rem; font-size: 0.78rem; }
+
+  .registro-header-final { padding: 0.6rem; margin-bottom: 0.6rem; border-radius: 10px; gap: 0.6rem; }
+
+  .date-input-final { font-size: 0.85rem; padding: 0.5rem 0.75rem; border-radius: 6px; }
+
+  .progress-section { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+
+  /* Slightly larger than ultra-compact for typical phones */
+  .macro-progress { padding: 0.56rem 0.6rem; border-radius: 8px; }
+  .macro-label { font-size: 0.66rem; margin-bottom: 0.32rem; opacity: 0.85; display: block; }
+  .macro-bar { height: 4px; margin-bottom: 0.38rem; }
+  .macro-values { font-size: 0.82rem; gap: 0.22rem; }
+  .current { font-weight: 800; }
+
+
+/* Accent dot for quick visual identification */
+.macro-progress::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  opacity: 0.9;
+}
+.macro-kcal::after { background: #FF6B6B; }
+.macro-prot::after { background: #4ECDC4; }
+.macro-carbs::after { background: #45B7D1; }
+.macro-grasa::after { background: #96CEB4; }
+
+/* Subtle color accents on the left edge per macro for instant recognition */
+.macro-kcal { border-left: 3px solid #FF6B6B; }
+.macro-prot { border-left: 3px solid #4ECDC4; }
+.macro-carbs { border-left: 3px solid #45B7D1; }
+.macro-grasa { border-left: 3px solid #96CEB4; }
+
+/* Extra-compact only for very narrow phones */
+@media (max-width: 380px) {
+  .macro-progress { padding: 0.48rem 0.52rem; }
+  .macro-label { font-size: 0.62rem; margin-bottom: 0.28rem; opacity: 0.8; }
+  .macro-bar { height: 3px; margin-bottom: 0.32rem; }
+  .macro-values { font-size: 0.78rem; gap: 0.18rem; }
+}
+
+/* Time control in modal header */
+.modal-title-section { display: flex; align-items: center; gap: 0.75rem; }
+.modal-time-control { display: flex; align-items: center; gap: 0.4rem; }
+.time-label { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; }
+.time-input-final {
+  background: var(--glass-15);
+  border: 1px solid var(--glass-25);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  font-weight: 600;
+}
+
+/* Small time badge in entries (if shown) */
+.entry-time-badge {
+  background: var(--glass-12);
+  border: 1px solid var(--glass-20);
+  color: var(--text-primary);
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+  .wb-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 6px;
   }
 
-  .meal-header-final {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
+  .water-info .text {
+    font-size: 0.75rem;
   }
 
-  .food-entry-final {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
+  .modal-content-final {
+    width: 90%;
+    max-width: 300px;
+    padding: 1rem;
+    border-radius: 8px;
   }
 
-  .food-actions {
-    justify-content: center;
+  .modal-header-final {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-title-section h3 {
+    font-size: 1rem;
+  }
+
+  .meal-title-row {
+    gap: 0.5rem;
+  }
+
+  .meal-emoji {
+    font-size: 1.2rem;
+  }
+
+  .meal-name {
+    font-size: 1rem;
+  }
+
+  .meal-count {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+  }
+
+  .add-food-btn-final {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .meal-kcal {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.8rem;
   }
 }
+
+/* Mobile modal refinements (override previous rules) */
+@media (max-width: 420px) {
+  /* Let the whole modal scroll if needed */
+  .modal-content-final { overflow-y: auto; }
+
+  /* List no longer needs huge bottom padding */
+  .foods-list-final { padding-bottom: 1rem; }
+
+  /* Portion panel balanced height and clear separation */
+  .portion-selector-final { max-height: 45vh; box-shadow: 0 -6px 18px rgba(0,0,0,0.35); }
+
+  /* Softer focus ring on mobile */
+  .search-input-final:focus { box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.18); border-color: #cda64f; }
+}
+
+@media (max-width: 430px) {
+  /* Hide list & filters when a food is selected on mobile */
+  .modal-content-final.mobile-portion .food-search-final,
+  .modal-content-final.mobile-portion .category-filters-final,
+  .modal-content-final.mobile-portion .foods-list-final { display: none; }
+
+  /* Mobile step nav (visible only in portion step) */
+  .mobile-step-nav { display: none; }
+  .modal-content-final.mobile-portion .mobile-step-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 11;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--glass-12);
+  }
+  .mobile-back-btn {
+    background: var(--glass-12);
+    border: none;
+    color: var(--text-primary);
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mobile-step-title { display: flex; align-items: center; gap: 0.4rem; color: var(--text-primary); font-weight: 700; }
+  .mobile-step-title .selected-food-emoji { font-size: 1.2rem; }
+  .mobile-step-title .selected-food-name { font-size: 1rem; }
+
+  /* Expand portion panel to fill remaining space with its own scroll */
+  .modal-content-final.mobile-portion { display: flex; flex-direction: column; max-height: 92dvh; overflow: hidden; }
+  .modal-content-final.mobile-portion .portion-selector-final { flex: 1 1 auto; overflow-y: auto; position: static; max-height: none; padding: 0.75rem; }
+
+  /* Tighter portion panel UI on this step */
+  .modal-content-final.mobile-portion .portion-header { margin-bottom: 0.5rem; }
+  .modal-content-final.mobile-portion .portion-header h4 { font-size: 1rem; }
+  .modal-content-final.mobile-portion .input-method-toggle { padding: 0.12rem; }
+  .modal-content-final.mobile-portion .toggle-btn { padding: 0.32rem 0.6rem; font-size: 0.82rem; }
+  .modal-content-final.mobile-portion .portions-grid-final { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.6rem; }
+  .modal-content-final.mobile-portion .portion-btn-final { padding: 0.75rem; border-radius: 10px; }
+  .modal-content-final.mobile-portion .portion-name { font-size: 0.98rem; }
+  .modal-content-final.mobile-portion .portion-quantity,
+  .modal-content-final.mobile-portion .portion-weight { font-size: 0.85rem; }
+  .modal-content-final.mobile-portion .portion-kcal { font-size: 0.78rem; }
+  .modal-content-final.mobile-portion .custom-units-section,
+  .modal-content-final.mobile-portion .custom-grams-section { padding: 0.75rem; }
+  .modal-content-final.mobile-portion .custom-input-final { width: 92px; font-size: 0.9rem; padding: 0.55rem; }
+}
+
+/* JS-driven mobile flag: enforce step behavior even on wider touch devices */
+body.is-mobile .modal-content-final.mobile-portion .food-search-final,
+body.is-mobile .modal-content-final.mobile-portion .category-filters-final,
+body.is-mobile .modal-content-final.mobile-portion .foods-list-final { display: none; }
+body.is-mobile .modal-content-final.mobile-portion { display: flex; flex-direction: column; max-height: 92dvh; overflow: hidden; }
+body.is-mobile .modal-content-final.mobile-portion .portion-selector-final { flex: 1 1 auto; overflow-y: auto; position: static; max-height: none; padding: 0.75rem; }

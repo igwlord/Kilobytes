@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
 import './Calendario.css';
 
+// Minimal, permissive app state types used by this component (read-only rendering)
+type Totals = { kcal: number; prot?: number; carbs?: number; grasa?: number };
+type DayLogMin = { totals?: Totals };
+type AppStateLite = {
+  metas?: { kcal?: number };
+  log?: Record<string, DayLogMin>;
+};
+
 interface CalendarioProps {
-  appState: any;
-  updateAppState: (newState: any) => void;
+  appState: AppStateLite;
+  updateAppState?: (newState: unknown) => void; // not used here, kept optional for prop compatibility
 }
 
 const Calendario: React.FC<CalendarioProps> = ({ appState }) => {
@@ -26,7 +34,7 @@ const Calendario: React.FC<CalendarioProps> = ({ appState }) => {
 
   const getAdherenceColor = (dateKey: string) => {
     const log = appState.log?.[dateKey];
-    if (!log || log.totals.kcal === 0) return '';
+    if (!log || !log.totals || log.totals.kcal === 0) return '';
 
     const adherence = (log.totals.kcal / (appState.metas?.kcal || 2000)) * 100;
     
@@ -74,7 +82,7 @@ const Calendario: React.FC<CalendarioProps> = ({ appState }) => {
 
   const getAdherenceTooltip = (dateKey: string) => {
     const log = appState.log?.[dateKey];
-    if (!log || log.totals.kcal === 0) return 'Sin registro';
+    if (!log || !log.totals || log.totals.kcal === 0) return 'Sin registro';
 
     const targetKcal = appState.metas?.kcal || 2000;
     const adherence = (log.totals.kcal / targetKcal) * 100;
