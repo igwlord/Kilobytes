@@ -38,6 +38,10 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
     actividad: '1.375',
     theme: 'dark'
   });
+  // Local input states to avoid forcing 0 when user clears the field
+  const [pesoStr, setPesoStr] = useState<string>('70');
+  const [alturaStr, setAlturaStr] = useState<string>('175');
+  const [edadStr, setEdadStr] = useState<string>('30');
 
   useEffect(() => {
     if (appState.perfil) {
@@ -52,6 +56,10 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
         actividad: actividadStr,
         theme: (appState.perfil.theme as string) ?? 'dark'
       });
+      // Sync input strings with current values
+      setPesoStr(String((appState.perfil.peso as number) ?? 70));
+      setAlturaStr(String((appState.perfil.altura_cm as number) ?? 175));
+      setEdadStr(String((appState.perfil.edad as number) ?? 30));
     }
   }, [appState.perfil]);
 
@@ -68,10 +76,13 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
   };
 
   const calculateTMB = () => {
+    const peso = parseFloat(pesoStr || String(perfil.peso)) || 0;
+    const altura = parseFloat(alturaStr || String(perfil.altura_cm)) || 0;
+    const edadNum = parseInt(edadStr || String(perfil.edad)) || 0;
     if (perfil.genero === 'masculino') {
-      return 10 * perfil.peso + 6.25 * perfil.altura_cm - 5 * perfil.edad + 5;
+      return 10 * peso + 6.25 * altura - 5 * edadNum + 5;
     }
-    return 10 * perfil.peso + 6.25 * perfil.altura_cm - 5 * perfil.edad - 161;
+    return 10 * peso + 6.25 * altura - 5 * edadNum - 161;
   };
 
   const calculateTDEE = () => {
@@ -149,8 +160,11 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
   };
 
   const getIMC = () => {
-    const alturaM = perfil.altura_cm / 100;
-    return Math.round((perfil.peso / (alturaM * alturaM)) * 10) / 10;
+    const peso = parseFloat(pesoStr || String(perfil.peso));
+    const altura = parseFloat(alturaStr || String(perfil.altura_cm));
+    if (!peso || !altura) return 0;
+    const alturaM = altura / 100;
+    return Math.round((peso / (alturaM * alturaM)) * 10) / 10;
   };
 
   const getCategoriaIMC = (imc: number) => {
@@ -190,12 +204,18 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
             <input
               type="number"
               id="peso"
-              value={perfil.peso}
-              onChange={(e) => actualizarCampo('peso', parseFloat(e.target.value) || 0)}
+              value={pesoStr}
+              onChange={(e) => {
+                const val = e.target.value;
+                setPesoStr(val);
+                const n = parseFloat(val);
+                if (!isNaN(n)) actualizarCampo('peso', n);
+              }}
               className="form-input"
               min="30"
               max="200"
               step="0.1"
+              placeholder="Ej: 70.5"
             />
           </div>
 
@@ -204,11 +224,17 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
             <input
               type="number"
               id="altura"
-              value={perfil.altura_cm}
-              onChange={(e) => actualizarCampo('altura_cm', parseFloat(e.target.value) || 0)}
+              value={alturaStr}
+              onChange={(e) => {
+                const val = e.target.value;
+                setAlturaStr(val);
+                const n = parseFloat(val);
+                if (!isNaN(n)) actualizarCampo('altura_cm', n);
+              }}
               className="form-input"
               min="120"
               max="220"
+              placeholder="Ej: 175"
             />
           </div>
 
@@ -217,11 +243,17 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
             <input
               type="number"
               id="edad"
-              value={perfil.edad}
-              onChange={(e) => actualizarCampo('edad', parseInt(e.target.value) || 0)}
+              value={edadStr}
+              onChange={(e) => {
+                const val = e.target.value;
+                setEdadStr(val);
+                const n = parseInt(val);
+                if (!isNaN(n)) actualizarCampo('edad', n);
+              }}
               className="form-input"
               min="15"
               max="100"
+              placeholder="Ej: 30"
             />
           </div>
 
