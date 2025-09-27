@@ -485,6 +485,7 @@ const Dashboard: React.FC = () => {
         appState={appState as AppStateLike}
         updateAppState={(ns: unknown) => updateAppState(ns as AppState)}
         showToast={showToast}
+        onShowOnboarding={() => setShowOverlay(true)}
       />
     </div>
   );

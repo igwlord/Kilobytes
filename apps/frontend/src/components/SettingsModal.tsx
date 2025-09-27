@@ -40,6 +40,7 @@ interface SettingsModalProps {
   appState: AppStateLike;
   updateAppState: (newState: unknown) => void;
   showToast: (message: string) => void;
+  onShowOnboarding?: () => void;
 }
 
 const THEMES = [
@@ -47,7 +48,7 @@ const THEMES = [
   { id: 'light', label: 'Claro', className: 'light' },
 ];
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, updateAppState, showToast }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, updateAppState, showToast, onShowOnboarding }) => {
   const [nombre, setNombre] = useState(appState.perfil?.nombre || '');
   const [theme, setTheme] = useState(appState.perfil?.theme || 'dark');
   const [unlockRecipes, setUnlockRecipes] = useState(!!appState.perfil?.desbloquearRecetas);
@@ -139,6 +140,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
     reader.readAsText(file);
   };
 
+  const openOnboarding = () => {
+    try {
+      localStorage.removeItem('kiloByteOnboardingSeen');
+    } catch {
+      // ignore storage errors (private mode / quotas)
+    }
+    onShowOnboarding?.();
+    showToast('Guía de inicio abierta ✅');
+    onClose();
+  };
+
   return (
     <div className="settings-overlay" onClick={onClose}>
       <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
@@ -211,6 +223,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
             <input id="import-json" type="file" accept="application/json" onChange={onImportFile} style={{ display: 'none' }} />
           </div>
           <p className="hint">El archivo incluye fecha y hora en el nombre.</p>
+        </div>
+
+        <div className="settings-section">
+          <h3>Guía de inicio</h3>
+          <p className="hint">Podés volver a ver la guía de dos pasos cuando quieras.</p>
+          <button className="btn settings-btn" onClick={openOnboarding}>🎯 Ver guía de inicio</button>
         </div>
 
         <div className="settings-footer">
