@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
-import SettingsModal from './SettingsModal';
+// Settings moved from modal to a dedicated page section
 import ProgressRing from './ProgressRing';
 import WaterTracker from './WaterTracker';
 // Eager imports removidos; ahora se cargan de forma diferida arriba
@@ -10,7 +10,7 @@ const Plan = React.lazy(() => import('./Plan'));
 const RegistroNew = React.lazy(() => import('./RegistroProFinal'));
 const Calendario = React.lazy(() => import('./Calendario'));
 const Progreso = React.lazy(() => import('./Progreso'));
-const Perfil = React.lazy(() => import('./Perfil'));
+const SettingsPage = React.lazy(() => import('./SettingsPage'));
 import Toast from './ToastPro';
 import './Dashboard.css';
 import OnboardingOverlay from './OnboardingOverlay';
@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('inicio');
   const [toast, setToast] = useState({ message: '', isVisible: false });
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  // Settings is now a page, not a modal
   const [showOverlay, setShowOverlay] = useState(false);
   
   const [appState, setAppState] = useState<AppState>({
@@ -181,14 +181,9 @@ const Dashboard: React.FC = () => {
   };
 
   const navigateToSection = (section: string) => {
-    if (section === 'settings') {
-      setSettingsOpen(true);
-      return;
-    }
     setActiveSection(section);
   };
 
-  const closeSettings = () => setSettingsOpen(false);
 
   // Streaks helpers (rachas)
   const parseKey = (key: string) => {
@@ -277,6 +272,17 @@ const Dashboard: React.FC = () => {
             <Progreso appState={appState} />
           </Suspense>
         );
+      case 'settings':
+        return (
+          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
+            <SettingsPage
+              appState={appState as AppStateLike}
+              updateAppState={(ns: unknown) => updateAppState(ns as AppState)}
+              showToast={showToast}
+              onShowOnboarding={() => setShowOverlay(true)}
+            />
+          </Suspense>
+        );
       case 'metas':
         // Metas y Plan unificados: usamos el componente Plan como única experiencia
         return (
@@ -284,24 +290,12 @@ const Dashboard: React.FC = () => {
             <Plan appState={appState} updateAppState={updateAppState} showToast={showToast} />
           </Suspense>
         );
-      case 'perfil':
-        return (
-          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
-            <Perfil appState={appState} updateAppState={updateAppState as unknown as (s: unknown) => void} showToast={showToast} />
-          </Suspense>
-        );
+      // Perfil se edita dentro de Plan; no hay sección independiente
       default: {
         const needsProfile = !appState.perfil?.nombre || !appState.perfil?.peso || !appState.perfil?.altura_cm;
         const needsGoals = !appState.metas?.kcal || !appState.metas?.prote_g_dia || !appState.metas?.grasa_g_dia || !appState.metas?.carbs_g_dia;
         return (
           <div className="dashboard-content">
-            {showOverlay && (
-              <OnboardingOverlay 
-                goToSection={navigateToSection}
-                onDismiss={() => setShowOverlay(false)}
-                nombre={appState.perfil?.nombre}
-              />
-            )}
             {(needsProfile || needsGoals) && (
               <OnboardingGuide 
                 goToSection={navigateToSection}
@@ -460,20 +454,20 @@ const Dashboard: React.FC = () => {
       <main className="dashboard-main">
         {renderContent()}
       </main>
+      {showOverlay && (
+        <OnboardingOverlay 
+          goToSection={navigateToSection}
+          onDismiss={() => setShowOverlay(false)}
+          nombre={appState.perfil?.nombre}
+        />
+      )}
       {toast.isVisible && (
         <Toast 
           message={toast.message} 
           onClose={hideToast} 
         />
       )}
-      <SettingsModal
-        open={settingsOpen}
-        onClose={closeSettings}
-        appState={appState as AppStateLike}
-        updateAppState={(ns: unknown) => updateAppState(ns as AppState)}
-        showToast={showToast}
-        onShowOnboarding={() => setShowOverlay(true)}
-      />
+      {/* Settings now integrated as a section; no modal here */}
     </div>
   );
 };

@@ -7,24 +7,24 @@ interface Props {
   needsGoals: boolean;
 }
 
+// Nueva guía: un solo paso claro para completar Perfil y Metas dentro de "Plan"
 const OnboardingGuide: React.FC<Props> = ({ goToSection, nombre, needsProfile, needsGoals }) => {
+  const needsSetup = needsProfile || needsGoals;
   return (
     <div className="onboarding-card" role="region" aria-label="Guía de inicio">
       <h2>¡Bienvenido{nombre ? `, ${nombre}` : ''} a KiloByte!</h2>
-      <p>Arrancá en 2 pasos. Completá tus datos y objetivos para que las porciones y metas se adapten a vos.</p>
+      <p>
+        Dejá la app lista en 1 paso: en <strong>Plan y Metas</strong> vas a completar tu perfil
+        (nombre, peso, altura, edad y actividad) y definir tus objetivos. Con eso calculamos
+        calorías y macros para ajustar automáticamente las porciones.
+      </p>
 
-      <ol className="onboarding-steps">
-        <li className={needsProfile ? '' : 'done'}>
-          <span className="step-title">Completá tu perfil</span>
-          <span className="step-desc">Nombre, peso, altura, edad y nivel de actividad</span>
-          <button className="step-cta" onClick={() => goToSection('perfil')}>Ir a Perfil</button>
-        </li>
-        <li className={needsGoals ? '' : 'done'}>
-          <span className="step-title">Definí tus metas</span>
-          <span className="step-desc">Calorías diarias y macros recomendadas</span>
-          <button className="step-cta" onClick={() => goToSection('plan')}>Ir a Metas</button>
-        </li>
-      </ol>
+      {needsSetup && (
+        <div className="onboarding-cta">
+          <button className="step-cta" onClick={() => goToSection('plan')}>Ir a Plan y Metas</button>
+          <div className="cta-hint">Tarda menos de 1 minuto</div>
+        </div>
+      )}
 
       <div className="onboarding-actions">
         <button className="primary" onClick={() => goToSection('registro')}>Comenzar a registrar</button>

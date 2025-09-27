@@ -25,10 +25,9 @@ type AppStateLite = { perfil?: PerfilInput; metas?: unknown; log?: unknown };
 interface PerfilProps {
   appState: AppStateLite;
   updateAppState: (newState: unknown) => void;
-  showToast: (message: string) => void;
 }
 
-const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) => {
+const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState }) => {
   const [perfil, setPerfil] = useState<PerfilModel>({
     nombre: '',
     peso: 70,
@@ -89,12 +88,7 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
     return calculateTMB() * parseFloat(perfil.actividad);
   };
 
-  // Theme selection moved to Settings. Keep a helper to nudge users there.
-  const abrirTemasEnConfiguracion = () => {
-    showToast('Abrí Configuración para cambiar el tema 🎨');
-  };
-
-  // Respaldo (exportar/importar) se maneja exclusivamente desde Configuración.
+  // Respaldo (exportar/importar) y selección de tema se manejan exclusivamente desde Configuración.
 
   const tmb = Math.round(calculateTMB());
   const tdee = Math.round(calculateTDEE());
@@ -288,22 +282,7 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
         </div>
       </div>
 
-      {/* Preferencias: tema ahora se configura desde Configuración */}
-      <div className="perfil-card">
-        <h2 className="card-title">Preferencias</h2>
-        <div className="preferencias-section">
-          <div className="preferencia-item">
-            <span className="preferencia-label">Tema de la App</span>
-            <div className="theme-toggle">
-              <button className="btn btn-secondary" onClick={abrirTemasEnConfiguracion}>
-                Cambiar tema en Configuración
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Gestión de datos movida a Configuración (única fuente) */}
+      {/* Gestión de datos y preferencias movidas a Configuración (única fuente) */}
     </div>
   );
 };

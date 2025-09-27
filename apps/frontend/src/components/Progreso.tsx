@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import './Progreso.css';
 import { getRecipeSteps } from '../data/recetasPasoAPaso';
 
 // Tipos mínimos usados en este componente (evita any)
-interface Totals { kcal?: number; prot?: number }
-interface DayLog { totals?: Totals; agua_ml?: number; sueno_h?: number }
+interface Totals { kcal?: number; prot?: number; carbs?: number; grasa?: number }
+interface DayLog { totals?: Totals; agua_ml?: number; agua_ml_consumida?: number; sueno_h?: number; ayuno_h?: number }
 type Objetivo = 'bajar' | 'mantener' | 'subir';
 interface AppStateMin {
   perfil?: { peso?: number; objetivo?: string; desbloquearRecetas?: boolean };
-  metas?: { kcal?: number; prote_g_dia?: number; agua_ml?: number };
+  metas?: { kcal?: number; prote_g_dia?: number; agua_ml?: number; carbs_g_dia?: number; grasa_g_dia?: number; ayuno_h_dia?: number };
   log?: Record<string, DayLog | undefined>;
 }
 
@@ -16,8 +16,23 @@ interface ProgresoProps {
   appState: AppStateMin;
 }
 
+type Section = 'resumen' | 'kpis' | 'peso' | 'tendencias' | 'recetas' | null;
+type KPIKey = 'kcal' | 'prot' | 'carbs' | 'grasa' | 'agua' | 'sueno' | 'ayuno';
+
 const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
-  const [openSection, setOpenSection] = useState<'peso' | 'tendencias' | 'recetas' | null>('peso');
+  const [openSection, setOpenSection] = useState<Section>('resumen');
+  const [rangeDays, setRangeDays] = useState<number>(() => {
+    const saved = Number(localStorage.getItem('kiloByteProgressRange') || '7');
+    return [7, 14, 30].includes(saved) ? saved : 7;
+  });
+  const [visibleKPIs, setVisibleKPIs] = useState<Set<KPIKey>>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('kiloByteProgressKPIs') || '[]');
+      const def: KPIKey[] = ['kcal','prot','agua','sueno','ayuno'];
+      const arr: KPIKey[] = Array.isArray(saved) && saved.length ? saved : def;
+      return new Set(arr);
+    } catch { return new Set(['kcal','prot','agua','sueno','ayuno']); }
+  });
 
   const generateWeightData = () => {
     // Simulamos datos de peso para mostrar la gráfica
@@ -62,37 +77,74 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
   const initialWeight = weightData[0]?.weight || 73;
   const weightLoss = Math.round((initialWeight - currentWeight) * 10) / 10;
 
-  const getNutritionTrends = () => {
-    // Simulamos tendencias nutricionales de los últimos 7 días
-    const last7Days = [];
+  const getRangeDays = (n: number) => {
+    const days: { key: string; label: string }[] = [];
     const today = new Date();
-    
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateKey = date.toISOString().split('T')[0];
-      
-      const log = appState.log?.[dateKey];
-      const kcal = log?.totals?.kcal || 0;
-      const prot = log?.totals?.prot || 0;
-      const targetKcal = appState.metas?.kcal || 2000;
-      const targetProt = appState.metas?.prote_g_dia || 140;
-      
-      last7Days.push({
-        date: date.toLocaleDateString('es-AR', { weekday: 'short' }),
-        kcal,
-        prot,
-        kcalPercent: targetKcal > 0 ? Math.round((kcal / targetKcal) * 100) : 0,
-        protPercent: targetProt > 0 ? Math.round((prot / targetProt) * 100) : 0
-      });
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().split('T')[0];
+      const label = d.toLocaleDateString('es-AR', { weekday: 'short' });
+      days.push({ key, label });
     }
-    
-    return last7Days;
+    return days;
   };
 
-  const trends = getNutritionTrends();
-  const avgKcalAdherence = Math.round(trends.reduce((sum, day) => sum + day.kcalPercent, 0) / 7);
-  const avgProtAdherence = Math.round(trends.reduce((sum, day) => sum + day.protPercent, 0) / 7);
+  const trends = useMemo(() => {
+    const days = getRangeDays(rangeDays);
+    const targetKcal = appState.metas?.kcal || 2000;
+    const targetProt = appState.metas?.prote_g_dia || 140;
+    const targetAgua = appState.metas?.agua_ml || 2000;
+    const targetCarbs = appState.metas?.carbs_g_dia || 225;
+    const targetGrasa = appState.metas?.grasa_g_dia || 60;
+    const targetAyuno = appState.metas?.ayuno_h_dia || 14;
+    return days.map(({ key, label }) => {
+      const log = appState.log?.[key];
+      const kcal = log?.totals?.kcal || 0;
+      const prot = log?.totals?.prot || 0;
+      const carbs = log?.totals?.carbs || 0;
+      const grasa = log?.totals?.grasa || 0;
+      const agua = (log?.agua_ml_consumida ?? log?.agua_ml) || 0;
+      const sueno = log?.sueno_h || 0;
+      const ayuno = log?.ayuno_h || 0;
+      return {
+        date: label,
+        kcal, prot, carbs, grasa, agua, sueno, ayuno,
+        pct: {
+          kcal: targetKcal > 0 ? Math.round((kcal / targetKcal) * 100) : 0,
+          prot: targetProt > 0 ? Math.round((prot / targetProt) * 100) : 0,
+          carbs: targetCarbs > 0 ? Math.round((carbs / targetCarbs) * 100) : 0,
+          grasa: targetGrasa > 0 ? Math.round((grasa / targetGrasa) * 100) : 0,
+          agua: targetAgua > 0 ? Math.round((agua / targetAgua) * 100) : 0,
+          sueno: Math.round((sueno / 8) * 100),
+          ayuno: targetAyuno > 0 ? Math.round((ayuno / targetAyuno) * 100) : 0,
+        }
+      };
+    });
+  }, [appState.log, appState.metas?.kcal, appState.metas?.prote_g_dia, appState.metas?.agua_ml, appState.metas?.carbs_g_dia, appState.metas?.grasa_g_dia, appState.metas?.ayuno_h_dia, rangeDays]);
+
+  const avg = useMemo(() => {
+    const base = { kcal:0, prot:0, carbs:0, grasa:0, agua:0, sueno:0, ayuno:0 };
+    const sum = trends.reduce((acc, d)=> ({
+      kcal: acc.kcal + d.pct.kcal,
+      prot: acc.prot + d.pct.prot,
+      carbs: acc.carbs + d.pct.carbs,
+      grasa: acc.grasa + d.pct.grasa,
+      agua: acc.agua + d.pct.agua,
+      sueno: acc.sueno + d.pct.sueno,
+      ayuno: acc.ayuno + d.pct.ayuno,
+    }), base);
+    const div = Math.max(1, trends.length);
+    return {
+      kcal: Math.round(sum.kcal / div),
+      prot: Math.round(sum.prot / div),
+      agua: Math.round(sum.agua / div),
+      carbs: Math.round(sum.carbs / div),
+      grasa: Math.round(sum.grasa / div),
+      sueno: Math.round(sum.sueno / div),
+      ayuno: Math.round(sum.ayuno / div),
+    };
+  }, [trends]);
 
   // Recetas por objetivo (extraídas de Recetas.md)
   type Recipe = { title: string; group: 'Desayuno' | 'Almuerzo' | 'Cena' | 'Snack' };
@@ -176,11 +228,113 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
 
   // Modal de receta
   const [openRecipe, setOpenRecipe] = useState<{ title: string; steps: string[] } | null>(null);
+  const [openMealGroups, setOpenMealGroups] = useState<Record<string, boolean>>({ Desayuno: true, Almuerzo: false, Cena: false, Snack: false });
+  const toggleMeal = (k: string) => setOpenMealGroups(s => ({ ...s, [k]: !s[k] }));
+  const [search, setSearch] = useState('');
+
+  // Persist preferences
+  const onToggleKPI = (k: KPIKey) => {
+    setVisibleKPIs(prev => {
+      const n = new Set(prev);
+      if (n.has(k)) n.delete(k); else n.add(k);
+      localStorage.setItem('kiloByteProgressKPIs', JSON.stringify(Array.from(n)));
+      return n;
+    });
+  };
+  const onChangeRange = (n: number) => { setRangeDays(n); localStorage.setItem('kiloByteProgressRange', String(n)); };
 
   return (
     <div className="progreso-container">
       <h1 className="progreso-title">Mi Progreso</h1>
       
+      {/* Preferencias rápidas */}
+      <div className="progress-prefs">
+        <div className="prefs-range" role="group" aria-label="Rango de días">
+          <button className={`chip ${rangeDays===7?'active':''}`} onClick={()=>onChangeRange(7)}>7d</button>
+          <button className={`chip ${rangeDays===14?'active':''}`} onClick={()=>onChangeRange(14)}>14d</button>
+          <button className={`chip ${rangeDays===30?'active':''}`} onClick={()=>onChangeRange(30)}>30d</button>
+        </div>
+        <div className="prefs-kpis" aria-label="KPIs visibles">
+          {(['kcal','prot','carbs','grasa','agua','sueno','ayuno'] as KPIKey[]).map(k => (
+            <label key={k} className={`kpi-toggle ${visibleKPIs.has(k)?'on':''}`}>
+              <input type="checkbox" checked={visibleKPIs.has(k)} onChange={()=>onToggleKPI(k)} />
+              <span>{({kcal:'Kcal',prot:'Prote',carbs:'Carbs',grasa:'Grasa',agua:'Agua',sueno:'Sueño',ayuno:'Ayuno'})[k]}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Resumen impactante */}
+      <div className="progress-card collapsible">
+        <div className="collapsible-header">
+          <h2 className="card-title">Resumen (últimos {rangeDays} días)</h2>
+          <button className={`collapse-toggle ${openSection==='resumen'?'open':''}`} onClick={()=> setOpenSection(s=> s==='resumen'? null : 'resumen')} aria-label="Alternar">
+            ▾
+          </button>
+        </div>
+        {openSection==='resumen' && (
+          <div className="kpi-grid-impact">
+            <div className="kpi-card-impact">
+              <div className="kpi-ring" data-pct={avg.kcal}><div style={{ ['--pct' as string]: `${Math.min(100, avg.kcal)}%` } as React.CSSProperties} /></div>
+              <div className="kpi-info"><div className="kpi-label">Adherencia kcal</div><div className="kpi-value">{avg.kcal}%</div></div>
+            </div>
+            <div className="kpi-card-impact">
+              <div className="kpi-ring" data-pct={avg.prot}><div style={{ ['--pct' as string]: `${Math.min(100, avg.prot)}%` } as React.CSSProperties} /></div>
+              <div className="kpi-info"><div className="kpi-label">Adherencia proteínas</div><div className="kpi-value">{avg.prot}%</div></div>
+            </div>
+            <div className="kpi-card-impact">
+              <div className="kpi-ring" data-pct={avg.agua}><div style={{ ['--pct' as string]: `${Math.min(100, avg.agua)}%` } as React.CSSProperties} /></div>
+              <div className="kpi-info"><div className="kpi-label">Hidratación</div><div className="kpi-value">{avg.agua}%</div></div>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      {/* Panel de KPIs seleccionados */}
+      <div className="progress-card collapsible">
+        <div className="collapsible-header">
+          <h2 className="card-title">Panel de KPIs</h2>
+          <button className={`collapse-toggle ${openSection==='kpis'?'open':''}`} onClick={()=> setOpenSection(s=> s==='kpis'? null : 'kpis')} aria-label="Alternar">▾</button>
+        </div>
+        {openSection==='kpis' && (
+          <div className="kpi-board">
+            {Array.from(visibleKPIs).map(k => {
+              const keyMap: Record<KPIKey, { label: string; colorVar: string; values: number[]; pcts: number[] }>= {
+                kcal: { label: 'Calorías', colorVar: 'var(--color-primary)', values: trends.map(d=>d.kcal), pcts: trends.map(d=>d.pct.kcal) },
+                prot: { label: 'Proteínas', colorVar: 'var(--color-secondary)', values: trends.map(d=>d.prot), pcts: trends.map(d=>d.pct.prot) },
+                carbs:{ label: 'Carbs', colorVar: '#45B7D1', values: trends.map(d=>d.carbs), pcts: trends.map(d=>d.pct.carbs) },
+                grasa:{ label: 'Grasa', colorVar: '#96CEB4', values: trends.map(d=>d.grasa), pcts: trends.map(d=>d.pct.grasa) },
+                agua: { label: 'Agua (ml)', colorVar: 'var(--color-primary)', values: trends.map(d=>d.agua), pcts: trends.map(d=>d.pct.agua) },
+                sueno:{ label: 'Sueño (h)', colorVar: '#7C3AED', values: trends.map(d=>d.sueno), pcts: trends.map(d=>d.pct.sueno) },
+                ayuno:{ label: 'Ayuno (h)', colorVar: '#F43F5E', values: trends.map(d=>d.ayuno), pcts: trends.map(d=>d.pct.ayuno) },
+              };
+              const cfg = keyMap[k];
+              const avgPct = Math.round(cfg.pcts.reduce((a,b)=>a+b,0) / Math.max(1,cfg.pcts.length));
+              const maxVal = Math.max(1, ...cfg.values);
+              const points = cfg.values.map((v,i)=>{
+                const x = (i/(cfg.values.length-1||1))*100;
+                const y = 100 - (v/maxVal)*100;
+                return `${x},${y}`;
+              }).join(' ');
+              return (
+                <div key={k} className="kpi-mini">
+                  <div className="mini-head">
+                    <span className="mini-label">{cfg.label}</span>
+                    <span className={`mini-pct ${avgPct>=90?'ok':avgPct>=70?'warn':'bad'}`}>{avgPct}%</span>
+                  </div>
+                  <svg className="sparkline" viewBox="0 0 100 28" preserveAspectRatio="none">
+                    <polyline fill="none" stroke={cfg.colorVar} strokeWidth="2" points={points} />
+                  </svg>
+                  <div className="mini-days">
+                    {trends.map((d,i)=> <span key={i} className="day-dot" title={`${d.date}: ${cfg.values[i]}`}></span>)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       {/* Gráfico de peso (colapsable) */}
       <div className="progress-card collapsible">
         <div className="collapsible-header">
@@ -267,10 +421,10 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
         )}
       </div>
 
-      {/* Tendencias nutricionales (colapsable) */}
+      {/* Tendencias detalladas (dinámicas por selección) */}
       <div className="progress-card collapsible">
         <div className="collapsible-header">
-          <h2 className="card-title">Tendencias Nutricionales (7 días)</h2>
+          <h2 className="card-title">Tendencias (últimos {rangeDays} días)</h2>
           <button
             className={`collapse-toggle ${openSection === 'tendencias' ? 'open' : ''}`}
             onClick={() => setOpenSection(prev => (prev === 'tendencias' ? null : 'tendencias'))}
@@ -282,18 +436,14 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
         {openSection === 'tendencias' && (
         <>
         <div className="trends-summary">
-          <div className="trend-stat">
-            <span className="trend-label">Adherencia promedio - Calorías</span>
-            <span className={`trend-value ${avgKcalAdherence >= 90 ? 'success' : avgKcalAdherence >= 70 ? 'warning' : 'error'}`}>
-              {avgKcalAdherence}%
-            </span>
-          </div>
-          <div className="trend-stat">
-            <span className="trend-label">Adherencia promedio - Proteínas</span>
-            <span className={`trend-value ${avgProtAdherence >= 90 ? 'success' : avgProtAdherence >= 70 ? 'warning' : 'error'}`}>
-              {avgProtAdherence}%
-            </span>
-          </div>
+          {(['kcal','prot'] as KPIKey[]).filter(k=>visibleKPIs.has(k)).map(k => (
+            <div key={k} className="trend-stat">
+              <span className="trend-label">{k==='kcal'?'Adherencia promedio - Calorías':'Adherencia promedio - Proteínas'}</span>
+              <span className={`trend-value ${ (k==='kcal'?avg.kcal:avg.prot) >= 90 ? 'success' : (k==='kcal'?avg.kcal:avg.prot) >= 70 ? 'warning' : 'error'}`}>
+                {k==='kcal'?avg.kcal:avg.prot}%
+              </span>
+            </div>
+          ))}
         </div>
 
         <div className="daily-trends">
@@ -301,28 +451,22 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
             <div key={index} className="daily-trend">
               <div className="day-label">{day.date}</div>
               <div className="trend-bars">
-                <div className="trend-bar-container">
-                  <label>Calorías</label>
-                  <div className="trend-bar">
-                    <div 
-                      className={`trend-bar-fill ${day.kcalPercent >= 90 && day.kcalPercent <= 110 ? 'success' : 
-                        day.kcalPercent >= 70 && day.kcalPercent <= 130 ? 'warning' : 'error'}`}
-                      style={{ width: `${Math.min(day.kcalPercent, 100)}%` }}
-                    ></div>
-                  </div>
-                  <span className="trend-bar-value">{day.kcalPercent}%</span>
-                </div>
-                <div className="trend-bar-container">
-                  <label>Proteínas</label>
-                  <div className="trend-bar">
-                    <div 
-                      className={`trend-bar-fill ${day.protPercent >= 80 ? 'success' : 
-                        day.protPercent >= 60 ? 'warning' : 'error'}`}
-                      style={{ width: `${Math.min(day.protPercent, 100)}%` }}
-                    ></div>
-                  </div>
-                  <span className="trend-bar-value">{day.protPercent}%</span>
-                </div>
+                {(['kcal','prot','carbs','grasa','agua','sueno','ayuno'] as KPIKey[])
+                  .filter(k => visibleKPIs.has(k))
+                  .map(k => {
+                    const label = ({kcal:'Calorías',prot:'Proteínas',carbs:'Carbs',grasa:'Grasa',agua:'Agua',sueno:'Sueño',ayuno:'Ayuno'})[k];
+                    const pct = day.pct[k];
+                    const cls = pct >= 90 && pct <= 110 ? 'success' : pct >= 70 && pct <= 130 ? 'warning' : 'error';
+                    return (
+                      <div key={k} className="trend-bar-container">
+                        <label>{label}</label>
+                        <div className="trend-bar">
+                          <div className={`trend-bar-fill ${cls}`} style={{ width: `${Math.min(100, pct)}%` }} />
+                        </div>
+                        <span className="trend-bar-value">{pct}%</span>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
           ))}
@@ -345,6 +489,9 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
         </div>
         {openSection === 'recetas' && (
         <div className="recipes">
+          <div className="recipes-toolbar">
+            <input className="recipes-search" placeholder="Buscar receta..." value={search} onChange={(e)=> setSearch(e.target.value)} />
+          </div>
           {grupos.map((g) => {
             const enabled = desbloquear || g.key === objetivoActual;
             return (
@@ -353,31 +500,41 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
                   <h3>{g.label}</h3>
                   {!enabled && <span className="badge-disabled">Bloqueado por plan</span>}
                 </div>
-                <div className="recipe-grid">
-                  {recetas[g.key].map((r, idx) => (
-                    <div
-                      key={idx}
-                      className={`recipe-card ${enabled ? '' : 'disabled'}`}
-                      title={enabled ? r.title : 'No disponible: esta receta no es parte de tu plan actual'}
-                      onClick={(e) => {
-                        if (!enabled) {
-                          // No-op, bloqueado: solo tooltip nativo del title
-                          e.preventDefault();
-                          return;
-                        }
-                        const steps = getRecipeSteps(r.title);
-                        if (steps && steps.length) {
-                          setOpenRecipe({ title: r.title, steps });
-                        }
-                      }}
-                      aria-disabled={!enabled}
-                      role="button"
-                    >
-                      <div className="recipe-title">{r.title}</div>
-                      <div className="recipe-meta">{r.group}</div>
+                {(['Desayuno','Almuerzo','Cena','Snack'] as const).map(meal => {
+                  const items = recetas[g.key].filter(r => r.group === meal && (!search || r.title.toLowerCase().includes(search.toLowerCase())));
+                  if (!items.length) return null;
+                  const open = openMealGroups[meal];
+                  return (
+                    <div key={meal} className="recipe-sub-accordion">
+                      <button className={`sub-acc-header ${open?'open':''}`} onClick={()=> toggleMeal(meal)}>
+                        <span>{meal}</span>
+                        <span className="count">{items.length}</span>
+                        <span className="chev">▾</span>
+                      </button>
+                      {open && (
+                        <div className="recipe-grid">
+                          {items.map((r, idx) => (
+                            <div
+                              key={idx}
+                              className={`recipe-card ${enabled ? '' : 'disabled'}`}
+                              title={enabled ? r.title : 'No disponible: esta receta no es parte de tu plan actual'}
+                              onClick={(e) => {
+                                if (!enabled) { e.preventDefault(); return; }
+                                const steps = getRecipeSteps(r.title);
+                                if (steps && steps.length) setOpenRecipe({ title: r.title, steps });
+                              }}
+                              aria-disabled={!enabled}
+                              role="button"
+                            >
+                              <div className="recipe-title">{r.title}</div>
+                              <div className="recipe-meta">{r.group}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             );
           })}
