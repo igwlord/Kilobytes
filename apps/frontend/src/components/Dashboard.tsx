@@ -100,8 +100,7 @@ const Dashboard: React.FC = () => {
     proteinas: 0,
     carbs: 0,
     grasas: 0,
-  agua: 0,
-    pasos: 3900,
+    agua: 0,
     sueno_h: 0,
     ayuno_h: 0
   });
@@ -191,16 +190,55 @@ const Dashboard: React.FC = () => {
 
   const closeSettings = () => setSettingsOpen(false);
 
-  const calculateTMB = (): number => {
-    if (appState.perfil.genero === 'masculino') {
-      return 10 * appState.perfil.peso + 6.25 * appState.perfil.altura_cm - 5 * appState.perfil.edad + 5;
-    } else {
-      return 10 * appState.perfil.peso + 6.25 * appState.perfil.altura_cm - 5 * appState.perfil.edad - 161;
-    }
+  // Streaks helpers (rachas)
+  const parseKey = (key: string) => {
+    const [y, m, d] = key.split('-').map(n => parseInt(n, 10));
+    return new Date(y, (m || 1) - 1, d || 1);
   };
-
-  const calculateTDEE = (): number => {
-    return calculateTMB() * appState.perfil.actividad;
+  const formatKey = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+  const hasData = (dl?: DayLogMin) => {
+    if (!dl) return false;
+    return (dl.totals?.kcal ?? 0) > 0 || (dl.agua_ml_consumida ?? 0) > 0 || (dl.sueno_h ?? 0) > 0 || (dl.ayuno_h ?? 0) > 0;
+  };
+  const getCurrentStreak = (): number => {
+    let streak = 0;
+    const today = new Date();
+    const check = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    while (true) {
+      const key = formatKey(check);
+      if (hasData(appState.log?.[key])) {
+        streak += 1;
+        check.setDate(check.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+  const getBestStreak = (): number => {
+    const keys = Object.keys(appState.log || {});
+    if (keys.length === 0) return 0;
+    const valid = keys.filter(k => hasData(appState.log[k])).sort();
+    if (valid.length === 0) return 0;
+    let best = 1;
+    let curr = 1;
+    for (let i = 1; i < valid.length; i++) {
+      const prev = parseKey(valid[i - 1]);
+      const currDate = parseKey(valid[i]);
+      const nextOfPrev = new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() + 1);
+      if (formatKey(nextOfPrev) === formatKey(currDate)) {
+        curr += 1;
+        best = Math.max(best, curr);
+      } else {
+        curr = 1;
+      }
+    }
+    return best;
   };
 
   const goToRegister = () => {
@@ -281,6 +319,14 @@ const Dashboard: React.FC = () => {
 
             {(() => { const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 480px)').matches; const ring = isMobile ? 56 : 72; return (
             <>
+            {/* CTA principal para registrar comida */}
+            <div className="primary-cta">
+              <button onClick={goToRegister} className="btn btn-primary btn-cta">
+                🍽️ Registrar Comida ahora
+              </button>
+              <span className="cta-hint">Acceso rápido al registro diario</span>
+            </div>
+
             <div className="kpi-grid kpi-grid-compact kpi-grid-mobile-2">
               <div className="kpi-card kpi-compact">
                 <h3>Calorías</h3>
@@ -358,109 +404,11 @@ const Dashboard: React.FC = () => {
                   }}
                 />
               </div>
-
-              <div className="kpi-card kpi-compact">
-                <h3>Pasos</h3>
-                <ProgressRing 
-                  value={currentProgress.pasos} 
-                  maxValue={appState.metas.pasos_dia} 
-                  color="var(--color-secondary)"
-                  size={ring}
-                />
-                <div className="kpi-text">
-                  <span className="kpi-value">{currentProgress.pasos.toLocaleString()}</span>
-                  <span className="kpi-total">/ {appState.metas.pasos_dia.toLocaleString()}</span>
-                </div>
-              </div>
             </div>
             </>
             )})()}
 
-            <div className="action-buttons">
-              <button onClick={goToRegister} className="btn btn-primary">
-                Registrar Comida
-              </button>
-            </div>
-
             <div className="wellbeing-grid">
-              <div className="wellbeing-card">
-                <h3>😴 Sueño y Descanso</h3>
-                <p className="wb-sub">Objetivo recomendado: 7-9h</p>
-                <div className="wb-row">
-                  <label>Horas dormidas hoy</label>
-                  <div className="wb-input-group">
-                    <button
-                      className="wb-btn"
-                      onClick={() => {
-                        const val = Math.max(0, Math.min(24, (currentProgress.sueno_h || 0) - 0.5));
-                        const today = new Date().toISOString().split('T')[0];
-                        const newLog = { ...(appState.log || {}) };
-                        newLog[today] = {
-                          ...(newLog[today] || { agua_ml: 0, pasos: 0, ejercicio_min: 0, comidas: { desayuno: [], almuerzo: [], merienda: [], cena: [], snack: [] }, totals: { kcal: 0, prot: 0, carbs: 0, grasa: 0 } }),
-                          sueno_h: val,
-                        };
-                        setCurrentProgress(p => ({ ...p, sueno_h: val }));
-                        setAppState({ ...appState, log: newLog });
-                        localStorage.setItem('kiloByteData', JSON.stringify({ ...appState, log: newLog }));
-                      }}
-                    >−</button>
-                    <input
-                      type="number"
-                      min={0}
-                      max={24}
-                      step={0.5}
-                      value={currentProgress.sueno_h}
-                      onChange={(e) => {
-                        const val = Math.max(0, Math.min(24, parseFloat(e.target.value) || 0));
-                        const today = new Date().toISOString().split('T')[0];
-                        const newLog = { ...(appState.log || {}) };
-                        newLog[today] = {
-                          ...(newLog[today] || { agua_ml: 0, pasos: 0, ejercicio_min: 0, comidas: { desayuno: [], almuerzo: [], merienda: [], cena: [], snack: [] }, totals: { kcal: 0, prot: 0, carbs: 0, grasa: 0 } }),
-                          sueno_h: val,
-                        };
-                        setCurrentProgress(p => ({ ...p, sueno_h: val }));
-                        setAppState({ ...appState, log: newLog });
-                        localStorage.setItem('kiloByteData', JSON.stringify({ ...appState, log: newLog }));
-                      }}
-                    />
-                    <button
-                      className="wb-btn"
-                      onClick={() => {
-                        const val = Math.max(0, Math.min(24, (currentProgress.sueno_h || 0) + 0.5));
-                        const today = new Date().toISOString().split('T')[0];
-                        const newLog = { ...(appState.log || {}) };
-                        newLog[today] = {
-                          ...(newLog[today] || { agua_ml: 0, pasos: 0, ejercicio_min: 0, comidas: { desayuno: [], almuerzo: [], merienda: [], cena: [], snack: [] }, totals: { kcal: 0, prot: 0, carbs: 0, grasa: 0 } }),
-                          sueno_h: val,
-                        };
-                        setCurrentProgress(p => ({ ...p, sueno_h: val }));
-                        setAppState({ ...appState, log: newLog });
-                        localStorage.setItem('kiloByteData', JSON.stringify({ ...appState, log: newLog }));
-                      }}
-                    >+</button>
-                    <button
-                      className="wb-btn ghost"
-                      title="Copiar de ayer"
-                      onClick={() => {
-                        const today = new Date();
-                        const prev = new Date(today);
-                        prev.setDate(today.getDate() - 1);
-                        const prevKey = prev.toISOString().split('T')[0];
-                        const prevVal = appState.log?.[prevKey]?.sueno_h ?? currentProgress.sueno_h ?? 0;
-                        const todayKey = today.toISOString().split('T')[0];
-                        const newLog = { ...(appState.log || {}) };
-                        newLog[todayKey] = {
-                          ...(newLog[todayKey] || { agua_ml: 0, pasos: 0, ejercicio_min: 0, comidas: { desayuno: [], almuerzo: [], merienda: [], cena: [], snack: [] }, totals: { kcal: 0, prot: 0, carbs: 0, grasa: 0 } }),
-                          sueno_h: prevVal,
-                        };
-                        setCurrentProgress(p => ({ ...p, sueno_h: prevVal }));
-                        setAppState({ ...appState, log: newLog });
-                        localStorage.setItem('kiloByteData', JSON.stringify({ ...appState, log: newLog }));
-                      }}
-                    >⟲</button>
-                  </div>
-                </div>
-              </div>
               <div className="wellbeing-card compact">
                 <h3>⏳ Ayuno</h3>
                 <p className="wb-sub">Configurado en Plan</p>
@@ -471,18 +419,32 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="metabolism-card compact">
-                <h3>ℹ️ Metabolismo</h3>
-                <div className="metabolism-stats">
-                  <div className="stat">
-                    <span className="stat-label">TMB</span>
-                    <span className="stat-value">{Math.round(calculateTMB())} kcal</span>
-                  </div>
-                  <div className="stat">
-                    <span className="stat-label">TDEE</span>
-                    <span className="stat-value">{Math.round(calculateTDEE())} kcal</span>
-                  </div>
-                </div>
+              <div className="streaks-card compact">
+                <h3>🔥 Rachas</h3>
+                {(() => {
+                  const current = getCurrentStreak();
+                  const best = getBestStreak();
+                  const milestones = [7, 14, 21, 30];
+                  const next = milestones.find(m => m > current) ?? null;
+                  const pct = next ? Math.min(100, Math.round((current / next) * 100)) : 100;
+                  return (
+                    <div className="streaks-content">
+                      <div className="streaks-stats">
+                        <div className="stat"><span className="stat-label">Racha actual</span><span className="stat-value">{current} días</span></div>
+                        <div className="stat"><span className="stat-label">Mejor racha</span><span className="stat-value">{best} días</span></div>
+                      </div>
+                      <div className="streaks-milestones">
+                        {milestones.map(m => (
+                          <span key={m} className={`milestone ${current >= m ? 'achieved' : ''}`}>+{m} días</span>
+                        ))}
+                      </div>
+                      <div className="streaks-progress">
+                        <div className="bar"><div className="fill" style={{ width: `${pct}%` }} /></div>
+                        <span className="next-label">{next ? `Próximo hito: ${next} días` : '¡Todos los hitos logrados!'}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>

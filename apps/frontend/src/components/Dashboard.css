@@ -59,6 +59,20 @@
   color: var(--text-secondary);
 }
 
+/* Primary CTA block under header */
+.primary-cta {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  margin: 1rem 0 1.25rem;
+}
+.btn-cta {
+  padding: 0.9rem 1.25rem;
+  font-size: 1rem;
+  border-radius: 12px;
+}
+.cta-hint { color: var(--text-secondary); font-size: 0.85rem; }
+
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -167,6 +181,27 @@
   color: var(--text-primary);
   margin-bottom: 1.5rem;
 }
+
+/* Streaks (Rachas) card */
+.streaks-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+.streaks-card h3 { margin: 0 0 0.5rem; font-size: 1rem; color: var(--text-primary); }
+.streaks-content { display: grid; gap: 0.6rem; }
+.streaks-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.streaks-stats .stat { display: grid; gap: 0.15rem; }
+.streaks-stats .stat-label { color: var(--text-secondary); font-size: 0.85rem; }
+.streaks-stats .stat-value { color: var(--text-primary); font-weight: 700; }
+.streaks-milestones { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.streaks-milestones .milestone { background: var(--glass-12); border: 1px solid var(--glass-25); color: var(--text-primary); padding: 0.25rem 0.45rem; border-radius: 999px; font-size: 0.8rem; }
+.streaks-milestones .milestone.achieved { background: color-mix(in oklab, var(--color-secondary), #ffffff 85%); border-color: color-mix(in oklab, var(--color-secondary), #000 15%); color: #0f172a; }
+.streaks-progress { display: grid; gap: 0.35rem; }
+.streaks-progress .bar { height: 8px; background: var(--glass-12); border-radius: 999px; overflow: hidden; border: 1px solid var(--glass-20); }
+.streaks-progress .fill { height: 100%; background: var(--color-secondary); border-radius: 999px; }
+.next-label { color: var(--text-secondary); font-size: 0.8rem; }
 
 .metabolism-grid {
   display: grid;
