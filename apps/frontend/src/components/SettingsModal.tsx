@@ -30,6 +30,7 @@ interface AppStateLike {
     peso_inicial?: number;
     desbloquearRecetas?: boolean;
     silenciarNotificaciones?: boolean;
+    mostrarAlertasMacros?: boolean;
   };
   metas: Goals;
   log: Record<string, DayLogMin>;
@@ -55,6 +56,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
   const [theme, setTheme] = useState(appState.perfil?.theme || 'dark');
   const [unlockRecipes, setUnlockRecipes] = useState(!!appState.perfil?.desbloquearRecetas);
   const [muteToasts, setMuteToasts] = useState(!!appState.perfil?.silenciarNotificaciones);
+  const [showAlerts, setShowAlerts] = useState(appState.perfil?.mostrarAlertasMacros ?? true);
   const [busy, setBusy] = useState<'export' | 'import' | null>(null);
 
   useEffect(() => {
@@ -62,8 +64,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
       setTheme(appState.perfil?.theme || 'dark');
       setUnlockRecipes(!!appState.perfil?.desbloquearRecetas);
       setMuteToasts(!!appState.perfil?.silenciarNotificaciones);
+      setShowAlerts(appState.perfil?.mostrarAlertasMacros ?? true);
     }
-  }, [open, appState.perfil?.theme, appState.perfil?.desbloquearRecetas, appState.perfil?.silenciarNotificaciones]);
+  }, [open, appState.perfil?.theme, appState.perfil?.desbloquearRecetas, appState.perfil?.silenciarNotificaciones, appState.perfil?.mostrarAlertasMacros]);
 
   if (!open) return null;
 
@@ -78,7 +81,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
     const newState = {
       ...appState,
       // Solo guardamos preferencias, el nombre se edita en Perfil
-      perfil: { ...appState.perfil, theme, desbloquearRecetas: unlockRecipes, silenciarNotificaciones: muteToasts }
+      perfil: { ...appState.perfil, theme, desbloquearRecetas: unlockRecipes, silenciarNotificaciones: muteToasts, mostrarAlertasMacros: showAlerts }
     };
     updateAppState(newState);
     applyTheme(theme);
@@ -208,7 +211,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
             Tené en cuenta los riesgos de salir del plan: podrías afectar tu progreso.
           </p>
           <div style={{ height: 10 }}></div>
-          <h3>Notificaciones</h3>
+          <h3>Notificaciones y alertas</h3>
           <label className="toggle-row">
             <input
               type="checkbox"
@@ -216,6 +219,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
               onChange={(e) => setMuteToasts(e.target.checked)}
             />
             <span>Silenciar notificaciones</span>
+          </label>
+          <label className="toggle-row">
+            <input
+              type="checkbox"
+              checked={!!showAlerts}
+              onChange={(e) => setShowAlerts(e.target.checked)}
+            />
+            <span>Mostrar alertas de macros (tarjetas y campos)</span>
           </label>
         </div>
 

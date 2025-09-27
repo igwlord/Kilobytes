@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 // Lazy-load food database utilities on demand to improve initial bundle size
 import type { FoodItem } from '../data/foodDatabaseNew';
 import './RegistroProFinal.css';
@@ -53,6 +53,7 @@ interface AppStateLike {
   perfil?: {
     theme?: string;
     nombre?: string;
+    mostrarAlertasMacros?: boolean;
   };
   metas: GoalsMin;
   log: Record<string, Partial<DayLog> | undefined>;
@@ -93,7 +94,13 @@ const formatLocalDate = (d: Date) => {
 };
 
 const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, showToast }) => {
-  const [selectedDate, setSelectedDate] = useState(formatLocalDate(new Date()));
+  const [selectedDate, setSelectedDate] = useState(() => {
+    try {
+      const saved = localStorage.getItem('kiloByteSelectedDate');
+      if (saved) return saved;
+    } catch { /* ignore */ }
+    return formatLocalDate(new Date());
+  });
   const [currentEntries, setCurrentEntries] = useState<FoodEntry[]>([]);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [selectedMeal, setSelectedMeal] = useState<string>('desayuno');
@@ -119,14 +126,21 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     show: false, content: '', x: 0, y: 0
   });
   const [openMeal, setOpenMeal] = useState<string | null>(null);
+  const alertsOn = appState.perfil?.mostrarAlertasMacros ?? true;
 
   // Navegación por fecha
-  const shiftDate = (days: number) => {
+  const shiftDate = useCallback((days: number) => {
     const d = parseLocalDate(selectedDate);
     d.setDate(d.getDate() + days);
-    setSelectedDate(formatLocalDate(d));
-  };
-  const goToday = () => setSelectedDate(formatLocalDate(new Date()));
+    const next = formatLocalDate(d);
+    setSelectedDate(next);
+    try { localStorage.setItem('kiloByteSelectedDate', next); } catch { /* ignore */ }
+  }, [selectedDate]);
+  const goToday = useCallback(() => {
+    const today = formatLocalDate(new Date());
+    setSelectedDate(today);
+    try { localStorage.setItem('kiloByteSelectedDate', today); } catch { /* ignore */ }
+  }, []);
 
   // Mobile detection to apply a two-step flow on phones
   // Use a slightly broader width to include larger phones but avoid tablets
@@ -215,6 +229,23 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
       setCurrentEntries([]);
     }
   }, [selectedDate, appState.log]);
+
+  // Persist date on manual picker change
+  useEffect(() => {
+    try { localStorage.setItem('kiloByteSelectedDate', selectedDate); } catch { /* ignore */ }
+  }, [selectedDate]);
+
+  // Keyboard shortcuts for date nav: Left/Right arrows and H key for today
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.tagName === 'INPUT') return; // don't steal focus from inputs
+      if (e.key === 'ArrowLeft') { e.preventDefault(); shiftDate(-1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); shiftDate(1); }
+      else if (e.key.toLowerCase() === 'h') { e.preventDefault(); goToday(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [shiftDate, goToday]);
 
   // Calcular totales del día
   const dayTotals = currentEntries.reduce(
@@ -501,7 +532,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
           ].map(macro => (
             <div 
               key={macro.key}
-              className={`macro-progress macro-${macro.key} ${macro.value > macro.max ? 'over-target' : ''}`}
+              className={`macro-progress macro-${macro.key} ${alertsOn && macro.value > macro.max ? 'over-target' : ''}`}
               aria-live="polite"
               aria-label={`${macro.label} ${Math.round(macro.value)} de ${macro.max}${macro.unit}${macro.value > macro.max ? ' (superado)' : ''}`}
               onMouseEnter={(e) => showTooltip(e, `${macro.label}: ${Math.round(macro.value)}${macro.unit} / ${macro.max}${macro.unit}`)}
@@ -862,7 +893,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                         if (projected.prot > goals.prot) over.push('proteínas');
                         if (projected.carbs > goals.carbs) over.push('carbos');
                         if (projected.grasa > goals.grasa) over.push('grasas');
-                        if (over.length === 0) return null;
+                        if (!alertsOn || over.length === 0) return null;
                         return (
                           <div className="field-alert-msg" role="status" aria-live="polite">
                             Excede objetivo de {over.join(', ')}
@@ -875,7 +906,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                           type="number"
                           value={customUnits}
                           onChange={(e) => setCustomUnits(e.target.value)}
-                          className={`custom-input-final ${(() => {
+                          className={`custom-input-final ${alertsOn ? (() => {
                             const unitsVal = parseFloat(customUnits);
                             if (!foodApi || !selectedFood || !(unitsVal > 0)) return '';
                             const add = foodApi.calculateNutritionFromUnits(selectedFood.id, unitsVal);
@@ -893,8 +924,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                               grasa: appState.metas?.grasa_g_dia || 65,
                             };
                             return (projected.kcal > goals.kcal || projected.prot > goals.prot || projected.carbs > goals.carbs || projected.grasa > goals.grasa) ? 'field-alert' : '';
-                          })()}`}
-                          aria-invalid={(() => {
+                          })() : ''}`}
+                          aria-invalid={alertsOn ? (() => {
                             const unitsVal = parseFloat(customUnits);
                             if (!foodApi || !selectedFood || !(unitsVal > 0)) return false;
                             const add = foodApi.calculateNutritionFromUnits(selectedFood.id, unitsVal);
@@ -912,7 +943,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                               grasa: appState.metas?.grasa_g_dia || 65,
                             };
                             return (projected.kcal > goals.kcal || projected.prot > goals.prot || projected.carbs > goals.carbs || projected.grasa > goals.grasa);
-                          })()}
+                          })() : false}
                           placeholder="p. ej. 1"
                           min="0.1"
                           step="0.5"
@@ -986,7 +1017,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                         if (projected.prot > goals.prot) over.push('proteínas');
                         if (projected.carbs > goals.carbs) over.push('carbos');
                         if (projected.grasa > goals.grasa) over.push('grasas');
-                        if (over.length === 0) return null;
+                        if (!alertsOn || over.length === 0) return null;
                         return (
                           <div className="field-alert-msg" role="status" aria-live="polite">
                             Excede objetivo de {over.join(', ')}
@@ -999,7 +1030,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                           type="number"
                           value={customGrams}
                           onChange={(e) => setCustomGrams(e.target.value)}
-                          className={`custom-input-final ${(() => {
+                          className={`custom-input-final ${alertsOn ? (() => {
                             const gramsVal = parseInt(customGrams);
                             if (!foodApi || !selectedFood || !(gramsVal > 0)) return '';
                             const add = foodApi.calculateNutrition(selectedFood.id, gramsVal);
@@ -1017,8 +1048,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                               grasa: appState.metas?.grasa_g_dia || 65,
                             };
                             return (projected.kcal > goals.kcal || projected.prot > goals.prot || projected.carbs > goals.carbs || projected.grasa > goals.grasa) ? 'field-alert' : '';
-                          })()}`}
-                          aria-invalid={(() => {
+                          })() : ''}`}
+                          aria-invalid={alertsOn ? (() => {
                             const gramsVal = parseInt(customGrams);
                             if (!foodApi || !selectedFood || !(gramsVal > 0)) return false;
                             const add = foodApi.calculateNutrition(selectedFood.id, gramsVal);
@@ -1036,7 +1067,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                               grasa: appState.metas?.grasa_g_dia || 65,
                             };
                             return (projected.kcal > goals.kcal || projected.prot > goals.prot || projected.carbs > goals.carbs || projected.grasa > goals.grasa);
-                          })()}
+                          })() : false}
                           placeholder="p. ej. 100"
                           min="1"
                           max="2000"
