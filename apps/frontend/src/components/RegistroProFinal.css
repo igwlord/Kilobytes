@@ -269,40 +269,7 @@
 .qa-icon { font-size: 1rem; }
 .qa-text { font-size: 0.85rem; }
 
-/* Legacy quick action large button (kept hidden) - candidate for removal */
-.quick-actions-btn-final {
-  background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-  border: none;
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
-  color: #1a1a2e;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-}
-
-/* Hide the old large quick action button/panel */
-.quick-actions-btn-final { display: none !important; }
-
-.quick-actions-btn-final:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
-}
-
-.action-icon {
-  font-size: 1.2rem;
-}
-
-.action-label {
-  font-size: 0.9rem;
-}
-
-/* Acciones rápidas */
-.quick-actions-final { display: none !important; }
+/* Legacy quick actions removed */
 
 @keyframes slideDown {
   from {

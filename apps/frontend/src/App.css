@@ -15,6 +15,7 @@
   --text-secondary: #5f5f5f;
   --border-color: #e0e0e0;
   --btn-active-bg: #f0f0f0;
+  --focus-ring: var(--color-primary);
 
   /* Cross-theme translucent overlays for light theme (black tints) */
   --glass-05: rgba(0, 0, 0, 0.05);
@@ -42,6 +43,7 @@
   --text-secondary: #a0a0a0;
   --border-color: #2a3a5a;
   --btn-active-bg: #2a3a5a;
+  --focus-ring: var(--color-primary);
 
   /* Cross-theme translucent overlays for dark theme (white tints) */
   --glass-05: rgba(255, 255, 255, 0.05);
