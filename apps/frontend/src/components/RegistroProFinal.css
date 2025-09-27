@@ -425,6 +425,26 @@
   gap: 1rem;
 }
 
+/* Per-meal copy controls */
+.meal-copy-actions { display: inline-flex; align-items: center; margin-left: 0.5rem; }
+.meal-copy-link {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.15rem 0.25rem;
+  border-radius: 6px;
+}
+.meal-copy-link:hover { color: var(--text-primary); background: var(--glass-10); }
+
+@media (min-width: 431px) {
+  .meal-header-final .meal-copy-actions {
+    position: absolute; top: 28px; right: calc(1.5rem + 48px + 48px + 8px);
+  }
+}
+
 /* —— Desktop layout matching mobile concept (title, time, kcal stacked; chevron+plus grouped top-right) —— */
 @media (min-width: 431px) {
   .meal-header-final {

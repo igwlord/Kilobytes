@@ -71,6 +71,26 @@
   font-size: 1rem;
   border-radius: 12px;
 }
+.btn-cta-glow {
+  background: linear-gradient(135deg, color-mix(in oklab, var(--color-primary), #fff 6%), var(--color-primary));
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--color-primary), #000 70% / 35%);
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-cta-glow:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px color-mix(in oklab, var(--color-primary), #000 70% / 45%);
+}
+.cta-emoji {
+  display: inline-block;
+  animation: floatY 2.2s ease-in-out infinite;
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
 .cta-hint { color: var(--text-secondary); font-size: 0.85rem; }
 
 .kpi-grid {

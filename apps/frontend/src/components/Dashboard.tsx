@@ -320,12 +320,13 @@ const Dashboard: React.FC = () => {
             {(() => { const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 480px)').matches; const ring = isMobile ? 56 : 72; return (
             <>
             {/* CTA principal para registrar comida */}
-            <div className="primary-cta">
-              <button onClick={goToRegister} className="btn btn-primary btn-cta">
-                🍽️ Registrar Comida ahora
-              </button>
-              <span className="cta-hint">Acceso rápido al registro diario</span>
-            </div>
+              <div className="primary-cta">
+                <button onClick={goToRegister} className="btn btn-primary btn-cta btn-cta-glow">
+                  <span className="cta-emoji" aria-hidden>🍽️</span>
+                  <span>Registrar Comida ahora</span>
+                </button>
+                <span className="cta-hint">Tip: tocá el + en cada comida para sumar alimentos en segundos</span>
+              </div>
 
             <div className="kpi-grid kpi-grid-compact kpi-grid-mobile-2">
               <div className="kpi-card kpi-compact">

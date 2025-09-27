@@ -761,14 +761,9 @@ nuevos alimentos
 
 ---
 
-## ✅ Recomendaciones para la **App Nutrición (registro realista)**
 
-* **Flags inteligentes**: `alto_azucar`, `alto_sodio`, `alto_grasa_sat`, `posible_trans`, `alcohol`.
-* **Medidas rápidas**: “lata 354 ml”, “botella 500 ml”, “copa 150 ml”, “porción 30/40/50 g”, “unidad”.
-* **Combinadores**: Tragos **(alcohol + mixer)** y combos fast-food **(hamburguesa + papas + bebida)**.
-* **Marcas**: deja campo opcional de marca para ajuste de valores.
 
-¡Buenísima pregunta! No los habíamos listado aún en la parte “no saludable/ultraprocesados”. Acá te dejo **mermeladas y dulces/untables** con porción típica y macros (promedios locales para app).
+
 
 > Columnas: **kcal | Prot (g) | Carb (g) | Grasa (g) | Azúcares (g) | Sodio (mg) | Fibra (g)**
 
@@ -790,5 +785,100 @@ nuevos alimentos
 | Sirope tipo pancake               | 1 cda         | 20  | 50   | 0 | 13 | 0 | 12  | 15 | 0   |
 | Dulce de leche **repostero**      | 1 cda colmada | 20  | 75   | 1 | 12 | 3 | 11  | 30 | 0   |
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+nuevas alimentos faltan agregar
+
+Perfecto 🙌 — te armo los **valores nutricionales promedio** de cada alimento, organizados en tablas.
+Incluyo: **Porción típica | Peso (g) | kcal | Prot | Carb | Grasa | Fibra**
+
+---
+
+## 🍅 Vegetales / Verduras frescas
+
+| Alimento         | Porción | g   | kcal | Prot | Carb | Grasa | Fibra |
+| ---------------- | ------- | --- | ---- | ---- | ---- | ----- | ----- |
+| Tomate cherry    | 5 u     | 100 | 18   | 1    | 4    | 0.2   | 1     |
+| Puerro crudo     | 1 taza  | 89  | 54   | 1.5  | 13   | 0.3   | 1.6   |
+| Repollo crudo    | 1 taza  | 89  | 22   | 1    | 5    | 0.1   | 2     |
+| Berro crudo      | 1 taza  | 34  | 4    | 0.8  | 0.4  | 0.1   | 0.2   |
+| Rúcula cruda     | 1 taza  | 20  | 5    | 0.5  | 1    | 0.1   | 0.3   |
+| Remolacha        | 1 med.  | 80  | 35   | 1.3  | 8    | 0.1   | 2     |
+| Rábano           | 1 taza  | 116 | 19   | 0.8  | 4    | 0.1   | 2     |
+| Nabo             | 1 taza  | 130 | 36   | 1    | 8    | 0.1   | 2     |
+| Boniato / Batata | 1 med.  | 150 | 130  | 2    | 31   | 0.2   | 4     |
+| Coliflor cocida  | 1 taza  | 150 | 35   | 3    | 7    | 0.3   | 3     |
+| Espárragos       | 1 taza  | 134 | 27   | 3    | 5    | 0.2   | 3     |
+| Pimiento verde   | 1 med.  | 120 | 25   | 1    | 6    | 0.2   | 2     |
+| Yuca cocida      | 1 taza  | 150 | 250  | 2    | 60   | 0.3   | 2     |
+| Frijoles cocidos | 1 taza  | 200 | 220  | 15   | 40   | 1     | 15    |
+| Soja cocida      | 1 taza  | 172 | 298  | 28   | 17   | 15    | 10    |
+
+---
+
+## 🌿 Hierbas y especias frescas
+
+| Alimento        | Porción  | g  | kcal | Prot | Carb | Grasa | Fibra |
+| --------------- | -------- | -- | ---- | ---- | ---- | ----- | ----- |
+| Tomillo fresco  | 1 cda    | 2  | 3    | 0.1  | 0.7  | 0     | 0.3   |
+| Ajo común crudo | 1 diente | 5  | 7    | 0.3  | 1.5  | 0     | 0.1   |
+| Perejil fresco  | 1 cda    | 4  | 2    | 0.2  | 0.3  | 0     | 0.2   |
+| Cilantro fresco | 1 cda    | 4  | 1    | 0.1  | 0.1  | 0     | 0.1   |
+| Albahaca fresca | 1 cda    | 2  | 1    | 0.2  | 0.1  | 0     | 0.1   |
+| Romero fresco   | 1 cda    | 2  | 3    | 0.1  | 0.6  | 0     | 0.4   |
+| Laurel hoja     | 1 hoja   | 1  | 2    | 0.1  | 0.5  | 0     | 0.2   |
+| Jengibre fresco | 1 cda    | 12 | 9    | 0.2  | 2    | 0.1   | 0.2   |
+
+---
+
+## 🌶️ Especias secas / polvo
+
+| Alimento          | Porción | g | kcal | Prot | Carb | Grasa | Fibra |
+| ----------------- | ------- | - | ---- | ---- | ---- | ----- | ----- |
+| Curry en polvo    | 1 cda   | 6 | 20   | 0.8  | 4    | 0.9   | 2     |
+| Comino molido     | 1 cda   | 6 | 22   | 1    | 3    | 1     | 1     |
+| Nuez moscada      | 1 cdita | 2 | 12   | 0.1  | 1    | 1     | 0.5   |
+| Pimentón dulce    | 1 cda   | 7 | 20   | 1    | 4    | 1     | 2     |
+| Cúrcuma polvo     | 1 cda   | 7 | 24   | 0.5  | 4    | 0.7   | 2     |
+| Pimienta blanca   | 1 cdita | 2 | 6    | 0.2  | 1.5  | 0.1   | 1     |
+| Canela en polvo   | 1 cda   | 8 | 19   | 0.3  | 6    | 0.1   | 4     |
+| Albahaca seca     | 1 cda   | 2 | 6    | 0.6  | 1    | 0     | 1     |
+| Romero seco       | 1 cda   | 1 | 3    | 0.1  | 0.6  | 0.1   | 0.4   |
+| Jengibre en polvo | 1 cda   | 6 | 18   | 0.4  | 4    | 0.2   | 2     |
+| Anís estrellado   | 1 cda   | 6 | 23   | 1    | 3    | 1     | 1     |
+| Azafrán (hebras)  | 1 g     | 1 | 3    | 0.1  | 0.6  | 0     | 0.2   |
+
+---
+
+## 🌾 Raíces, harinas y derivados de mandioca
+
+| Alimento           | Porción | g   | kcal | Prot | Carb | Grasa | Fibra |
+| ------------------ | ------- | --- | ---- | ---- | ---- | ----- | ----- |
+| Mandioca cruda     | 1 taza  | 150 | 240  | 2    | 56   | 0.3   | 2     |
+| Harina de mandioca | 100 g   | 100 | 360  | 1    | 88   | 0.3   | 1     |
+| Harina de tapioca  | 100 g   | 100 | 350  | 0    | 87   | 0.2   | 1     |
+| Chipa (unidad)     | 1 u     | 50  | 180  | 5    | 18   | 9     | 1     |
+
+---
+
+## 🍩 Dulces / ultraprocesados
+
+| Alimento         | Porción   | g  | kcal | Prot | Carb | Grasa | Fibra |
+| ---------------- | --------- | -- | ---- | ---- | ---- | ----- | ----- |
+| Cañoncito de ddl | 1 u       | 60 | 250  | 4    | 35   | 11    | 1     |
+| Kinder chocolate | 1 barrita | 21 | 120  | 2    | 13   | 7     | 0.5   |
+
+---
 
 

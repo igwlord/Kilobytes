@@ -554,43 +554,45 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     return list.slice(0, 50);
   };
 
-  // Copiar día anterior
-  const copyPreviousDay = () => {
-  const prevDate = parseLocalDate(selectedDate);
-    prevDate.setDate(prevDate.getDate() - 1);
-  const prevDateStr = formatLocalDate(prevDate);
-    
-    const prevLog = appState.log?.[prevDateStr];
-    if (prevLog?.comidas) {
-      const entries: FoodEntry[] = [];
-      Object.entries(prevLog.comidas).forEach(([meal, foods]) => {
-        if (Array.isArray(foods)) {
-          foods.forEach((food: LoggedFood) => {
-            entries.push({
-              id: `${meal}-${Date.now()}-${Math.random()}`,
-              foodId: food.id,
-              nombre: food.nombre,
-              emoji: food.emoji || '🍽️',
-              grams: food.cantidad_g,
-              kcal: food.kcal,
-              prot: food.prot_g,
-              carbs: food.carbs_g,
-              grasa: food.grasa_g,
-              meal: meal,
-              units: food.units,
-              unit_name: food.unit_name,
-              hora: food.hora
-            });
-          });
-        }
-      });
-      
-      setCurrentEntries(entries);
-      saveToAppState(entries);
-      showToast('📋 Día anterior copiado exitosamente');
-    } else {
-      showToast('❌ No hay datos del día anterior');
+  
+
+  // Copiar solo una comida (desayuno/almuerzo/merienda/cena/snack) desde día anterior o siguiente
+  const copyMealByDelta = (meal: string, delta: number) => {
+    const srcDate = parseLocalDate(selectedDate);
+    srcDate.setDate(srcDate.getDate() + delta);
+    const srcKey = formatLocalDate(srcDate);
+    const srcLog = appState.log?.[srcKey];
+    if (!srcLog?.comidas) {
+      showToast('✖️ No hay datos del día seleccionado');
+      return;
     }
+  const mealKey = meal as keyof DayLog['comidas'];
+  const foods = srcLog.comidas?.[mealKey] as LoggedFood[] | undefined;
+    if (!foods || foods.length === 0) {
+      showToast('ℹ️ Esa comida no existe en el día elegido');
+      return;
+    }
+    // Reemplazar la comida actual por la copiada, manteniendo el resto igual
+    const kept = currentEntries.filter(e => e.meal !== meal);
+    const copied: FoodEntry[] = foods.map((food) => ({
+      id: `${meal}-${Date.now()}-${Math.random()}`,
+      foodId: food.id,
+      nombre: food.nombre,
+      emoji: food.emoji || '🍽️',
+      grams: food.cantidad_g,
+      kcal: food.kcal,
+      prot: food.prot_g,
+      carbs: food.carbs_g,
+      grasa: food.grasa_g,
+      meal: meal,
+      units: food.units ?? undefined,
+      unit_name: food.unit_name ?? undefined,
+      hora: food.hora
+    }));
+    const newEntries = [...kept, ...copied];
+    setCurrentEntries(newEntries);
+    saveToAppState(newEntries);
+    showToast(`${getMealInfo(meal).name} copiado del ${delta < 0 ? 'día anterior' : 'día siguiente'}`);
   };
 
   // Tooltip handlers
@@ -607,7 +609,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     setTooltip({ show: false, content: '', x: 0, y: 0 });
   };
 
-  // Comidas por categoría
+  // Comidas por categoría (definidas antes del render)
   const mealGroups = {
     desayuno: currentEntries.filter(e => e.meal === 'desayuno'),
     almuerzo: currentEntries.filter(e => e.meal === 'almuerzo'),
@@ -622,7 +624,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     merienda: { emoji: '🌆', name: 'Merienda', color: '#45B7D1', time: '16:00 - 18:00' },
     cena: { emoji: '🌙', name: 'Cena', color: '#96CEB4', time: '19:00 - 22:00' },
     snack: { emoji: '🍿', name: 'Snack', color: '#FFEAA7', time: 'Cualquier momento' }
-  };
+  } as const;
 
   const categories = [
     { id: 'all', name: 'Todos', emoji: '🍽️', desc: 'Ver todos los alimentos' },
@@ -638,13 +640,14 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
   const getMealInfo = (meal: string) => {
     const info: Record<string, { emoji: string; name: string; color: string; time: string }>
-      = mealInfo as Record<string, { emoji: string; name: string; color: string; time: string }>;
+      = mealInfo as unknown as Record<string, { emoji: string; name: string; color: string; time: string }>;
     return info[meal] || { emoji: '🍽️', name: 'Comida', color: '#6C4ED9', time: '' };
   };
 
+  // Copiar día anterior (eliminado en favor de copiar por comida)
+
   return (
     <div className="registro-pro-final">
-      {/* Header mejorado con progress bars */}
       <div className="registro-header-final">
         <div className="date-section">
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -697,28 +700,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
           ))}
         </div>
 
-        <div className="quick-actions-compact" aria-label="Acciones rápidas">
-          <button 
-            className="qa-btn copy"
-            onClick={copyPreviousDay}
-            onMouseEnter={(e) => showTooltip(e, 'Copiar comidas del día anterior')}
-            onMouseLeave={hideTooltip}
-            aria-label="Copiar día anterior"
-          >
-            <span className="qa-icon">📋</span>
-            <span className="qa-text">Anterior</span>
-          </button>
-          <button 
-            className="qa-btn fav"
-            onClick={() => showToast('⭐ Próximamente: Comidas favoritas')}
-            onMouseEnter={(e) => showTooltip(e, 'Comidas favoritas')}
-            onMouseLeave={hideTooltip}
-            aria-label="Comidas favoritas"
-          >
-            <span className="qa-icon">⭐</span>
-            <span className="qa-text">Favoritos</span>
-          </button>
-        </div>
+        {/* Acciones rápidas removidas por solicitud (copiar día completo y favoritos) */}
       </div>
 
       {/* Se eliminaron scanner y sugerencias; acciones compactas arriba */}
@@ -764,6 +746,18 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                   </span>
                 </div>
                 
+                {/* Acción de repetir solo del día anterior (texto pequeño) */}
+                <div className="meal-copy-actions">
+                  <button
+                    className="meal-copy-link"
+                    onClick={() => copyMealByDelta(meal, -1)}
+                    aria-label="Repetir del día anterior"
+                    title="Repetir del día anterior"
+                  >
+                    repetir día anterior
+                  </button>
+                </div>
+
                 <button
                   className="add-food-btn-final"
                   onClick={() => {

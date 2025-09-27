@@ -109,6 +109,52 @@
 			"label": "git: commit (phase1)",
 			"type": "shell",
 			"command": "git commit -m \"registro: fase 1 – helpers de proyección/alertas + fix selector CSS anidado; build ok\""
+		},
+		{
+			"label": "Build Frontend",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build",
+				"--prefix",
+				"apps/frontend"
+			],
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Git Add Frontend Changes",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"add",
+				"apps/frontend/src/components/RegistroProFinal.css",
+				"apps/frontend/src/components/RegistroProFinal.tsx",
+				"apps/frontend/src/components/Dashboard.tsx",
+				"apps/frontend/src/components/Dashboard.css",
+				"apps/frontend/src/data/foodDatabaseNew.ts"
+			]
+		},
+		{
+			"label": "Git Commit Frontend Changes",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"commit",
+				"-m",
+				"Registro: per-meal 'repetir día anterior' (texto), editar entradas; Dashboard: CTA glow + tip, Rachas; Food DB: nuevos alimentos desde markdown"
+			]
+		},
+		{
+			"label": "Git Push",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"push"
+			]
 		}
 	]
 }
