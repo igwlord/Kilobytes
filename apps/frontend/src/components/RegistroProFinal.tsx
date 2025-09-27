@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 // Lazy-load food database utilities on demand to improve initial bundle size
 import type { FoodItem } from '../data/foodDatabaseNew';
 import './RegistroProFinal.css';
+import Spinner from './Spinner';
 
 interface FoodEntry {
   id: string;
@@ -78,8 +79,21 @@ interface LoggedFood {
   hora?: string;
 }
 
+// Local date helpers to avoid UTC shifts when using YYYY-MM-DD
+const parseLocalDate = (s: string) => {
+  // expect YYYY-MM-DD
+  const [y, m, d] = s.split('-').map(n => parseInt(n, 10));
+  return new Date(y, (m || 1) - 1, d || 1);
+};
+const formatLocalDate = (d: Date) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
+};
+
 const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, showToast }) => {
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(formatLocalDate(new Date()));
   const [currentEntries, setCurrentEntries] = useState<FoodEntry[]>([]);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [selectedMeal, setSelectedMeal] = useState<string>('desayuno');
@@ -105,6 +119,14 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     show: false, content: '', x: 0, y: 0
   });
   const [openMeal, setOpenMeal] = useState<string | null>(null);
+
+  // Navegación por fecha
+  const shiftDate = (days: number) => {
+    const d = parseLocalDate(selectedDate);
+    d.setDate(d.getDate() + days);
+    setSelectedDate(formatLocalDate(d));
+  };
+  const goToday = () => setSelectedDate(formatLocalDate(new Date()));
 
   // Mobile detection to apply a two-step flow on phones
   // Use a slightly broader width to include larger phones but avoid tablets
@@ -364,9 +386,9 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
   // Copiar día anterior
   const copyPreviousDay = () => {
-    const prevDate = new Date(selectedDate);
+  const prevDate = parseLocalDate(selectedDate);
     prevDate.setDate(prevDate.getDate() - 1);
-    const prevDateStr = prevDate.toISOString().split('T')[0];
+  const prevDateStr = formatLocalDate(prevDate);
     
     const prevLog = appState.log?.[prevDateStr];
     if (prevLog?.comidas) {
@@ -454,19 +476,24 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
       {/* Header mejorado con progress bars */}
       <div className="registro-header-final">
         <div className="date-section">
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="date-input-final"
-          />
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button className="wb-btn" title="Día anterior" onClick={() => shiftDate(-1)} aria-label="Día anterior">←</button>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="date-input-final"
+            />
+            <button className="wb-btn" title="Día siguiente" onClick={() => shiftDate(1)} aria-label="Día siguiente">→</button>
+            <button className="wb-btn ghost" title="Ir a hoy" onClick={goToday} aria-label="Ir a hoy">Hoy</button>
+          </div>
           <div className="date-info">
-            <span className="day-name">{new Date(selectedDate).toLocaleDateString('es-AR', { weekday: 'long' })}</span>
+            <span className="day-name">{parseLocalDate(selectedDate).toLocaleDateString('es-AR', { weekday: 'long' })}</span>
           </div>
         </div>
 
         <div className="progress-section">
-          {[
+          {[ 
             { key: 'kcal', label: 'Calorías', value: dayTotals.kcal, max: appState.metas?.kcal || 2000, unit: '', color: '#FF6B6B' },
             { key: 'prot', label: 'Proteínas', value: dayTotals.prot, max: appState.metas?.prote_g_dia || 150, unit: 'g', color: '#4ECDC4' },
             { key: 'carbs', label: 'Carbos', value: dayTotals.carbs, max: appState.metas?.carbs_g_dia || 200, unit: 'g', color: '#45B7D1' },
@@ -474,7 +501,9 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
           ].map(macro => (
             <div 
               key={macro.key}
-              className={`macro-progress macro-${macro.key}`}
+              className={`macro-progress macro-${macro.key} ${macro.value > macro.max ? 'over-target' : ''}`}
+              aria-live="polite"
+              aria-label={`${macro.label} ${Math.round(macro.value)} de ${macro.max}${macro.unit}${macro.value > macro.max ? ' (superado)' : ''}`}
               onMouseEnter={(e) => showTooltip(e, `${macro.label}: ${Math.round(macro.value)}${macro.unit} / ${macro.max}${macro.unit}`)}
               onMouseLeave={hideTooltip}
             >
@@ -723,11 +752,13 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
             {/* Cargando base de alimentos */}
             {(!foodApi || loadingFoodApi) && (
-              <div style={{ padding: 20, textAlign: 'center', color: '#888' }}>Cargando base de alimentos…</div>
+              <div style={{ padding: 16, textAlign: 'center' }}>
+                <Spinner label="Cargando base de alimentos…" />
+              </div>
             )}
 
             {/* Lista de alimentos (oculta en paso 2 móvil) */}
-            <div className="foods-list-final">
+            <div className="foods-list-final" style={{ display: foodApi && !loadingFoodApi ? undefined : 'none' }}>
               {getFilteredFoods().length === 0 ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No se encontraron alimentos</div>
               ) : (
@@ -809,13 +840,79 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                     </div>
 
                     <div className="custom-units-section">
+                      {(() => {
+                        const unitsVal = parseFloat(customUnits);
+                        if (!foodApi || !selectedFood || !(unitsVal > 0)) return null;
+                        const add = foodApi.calculateNutritionFromUnits(selectedFood.id, unitsVal);
+                        if (!add) return null;
+                        const projected = {
+                          kcal: dayTotals.kcal + add.kcal,
+                          prot: dayTotals.prot + add.prot,
+                          carbs: dayTotals.carbs + add.carbs,
+                          grasa: dayTotals.grasa + add.grasa,
+                        };
+                        const goals = {
+                          kcal: appState.metas?.kcal || 2000,
+                          prot: appState.metas?.prote_g_dia || 150,
+                          carbs: appState.metas?.carbs_g_dia || 200,
+                          grasa: appState.metas?.grasa_g_dia || 65,
+                        };
+                        const over: string[] = [];
+                        if (projected.kcal > goals.kcal) over.push('calorías');
+                        if (projected.prot > goals.prot) over.push('proteínas');
+                        if (projected.carbs > goals.carbs) over.push('carbos');
+                        if (projected.grasa > goals.grasa) over.push('grasas');
+                        if (over.length === 0) return null;
+                        return (
+                          <div className="field-alert-msg" role="status" aria-live="polite">
+                            Excede objetivo de {over.join(', ')}
+                          </div>
+                        );
+                      })()}
                       <label>Cantidad personalizada:</label>
                       <div className="custom-input-group-final">
                         <input
                           type="number"
                           value={customUnits}
                           onChange={(e) => setCustomUnits(e.target.value)}
-                          className="custom-input-final"
+                          className={`custom-input-final ${(() => {
+                            const unitsVal = parseFloat(customUnits);
+                            if (!foodApi || !selectedFood || !(unitsVal > 0)) return '';
+                            const add = foodApi.calculateNutritionFromUnits(selectedFood.id, unitsVal);
+                            if (!add) return '';
+                            const projected = {
+                              kcal: dayTotals.kcal + add.kcal,
+                              prot: dayTotals.prot + add.prot,
+                              carbs: dayTotals.carbs + add.carbs,
+                              grasa: dayTotals.grasa + add.grasa,
+                            };
+                            const goals = {
+                              kcal: appState.metas?.kcal || 2000,
+                              prot: appState.metas?.prote_g_dia || 150,
+                              carbs: appState.metas?.carbs_g_dia || 200,
+                              grasa: appState.metas?.grasa_g_dia || 65,
+                            };
+                            return (projected.kcal > goals.kcal || projected.prot > goals.prot || projected.carbs > goals.carbs || projected.grasa > goals.grasa) ? 'field-alert' : '';
+                          })()}`}
+                          aria-invalid={(() => {
+                            const unitsVal = parseFloat(customUnits);
+                            if (!foodApi || !selectedFood || !(unitsVal > 0)) return false;
+                            const add = foodApi.calculateNutritionFromUnits(selectedFood.id, unitsVal);
+                            if (!add) return false;
+                            const projected = {
+                              kcal: dayTotals.kcal + add.kcal,
+                              prot: dayTotals.prot + add.prot,
+                              carbs: dayTotals.carbs + add.carbs,
+                              grasa: dayTotals.grasa + add.grasa,
+                            };
+                            const goals = {
+                              kcal: appState.metas?.kcal || 2000,
+                              prot: appState.metas?.prote_g_dia || 150,
+                              carbs: appState.metas?.carbs_g_dia || 200,
+                              grasa: appState.metas?.grasa_g_dia || 65,
+                            };
+                            return (projected.kcal > goals.kcal || projected.prot > goals.prot || projected.carbs > goals.carbs || projected.grasa > goals.grasa);
+                          })()}
                           placeholder="p. ej. 1"
                           min="0.1"
                           step="0.5"
@@ -867,13 +964,79 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                     </div>
 
                     <div className="custom-grams-section">
+                      {(() => {
+                        const gramsVal = parseInt(customGrams);
+                        if (!foodApi || !selectedFood || !(gramsVal > 0)) return null;
+                        const add = foodApi.calculateNutrition(selectedFood.id, gramsVal);
+                        if (!add) return null;
+                        const projected = {
+                          kcal: dayTotals.kcal + add.kcal,
+                          prot: dayTotals.prot + add.prot,
+                          carbs: dayTotals.carbs + add.carbs,
+                          grasa: dayTotals.grasa + add.grasa,
+                        };
+                        const goals = {
+                          kcal: appState.metas?.kcal || 2000,
+                          prot: appState.metas?.prote_g_dia || 150,
+                          carbs: appState.metas?.carbs_g_dia || 200,
+                          grasa: appState.metas?.grasa_g_dia || 65,
+                        };
+                        const over: string[] = [];
+                        if (projected.kcal > goals.kcal) over.push('calorías');
+                        if (projected.prot > goals.prot) over.push('proteínas');
+                        if (projected.carbs > goals.carbs) over.push('carbos');
+                        if (projected.grasa > goals.grasa) over.push('grasas');
+                        if (over.length === 0) return null;
+                        return (
+                          <div className="field-alert-msg" role="status" aria-live="polite">
+                            Excede objetivo de {over.join(', ')}
+                          </div>
+                        );
+                      })()}
                       <label>Cantidad en gramos:</label>
                       <div className="custom-input-group-final">
                         <input
                           type="number"
                           value={customGrams}
                           onChange={(e) => setCustomGrams(e.target.value)}
-                          className="custom-input-final"
+                          className={`custom-input-final ${(() => {
+                            const gramsVal = parseInt(customGrams);
+                            if (!foodApi || !selectedFood || !(gramsVal > 0)) return '';
+                            const add = foodApi.calculateNutrition(selectedFood.id, gramsVal);
+                            if (!add) return '';
+                            const projected = {
+                              kcal: dayTotals.kcal + add.kcal,
+                              prot: dayTotals.prot + add.prot,
+                              carbs: dayTotals.carbs + add.carbs,
+                              grasa: dayTotals.grasa + add.grasa,
+                            };
+                            const goals = {
+                              kcal: appState.metas?.kcal || 2000,
+                              prot: appState.metas?.prote_g_dia || 150,
+                              carbs: appState.metas?.carbs_g_dia || 200,
+                              grasa: appState.metas?.grasa_g_dia || 65,
+                            };
+                            return (projected.kcal > goals.kcal || projected.prot > goals.prot || projected.carbs > goals.carbs || projected.grasa > goals.grasa) ? 'field-alert' : '';
+                          })()}`}
+                          aria-invalid={(() => {
+                            const gramsVal = parseInt(customGrams);
+                            if (!foodApi || !selectedFood || !(gramsVal > 0)) return false;
+                            const add = foodApi.calculateNutrition(selectedFood.id, gramsVal);
+                            if (!add) return false;
+                            const projected = {
+                              kcal: dayTotals.kcal + add.kcal,
+                              prot: dayTotals.prot + add.prot,
+                              carbs: dayTotals.carbs + add.carbs,
+                              grasa: dayTotals.grasa + add.grasa,
+                            };
+                            const goals = {
+                              kcal: appState.metas?.kcal || 2000,
+                              prot: appState.metas?.prote_g_dia || 150,
+                              carbs: appState.metas?.carbs_g_dia || 200,
+                              grasa: appState.metas?.grasa_g_dia || 65,
+                            };
+                            return (projected.kcal > goals.kcal || projected.prot > goals.prot || projected.carbs > goals.carbs || projected.grasa > goals.grasa);
+                          })()}
                           placeholder="p. ej. 100"
                           min="1"
                           max="2000"

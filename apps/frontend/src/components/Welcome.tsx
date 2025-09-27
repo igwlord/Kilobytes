@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Welcome.css';
+import Spinner from './Spinner';
 
 const Welcome: React.FC = () => {
   const [nombre, setNombre] = useState('');
@@ -8,6 +9,7 @@ const Welcome: React.FC = () => {
   const [typedTitle, setTypedTitle] = useState('');
   const [caretVisible, setCaretVisible] = useState(true);
   const [animationComplete, setAnimationComplete] = useState(false);
+  const [loading, setLoading] = useState(false);
   const typingTimerRef = useRef<number | null>(null);
   const caretTimerRef = useRef<number | null>(null);
   const navigate = useNavigate();
@@ -51,6 +53,7 @@ const Welcome: React.FC = () => {
   };
 
   const handleEnterApp = () => {
+    if (loading) return;
     const nombreTrimmed = nombre.trim();
     
     if (!nombreTrimmed) {
@@ -65,7 +68,8 @@ const Welcome: React.FC = () => {
 
     setError('');
 
-    // Guardar nombre y datos iniciales
+  // Guardar nombre y datos iniciales
+  setLoading(true);
     const data = {
       perfil: { 
         nombre: nombreTrimmed, 
@@ -90,8 +94,14 @@ const Welcome: React.FC = () => {
       log: {}
     };
 
-    localStorage.setItem('kiloByteData', JSON.stringify(data));
-    navigate('/dashboard');
+    try {
+      localStorage.setItem('kiloByteData', JSON.stringify(data));
+    } finally {
+      // Breve delay visual para que se vea el spinner si la navegación es muy rápida
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 150);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -127,8 +137,9 @@ const Welcome: React.FC = () => {
         <button 
           onClick={handleEnterApp}
           className="start-button"
+          disabled={loading}
         >
-          Comenzar
+          {loading ? <Spinner tight label="Entrando…" /> : 'Comenzar'}
         </button>
       </div>
     </div>

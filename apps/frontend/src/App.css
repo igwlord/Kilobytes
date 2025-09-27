@@ -25,6 +25,11 @@
   --glass-20: rgba(0, 0, 0, 0.20);
   --glass-25: rgba(0, 0, 0, 0.25);
   --glass-30: rgba(0, 0, 0, 0.30);
+
+  /* Visual alert tokens */
+  --alert-bg: #FFF1F2;         /* light rose bg */
+  --alert-border: #FB7185;     /* rose-400 */
+  --alert-strong: #E11D48;     /* rose-600 for text/icons */
 }
 
 .dark {
@@ -47,6 +52,11 @@
   --glass-20: rgba(255, 255, 255, 0.20);
   --glass-25: rgba(255, 255, 255, 0.25);
   --glass-30: rgba(255, 255, 255, 0.30);
+
+  /* Visual alert tokens (dark theme) */
+  --alert-bg: rgba(244, 63, 94, 0.15);   /* translucent rose */
+  --alert-border: #F87171;               /* rose-400 */
+  --alert-strong: #FB7185;               /* rose-500 */
 }
 
 /* (temas pastel removidos a pedido, dejamos solo claro/oscuro) */
@@ -146,4 +156,36 @@ input {
   padding: 0.4rem 0.8rem;
   border-radius: 0.7rem;
   font-weight: 600;
+}
+
+/* Lightweight spinner used in Suspense fallbacks and data loads */
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: var(--glass-08);
+  border: 1px solid var(--glass-15);
+}
+.spinner.tight { padding: 6px 8px; gap: 6px; }
+.spinner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  opacity: 0.6;
+  animation: spinner-bounce 1.2s infinite ease-in-out;
+}
+.spinner-dot:nth-child(1) { animation-delay: 0s; }
+.spinner-dot:nth-child(2) { animation-delay: 0.15s; }
+.spinner-dot:nth-child(3) { animation-delay: 0.3s; }
+.spinner-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+@keyframes spinner-bounce {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
 }

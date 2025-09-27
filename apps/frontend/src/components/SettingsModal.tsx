@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './SettingsModal.css';
+import Spinner from './Spinner';
 
 type Totals = { kcal: number; prot: number; carbs: number; grasa: number };
 type DayLogMin = { totals?: Totals; sueno_h?: number; ayuno_h?: number; agua_ml_consumida?: number };
@@ -54,6 +55,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
   const [theme, setTheme] = useState(appState.perfil?.theme || 'dark');
   const [unlockRecipes, setUnlockRecipes] = useState(!!appState.perfil?.desbloquearRecetas);
   const [muteToasts, setMuteToasts] = useState(!!appState.perfil?.silenciarNotificaciones);
+  const [busy, setBusy] = useState<'export' | 'import' | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -86,6 +88,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
   };
 
   const exportData = () => {
+    if (busy) return;
+    setBusy('export');
     const dt = new Date();
     const yyyy = dt.getFullYear();
     const mm = String(dt.getMonth() + 1).padStart(2, '0');
@@ -116,11 +120,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
     URL.revokeObjectURL(url);
 
     showToast('Backup exportado ✅');
+    setBusy(null);
   };
 
   const onImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setBusy('import');
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
@@ -136,6 +142,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
       } catch (err) {
         console.error(err);
         showToast('Error al importar datos ❌');
+      } finally {
+        setBusy(null);
       }
     };
     reader.readAsText(file);
@@ -214,8 +222,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
         <div className="settings-section">
           <h3>Respaldo de datos</h3>
           <div className="backup-row">
-            <button className="btn btn-danger" onClick={exportData}>📤 Guardar datos</button>
-            <label className="btn btn-success" htmlFor="import-json">📥 Cargar datos</label>
+            <button className="btn btn-danger" onClick={exportData} disabled={!!busy}>
+              {busy === 'export' ? <Spinner tight label="Guardando…" /> : '📤 Guardar datos'}
+            </button>
+            <label className={`btn btn-success ${busy ? 'disabled' : ''}`} htmlFor="import-json" style={{ pointerEvents: busy ? 'none' : undefined }}>
+              {busy === 'import' ? <Spinner tight label="Cargando…" /> : '📥 Cargar datos'}
+            </label>
             <input id="import-json" type="file" accept="application/json" onChange={onImportFile} style={{ display: 'none' }} />
           </div>
           <p className="hint">El archivo incluye fecha y hora en el nombre.</p>

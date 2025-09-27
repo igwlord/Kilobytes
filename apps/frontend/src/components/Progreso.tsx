@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Progreso.css';
+import { getRecipeSteps } from '../data/recetasPasoAPaso';
 
 // Tipos mínimos usados en este componente (evita any)
 interface Totals { kcal?: number; prot?: number }
@@ -172,6 +173,9 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
     { key: 'subir', label: 'Aumento de masa muscular', colorClass: 'goal-gain' },
     { key: 'mantener', label: 'Mantener peso', colorClass: 'goal-maintain' },
   ];
+
+  // Modal de receta
+  const [openRecipe, setOpenRecipe] = useState<{ title: string; steps: string[] } | null>(null);
 
   return (
     <div className="progreso-container">
@@ -361,7 +365,10 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
                           e.preventDefault();
                           return;
                         }
-                        // Futuro: agregar a favoritos o al plan del día
+                        const steps = getRecipeSteps(r.title);
+                        if (steps && steps.length) {
+                          setOpenRecipe({ title: r.title, steps });
+                        }
                       }}
                       aria-disabled={!enabled}
                       role="button"
@@ -375,6 +382,24 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
             );
           })}
         </div>
+        )}
+
+        {openSection === 'recetas' && openRecipe && (
+          <div className="recipe-modal-overlay" onClick={() => setOpenRecipe(null)}>
+            <div className="recipe-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <div className="recipe-modal-header">
+                <h3>{openRecipe.title}</h3>
+                <button className="close-btn" onClick={() => setOpenRecipe(null)} aria-label="Cerrar">×</button>
+              </div>
+              <div className="recipe-modal-body">
+                <ol className="recipe-steps">
+                  {openRecipe.steps.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

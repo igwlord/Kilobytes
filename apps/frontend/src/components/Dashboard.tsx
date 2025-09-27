@@ -15,6 +15,7 @@ import Toast from './ToastPro';
 import './Dashboard.css';
 import OnboardingOverlay from './OnboardingOverlay';
 import OnboardingGuide from './OnboardingGuide';
+import Spinner from './Spinner';
 
 interface UserProfile {
   nombre: string;
@@ -212,13 +213,13 @@ const Dashboard: React.FC = () => {
     switch (activeSection) {
       case 'plan':
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
             <Plan appState={appState} updateAppState={updateAppState} showToast={showToast} />
           </Suspense>
         );
       case 'registro':
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
             <RegistroNew 
               appState={appState} 
               updateAppState={(ns) => updateAppState(ns as unknown as AppState)} 
@@ -228,26 +229,26 @@ const Dashboard: React.FC = () => {
         );
       case 'calendario':
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
             <Calendario appState={appState} updateAppState={updateAppState as unknown as (s: unknown) => void} />
           </Suspense>
         );
       case 'progreso':
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
             <Progreso appState={appState} />
           </Suspense>
         );
       case 'metas':
         // Metas y Plan unificados: usamos el componente Plan como única experiencia
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
             <Plan appState={appState} updateAppState={updateAppState} showToast={showToast} />
           </Suspense>
         );
       case 'perfil':
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
             <Perfil appState={appState} updateAppState={updateAppState as unknown as (s: unknown) => void} showToast={showToast} />
           </Suspense>
         );
