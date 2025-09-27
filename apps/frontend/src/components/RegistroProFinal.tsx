@@ -189,6 +189,19 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     }
   }, [activeModal, foodApi, loadingFoodApi]);
 
+  // Cerrar modal con ESC (si hay alimento seleccionado en mobile, primero volver atrás)
+  useEffect(() => {
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (activeModal === 'add-food') {
+        if (selectedFood) setSelectedFood(null);
+        else setActiveModal(null);
+      }
+    };
+    window.addEventListener('keydown', onEsc);
+    return () => window.removeEventListener('keydown', onEsc);
+  }, [activeModal, selectedFood]);
+
   // Al seleccionar un alimento, hacer scroll al selector de porciones (en desktop mantiene visibilidad, en mobile se abre el paso 2)
   useEffect(() => {
     if (selectedFood && !isMobile) {
@@ -476,7 +489,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
               grasa: food.grasa_g,
               meal: meal,
               units: food.units,
-              unit_name: food.unit_name
+              unit_name: food.unit_name,
+              hora: food.hora
             });
           });
         }
@@ -641,6 +655,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                     <button
                       className={`meal-toggle-btn ${openMeal === meal ? 'open' : ''}`}
                       aria-label={openMeal === meal ? 'Colapsar' : 'Expandir'}
+                      aria-expanded={openMeal === meal}
+                      aria-controls={`meal-${meal}-panel`}
                       onClick={() => setOpenMeal(prev => (prev === meal ? null : meal))}
                       onMouseEnter={(e) => showTooltip(e, openMeal === meal ? 'Colapsar sección' : 'Expandir sección')}
                       onMouseLeave={hideTooltip}
@@ -678,7 +694,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
               </div>
 
               {openMeal === meal && (
-              <div className="meal-foods-final">
+              <div className="meal-foods-final" id={`meal-${meal}-panel`}>
                 {entries.map(entry => (
                   <div key={entry.id} className="food-entry-final">
                     <div className="food-info-final">
@@ -754,11 +770,11 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
       {/* Modal mejorado para agregar comida */}
       {activeModal === 'add-food' && (
-        <div className="modal-overlay-final" onClick={() => setActiveModal(null)}>
+        <div className="modal-overlay-final" role="dialog" aria-modal="true" aria-labelledby="add-food-title" onClick={() => setActiveModal(null)}>
           <div className={`modal-content-final ${selectedFood ? 'has-selected' : ''} ${isMobile && selectedFood ? 'mobile-portion' : ''}`} onClick={e => e.stopPropagation()}>
             <div className="modal-header-final">
               <div className="modal-title-section">
-                <h3>Agregar a {getMealInfo(selectedMeal).name}</h3>
+                <h3 id="add-food-title">Agregar a {getMealInfo(selectedMeal).name}</h3>
                 <div className="modal-time-control">
                   <label className="time-label" htmlFor="add-time">Hora</label>
                   <input
@@ -770,7 +786,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                   />
                 </div>
               </div>
-              <button onClick={() => setActiveModal(null)} className="modal-close-final">
+              <button onClick={() => setActiveModal(null)} className="modal-close-final" aria-label="Cerrar">
                 <span>×</span>
               </button>
             </div>
@@ -803,6 +819,9 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                           type="text"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Escape') setSearchQuery('');
+                          }}
                           placeholder="Buscar alimento…"
                           className="search-input-final"
                           aria-label="Buscar alimento"
@@ -856,12 +875,14 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                     <button
                       className={`toggle-btn ${inputMethod === 'units' ? 'active' : ''}`}
                       onClick={() => setInputMethod('units')}
+                      aria-pressed={inputMethod === 'units'}
                     >
                       Unidades
                     </button>
                     <button
                       className={`toggle-btn ${inputMethod === 'grams' ? 'active' : ''}`}
                       onClick={() => setInputMethod('grams')}
+                      aria-pressed={inputMethod === 'grams'}
                     >
                       Gramos
                     </button>
@@ -917,6 +938,12 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                           type="number"
                           value={customUnits}
                           onChange={(e) => setCustomUnits(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              const units = parseFloat(customUnits);
+                              if (units > 0 && selectedFood) addFoodByUnits(selectedFood, units, selectedMeal);
+                            }
+                          }}
                           className={`custom-input-final ${alertsOn ? (() => {
                             const unitsVal = parseFloat(customUnits);
                             if (!selectedFood || !(unitsVal > 0)) return '';
@@ -993,6 +1020,12 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                           type="number"
                           value={customGrams}
                           onChange={(e) => setCustomGrams(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              const grams = parseInt(customGrams);
+                              if (grams > 0 && selectedFood) addFoodByGrams(selectedFood, grams, selectedMeal);
+                            }
+                          }}
                           className={`custom-input-final ${alertsOn ? (() => {
                             const gramsVal = parseInt(customGrams);
                             if (!selectedFood || !(gramsVal > 0)) return '';

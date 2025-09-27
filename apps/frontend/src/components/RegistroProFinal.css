@@ -799,7 +799,7 @@ body.is-mobile .portion-selector-final { position: sticky; bottom: 0; z-index: 9
 .food-item-btn .food-emoji { font-size: 1.1rem; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2)); }
 .food-item-btn .food-name { font-weight: 700; font-size: 0.95rem; opacity: 0.95; }
 .food-item-btn .food-meta-small { font-size: 0.82rem; color: var(--text-secondary); }
-.food-item-btn:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 2px; }
+.food-item-btn:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 3px; box-shadow: 0 0 0 3px rgba(0,0,0,0.25); }
 
 .search-container {
   position: relative;
@@ -1182,9 +1182,9 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
 
 .portions-grid-final {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .portion-btn-final {
@@ -1219,12 +1219,8 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
   left: 100%;
 }
 
-.portion-btn-final:hover {
-  background: var(--glass-12);
-  border-color: var(--glass-30);
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
+.portion-btn-final:hover { background: var(--glass-12); border-color: var(--glass-30); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
+.portion-btn-final:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 2px; }
 
 .portion-btn-final.units {
   border-left: 4px solid #D4AF37;
@@ -1272,30 +1268,12 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
   margin-bottom: 0.75rem;
 }
 
-.custom-input-final {
-  background: var(--glass-10);
-  border: 2px solid var(--glass-20);
-  border-radius: 8px;
-  padding: 0.75rem;
-  color: var(--text-primary);
-  font-size: 1rem;
-  width: 120px;
-  transition: all 0.3s ease;
-}
+.custom-input-final { background: var(--glass-10); border: 1px solid var(--glass-20); border-radius: 8px; padding: 0.6rem 0.7rem; color: var(--text-primary); font-size: 1rem; width: 120px; font-weight: 700; transition: all 0.2s ease; }
 
-.custom-input-final:focus {
-  outline: none;
-  border-color: #D4AF37;
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-  background: var(--glass-15);
-}
+.custom-input-final:focus { outline: none; border-color: var(--glass-30); box-shadow: 0 0 0 3px rgba(255,255,255,0.08); background: var(--glass-15); }
 
 /* Visual alert utility: apply to inputs when exceeding goals */
-.custom-input-final.field-alert {
-  background: var(--alert-bg);
-  border-color: var(--alert-border);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--alert-border) 35%, transparent);
-}
+.custom-input-final.field-alert { border-color: #ff6b6b; box-shadow: 0 0 0 3px rgba(255,107,107,0.2); }
 
 .input-unit {
   color: var(--text-secondary);
@@ -1304,17 +1282,7 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
   min-width: 60px;
 }
 
-.add-custom-btn-final {
-  background: linear-gradient(135deg, var(--color-primary) 0%, #8B5CF6 100%);
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(108, 78, 217, 0.3);
-}
+.add-custom-btn-final { background: var(--color-primary); border: none; border-radius: 8px; padding: 0.6rem 0.9rem; color: #fff; font-weight: 800; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
 
 .field-alert-msg {
   margin-bottom: 0.6rem;
@@ -1327,10 +1295,7 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
   font-size: 0.85rem;
 }
 
-.add-custom-btn-final:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 8px 25px rgba(108, 78, 217, 0.4);
-}
+.add-custom-btn-final:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
 
 .custom-nutrition-final {
   color: var(--text-secondary);
