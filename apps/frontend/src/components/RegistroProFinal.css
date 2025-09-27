@@ -39,7 +39,7 @@
 }
 
 /* Moved out of nested block: button sizes inside meal list when in modal context (mobile tweaks) */
-.modal-content-final .registro-pro-final .meal-foods-final .duplicate-food-btn,
+.modal-content-final .registro-pro-final .meal-foods-final .edit-food-btn,
 .modal-content-final .registro-pro-final .meal-foods-final .remove-food-btn-final {
   width: 26px;
   height: 26px;
@@ -425,6 +425,57 @@
   gap: 1rem;
 }
 
+/* —— Desktop layout matching mobile concept (title, time, kcal stacked; chevron+plus grouped top-right) —— */
+@media (min-width: 431px) {
+  .meal-header-final {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "title"
+      "time"
+      "kcal";
+    align-items: center;
+    position: relative;
+    /* Reserve right space for chevron (48) + plus (48) + gutter */
+    padding-right: calc(1.5rem + 48px + 48px);
+  }
+  .meal-title-row { grid-area: title; }
+  .meal-time { grid-area: time; color: var(--text-secondary); font-weight: 600; background: transparent; border: 0; padding: 0; }
+  .meal-stats { grid-area: kcal; justify-self: start; }
+  /* Emphasized kcal chip in desktop as well */
+  .meal-kcal {
+    background: color-mix(in oklab, var(--macro-kcal), transparent 92%);
+    border: 1px solid color-mix(in oklab, var(--macro-kcal), var(--glass-25) 80%);
+    color: var(--text-primary);
+    padding: 0.22rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    height: auto;
+    line-height: 1.12;
+  }
+  .meal-kcal::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px; border-radius: 50%; background: var(--macro-kcal);
+  }
+  /* Grouped controls: plus on the far right, chevron immediately to its left */
+  .meal-header-final .add-food-btn-final {
+    position: absolute; top: 24px; right: 1.5rem; z-index: 1;
+    width: 48px; height: 48px;
+    border-top-left-radius: 0; border-bottom-left-radius: 0;
+  }
+  .meal-header-final .meal-toggle-btn {
+    position: absolute; top: 24px; right: calc(1.5rem + 48px - 1px); z-index: 1;
+    width: 48px; height: 48px; margin: 0; left: auto;
+    border-top-right-radius: 0; border-bottom-right-radius: 0;
+  }
+}
+
 .meal-kcal {
   font-size: 1rem;
   font-weight: 700;
@@ -531,7 +582,7 @@
   gap: 0.5rem;
 }
 
-.duplicate-food-btn, .remove-food-btn-final {
+.edit-food-btn, .remove-food-btn-final {
   background: var(--glass-10);
   border: 1px solid var(--glass-20);
   border-radius: 8px;
@@ -546,9 +597,9 @@
   font-size: 1.1rem;
 }
 
-.duplicate-food-btn:hover {
-  background: rgba(76, 175, 80, 0.2);
-  border-color: #4CAF50;
+.edit-food-btn:hover {
+  background: rgba(33, 150, 243, 0.18);
+  border-color: #2196F3;
   transform: scale(1.1);
 }
 
@@ -774,7 +825,7 @@ body.is-mobile .portion-selector-final { position: sticky; bottom: 0; z-index: 9
 .wb-btn:focus-visible,
 .add-food-btn-final:focus-visible,
 .meal-toggle-btn:focus-visible,
-.duplicate-food-btn:focus-visible,
+.edit-food-btn:focus-visible,
 .remove-food-btn-final:focus-visible,
 .category-pill:focus-visible,
 .category-btn-final:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 2px; box-shadow: 0 0 0 3px rgba(0,0,0,0.25); }
@@ -1357,13 +1408,84 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
 
 /* ——— Mobile compaction for meal list (outside modal) ——— */
 @media (max-width: 430px) {
-  .meal-header-final { padding: 0.9rem 1rem; }
-  .meal-title-row { gap: 0.6rem; }
+  /* Option 3: compact header with chips (time + kcal) on second row */
+  .meal-header-final {
+    padding: 0.9rem 1rem;
+    gap: 0.5rem;
+    display: grid;
+    grid-template-columns: 1fr; /* buttons are absolutely positioned */
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "title"
+      "time"
+      "kcal";
+    align-items: center;
+    position: relative; /* for absolute toggle alignment */
+    /* Reserve space on the right for grouped chevron+plus */
+    padding-right: calc(1rem + 36px + 36px);
+  }
+  .meal-title-row { grid-area: title; gap: 0.55rem; flex-wrap: nowrap; min-width: 0; }
+  .meal-time { grid-area: time; }
+  /* kcal now goes below time, aligned left */
+  .meal-stats { grid-area: kcal; justify-self: start; align-self: start; }
+  .meal-title-row { gap: 0.55rem; flex-wrap: nowrap; min-width: 0; }
   .meal-emoji { font-size: 1.2rem; }
-  .meal-name { font-size: 1.05rem; }
+  .meal-name {
+    font-size: 1.05rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 48vw;
+  }
   .meal-count { font-size: 0.72rem; padding: 0.1rem 0.45rem; }
-  .meal-kcal { font-size: 0.95rem; padding: 0.35rem 0.8rem; }
-  .add-food-btn-final { width: 36px; height: 36px; font-size: 1rem; }
+  /* Chip styles */
+  /* Time: more discreet */
+  .meal-time {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0; /* no pill chrome */
+    border-radius: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0.85;
+    width: max-content;
+  }
+  .meal-kcal {
+    /* kcal: emphasize using theme/macro accent */
+    background: color-mix(in oklab, var(--macro-kcal), transparent 92%);
+    border: 1px solid color-mix(in oklab, var(--macro-kcal), var(--glass-25) 80%);
+    color: var(--text-primary);
+    padding: 0.22rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: auto;
+    line-height: 1.1;
+  }
+  .meal-kcal::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--macro-kcal);
+  }
+  /* Align toggle chevron next to the plus button on the top-right */
+  /* Grouped controls: chevron (left) + plus (right), touching edges */
+  .meal-header-final .add-food-btn-final {
+    width: 36px; height: 36px; font-size: 1rem;
+    position: absolute; top: 10px; right: 1rem; z-index: 1;
+    border-top-left-radius: 0; border-bottom-left-radius: 0; /* right segment */
+  }
+  .meal-header-final .meal-toggle-btn {
+    width: 36px; height: 36px;
+    position: absolute; top: 10px; right: calc(1rem + 36px - 1px); z-index: 1;
+    border-top-right-radius: 0; border-bottom-right-radius: 0; /* left segment */
+  }
 
   .meal-foods-final { padding: 0 1rem 1rem; }
   .meal-foods-final .food-entry-final { padding: 0.55rem 0.65rem; border-radius: 10px; }
@@ -1372,7 +1494,7 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
   .meal-foods-final .food-name { font-size: 0.94rem; }
   .meal-foods-final .food-meta-line { font-size: 0.75rem; }
   .meal-foods-final .entry-time-badge { font-size: 0.68rem; padding: 0.08rem 0.3rem; }
-  .meal-foods-final .duplicate-food-btn,
+  .meal-foods-final .edit-food-btn,
   .meal-foods-final .remove-food-btn-final { width: 28px; height: 28px; font-size: 1rem; }
 }
 
@@ -1380,21 +1502,26 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
   .meal-header-final { padding: 0.75rem 0.85rem; }
   .meal-name { font-size: 1rem; }
   .add-food-btn-final { width: 32px; height: 32px; font-size: 0.9rem; }
+  .meal-time { font-size: 0.76rem; opacity: 0.8; }
+  .meal-kcal { font-size: 0.86rem; padding: 0.18rem 0.5rem; gap: 0.35rem; }
+  .meal-header-final .add-food-btn-final { top: 8px; right: 1rem; }
+  /* Make chevron smaller on tiny screens, still touching the plus */
+  .meal-header-final .meal-toggle-btn { width: 28px; height: 28px; top: 8px; right: calc(1rem + 32px - 1px); }
   .meal-foods-final .food-entry-final { padding: 0.5rem 0.6rem; border-radius: 9px; }
   .meal-foods-final .food-emoji { font-size: 1.05rem; }
   .meal-foods-final .food-name { font-size: 0.9rem; }
   .meal-foods-final .food-meta-line { font-size: 0.72rem; }
-  .meal-foods-final .duplicate-food-btn,
+  .meal-foods-final .edit-food-btn,
   .meal-foods-final .remove-food-btn-final { width: 26px; height: 26px; font-size: 0.95rem; }
 }
 
 @media (max-width: 480px) {
   .food-entry-final { padding: 0.6rem 0.7rem; border-radius: 10px; }
   .food-emoji { font-size: 1.4rem; }
-  .food-name { font-size: 0.95rem; }
+  .add-food-btn-final { width: 32px; height: 32px; font-size: 0.9rem; }
   .food-meta-line { font-size: 0.8rem; }
   .registro-pro-final { padding: 0.5rem; font-size: 0.78rem; }
-
+  /* Positioning handled in the ≤430px block to keep group order consistent */
   .registro-header-final { padding: 0.6rem; margin-bottom: 0.6rem; border-radius: 10px; gap: 0.6rem; }
 
   .date-input-final { font-size: 0.85rem; padding: 0.5rem 0.75rem; border-radius: 6px; }
@@ -1472,12 +1599,8 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
     font-size: 0.75rem;
   }
 
-  .modal-content-final {
-    width: 90%;
-    max-width: 300px;
-    padding: 1rem;
-    border-radius: 8px;
-  }
+  /* Remove the overly narrow modal sizing on phones; let it use full width */
+  .modal-content-final { width: 100%; max-width: 100%; padding: 0; border-radius: 14px; }
 
   .modal-header-final {
     font-size: 1rem;
@@ -1520,7 +1643,7 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
 /* Mobile modal refinements (override previous rules) */
 @media (max-width: 420px) {
   /* Let the whole modal scroll if needed */
-  .modal-content-final { overflow-y: auto; }
+  .modal-content-final { overflow-y: auto; width: 100%; max-width: 100%; padding: 0; border-radius: 14px; }
 
   /* List no longer needs huge bottom padding */
   .foods-list-final { padding-bottom: 1rem; }

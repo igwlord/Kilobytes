@@ -112,6 +112,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
+  // Edición de entrada existente
+  const [editingEntry, setEditingEntry] = useState<FoodEntry | null>(null);
   // Dynamic food DB module
   type FoodDBModule = typeof import('../data/foodDatabaseNew');
   const [foodApi, setFoodApi] = useState<FoodDBModule | null>(null);
@@ -179,9 +181,9 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   // Ref para el selector de porciones
   const portionRef = useRef<HTMLDivElement | null>(null);
 
-  // Cargar el módulo de alimentos cuando se abre el modal de agregar
+  // Cargar el módulo de alimentos cuando se abre el modal de agregar/editar
   useEffect(() => {
-    if (activeModal === 'add-food' && !foodApi && !loadingFoodApi) {
+    if ((activeModal === 'add-food' || activeModal === 'edit-food') && !foodApi && !loadingFoodApi) {
       setLoadingFoodApi(true);
       import('../data/foodDatabaseNew')
         .then(mod => setFoodApi(mod))
@@ -193,7 +195,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
-      if (activeModal === 'add-food') {
+      if (activeModal === 'add-food' || activeModal === 'edit-food') {
         if (selectedFood) setSelectedFood(null);
         else setActiveModal(null);
       }
@@ -366,6 +368,93 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     setSearchQuery('');
   // No forzar valor por defecto; dejar vacío tras agregar
   setCustomGrams('');
+  };
+
+  // Editar: abrir modal precargado
+  const openEditEntry = (entry: FoodEntry) => {
+    setEditingEntry(entry);
+    setSelectedMeal(entry.meal);
+    setSelectedTime(entry.hora || selectedTime);
+    setInputMethod(entry.units ? 'units' : 'grams');
+    setCustomUnits(entry.units ? String(entry.units) : '');
+    setCustomGrams(!entry.units ? String(entry.grams) : '');
+    // Si el módulo ya está, setear el alimento; si no, un efecto abajo lo hará
+    if (foodApi) {
+      const food = foodApi.foodDatabase.find((f: FoodItem) => f.id === entry.foodId) || null;
+      setSelectedFood(food);
+    } else {
+      setSelectedFood(null);
+    }
+    setActiveModal('edit-food');
+  };
+
+  // Cuando tengamos foodApi disponible durante edición, resolver selectedFood
+  useEffect(() => {
+    if (activeModal === 'edit-food' && editingEntry && foodApi && !selectedFood) {
+      const food = foodApi.foodDatabase.find((f: FoodItem) => f.id === editingEntry.foodId) || null;
+      setSelectedFood(food);
+    }
+  }, [activeModal, editingEntry, foodApi, selectedFood]);
+
+  // Aplicadores genéricos: agregar o actualizar
+  const applyUnits = (food: FoodItem, units: number, meal: string) => {
+    if (activeModal === 'edit-food' && editingEntry) {
+      const nutrition = foodApi?.calculateNutritionFromUnits(food.id, units);
+      if (!nutrition) return;
+      const newEntries = currentEntries.map(e => e.id === editingEntry.id
+        ? {
+            ...e,
+            grams: nutrition.gramos_totales,
+            kcal: nutrition.kcal,
+            prot: nutrition.prot,
+            carbs: nutrition.carbs,
+            grasa: nutrition.grasa,
+            units,
+            unit_name: food.unidad_base.nombre,
+            hora: selectedTime
+          }
+        : e);
+      setCurrentEntries(newEntries);
+      saveToAppState(newEntries);
+      setActiveModal(null);
+      setEditingEntry(null);
+      setSelectedFood(null);
+      setSearchQuery('');
+      setCustomUnits('');
+      return;
+    }
+    // modo agregar
+    addFoodByUnits(food, units, meal);
+  };
+
+  const applyGrams = (food: FoodItem, grams: number, meal: string) => {
+    if (activeModal === 'edit-food' && editingEntry) {
+      const nutrition = foodApi?.calculateNutrition(food.id, grams);
+      if (!nutrition) return;
+      const newEntries = currentEntries.map(e => e.id === editingEntry.id
+        ? {
+            ...e,
+            grams,
+            kcal: nutrition.kcal,
+            prot: nutrition.prot,
+            carbs: nutrition.carbs,
+            grasa: nutrition.grasa,
+            units: undefined,
+            unit_name: undefined,
+            hora: selectedTime
+          }
+        : e);
+      setCurrentEntries(newEntries);
+      saveToAppState(newEntries);
+      setActiveModal(null);
+      setEditingEntry(null);
+      setSelectedFood(null);
+      setSearchQuery('');
+      setCustomGrams('');
+      return;
+    }
+    // modo agregar
+    addFoodByGrams(food, grams, meal);
   };
 
   // Eliminar alimento
@@ -658,16 +747,12 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                       aria-expanded={openMeal === meal}
                       aria-controls={`meal-${meal}-panel`}
                       onClick={() => setOpenMeal(prev => (prev === meal ? null : meal))}
-                      onMouseEnter={(e) => showTooltip(e, openMeal === meal ? 'Colapsar sección' : 'Expandir sección')}
-                      onMouseLeave={hideTooltip}
                     >
                       <span className="chevron">▾</span>
                     </button>
                   </div>
                   <div 
                     className="meal-time"
-                    onMouseEnter={(e) => showTooltip(e, `Horario recomendado: ${info.time}`)}
-                    onMouseLeave={hideTooltip}
                   >
                     {info.time}
                   </div>
@@ -686,8 +771,6 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                     setOpenMeal(meal);
                     setActiveModal('add-food');
                   }}
-                  onMouseEnter={(e) => showTooltip(e, `Agregar alimento a ${info.name}`)}
-                  onMouseLeave={hideTooltip}
                 >
                   <span>+</span>
                 </button>
@@ -717,27 +800,15 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                     
                     <div className="food-actions">
                       <button
-                        className="duplicate-food-btn"
-                        onClick={() => {
-                          if (!foodApi) return;
-                          if (entry.units) {
-                            const food = foodApi.foodDatabase.find((f: FoodItem) => f.id === entry.foodId);
-                            if (food) addFoodByUnits(food, entry.units, entry.meal);
-                          } else {
-                            const food = foodApi.foodDatabase.find((f: FoodItem) => f.id === entry.foodId);
-                            if (food) addFoodByGrams(food, entry.grams, entry.meal);
-                          }
-                        }}
-                        onMouseEnter={(e) => showTooltip(e, 'Duplicar este alimento')}
-                        onMouseLeave={hideTooltip}
+                        className="edit-food-btn"
+                        onClick={() => openEditEntry(entry)}
+                        aria-label="Editar alimento"
                       >
-                        ⎘
+                        ✎
                       </button>
                       <button
                         className="remove-food-btn-final"
                         onClick={() => removeFood(entry.id)}
-                        onMouseEnter={(e) => showTooltip(e, 'Eliminar este alimento')}
-                        onMouseLeave={hideTooltip}
                       >
                         ×
                       </button>
@@ -768,13 +839,13 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
         })}
       </div>
 
-      {/* Modal mejorado para agregar comida */}
-      {activeModal === 'add-food' && (
-        <div className="modal-overlay-final" role="dialog" aria-modal="true" aria-labelledby="add-food-title" onClick={() => setActiveModal(null)}>
+      {/* Modal para agregar/editar comida */}
+      {(activeModal === 'add-food' || activeModal === 'edit-food') && (
+        <div className="modal-overlay-final" role="dialog" aria-modal="true" aria-labelledby="add-food-title" onClick={() => { setActiveModal(null); setEditingEntry(null); }}>
           <div className={`modal-content-final ${selectedFood ? 'has-selected' : ''} ${isMobile && selectedFood ? 'mobile-portion' : ''}`} onClick={e => e.stopPropagation()}>
             <div className="modal-header-final">
               <div className="modal-title-section">
-                <h3 id="add-food-title">Agregar a {getMealInfo(selectedMeal).name}</h3>
+                <h3 id="add-food-title">{activeModal === 'edit-food' ? 'Editar alimento' : `Agregar a ${getMealInfo(selectedMeal).name}`}</h3>
                 <div className="modal-time-control">
                   <label className="time-label" htmlFor="add-time">Hora</label>
                   <input
@@ -786,7 +857,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                   />
                 </div>
               </div>
-              <button onClick={() => setActiveModal(null)} className="modal-close-final" aria-label="Cerrar">
+              <button onClick={() => { setActiveModal(null); setEditingEntry(null); }} className="modal-close-final" aria-label="Cerrar">
                 <span>×</span>
               </button>
             </div>
@@ -904,12 +975,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                         <button
                           key={idx}
                           className="portion-btn-final units"
-                          onClick={() => addFoodByUnits(selectedFood!, portion.cantidad, selectedMeal)}
-                          onMouseEnter={(e) => showTooltip(
-                            e,
-                            `${portion.cantidad} ${selectedFood!.unidad_base.nombre}${portion.cantidad > 1 ? 's' : ''} = ${Math.round(selectedFood!.unidad_base.kcal_unidad * portion.cantidad)} kcal`
-                          )}
-                          onMouseLeave={hideTooltip}
+                          onClick={() => applyUnits(selectedFood!, portion.cantidad, selectedMeal)}
                         >
                           <span className="portion-name">{portion.nombre}</span>
                           <span className="portion-quantity">{portion.cantidad} {selectedFood!.unidad_base.nombre}{portion.cantidad > 1 ? 's' : ''}</span>
@@ -941,7 +1007,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               const units = parseFloat(customUnits);
-                              if (units > 0 && selectedFood) addFoodByUnits(selectedFood, units, selectedMeal);
+                              if (units > 0 && selectedFood) applyUnits(selectedFood, units, selectedMeal);
                             }
                           }}
                           className={`custom-input-final ${alertsOn ? (() => {
@@ -969,10 +1035,10 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                           disabled={!(parseFloat(customUnits) > 0)}
                           onClick={() => {
                             const units = parseFloat(customUnits);
-                            if (units > 0 && selectedFood) addFoodByUnits(selectedFood, units, selectedMeal);
+                            if (units > 0 && selectedFood) applyUnits(selectedFood, units, selectedMeal);
                           }}
                         >
-                          Agregar
+                          {activeModal === 'edit-food' ? 'Guardar' : 'Agregar'}
                         </button>
                       </div>
                       <div className="custom-nutrition-final">
@@ -991,7 +1057,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                         <button
                           key={idx}
                           className="portion-btn-final grams"
-                          onClick={() => addFoodByGrams(selectedFood!, portion.gramos, selectedMeal)}
+                          onClick={() => applyGrams(selectedFood!, portion.gramos, selectedMeal)}
                         >
                           <span className="portion-name">{portion.nombre}</span>
                           <span className="portion-weight">{portion.gramos}g</span>
@@ -1023,7 +1089,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               const grams = parseInt(customGrams);
-                              if (grams > 0 && selectedFood) addFoodByGrams(selectedFood, grams, selectedMeal);
+                              if (grams > 0 && selectedFood) applyGrams(selectedFood, grams, selectedMeal);
                             }
                           }}
                           className={`custom-input-final ${alertsOn ? (() => {
@@ -1050,10 +1116,10 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                           disabled={!(parseInt(customGrams) > 0)}
                           onClick={() => {
                             const grams = parseInt(customGrams);
-                            if (grams > 0 && selectedFood) addFoodByGrams(selectedFood, grams, selectedMeal);
+                            if (grams > 0 && selectedFood) applyGrams(selectedFood, grams, selectedMeal);
                           }}
                         >
-                          Agregar
+                          {activeModal === 'edit-food' ? 'Guardar' : 'Agregar'}
                         </button>
                       </div>
                       <div className="custom-nutrition-final">
