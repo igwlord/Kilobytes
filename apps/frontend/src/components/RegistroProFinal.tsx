@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { foodDatabase, searchFoods, calculateNutritionFromUnits, calculateNutrition, getAllFoodsDeduped } from '../data/foodDatabaseNew';
+// Lazy-load food database utilities on demand to improve initial bundle size
 import type { FoodItem } from '../data/foodDatabaseNew';
 import './RegistroProFinal.css';
 
@@ -91,6 +91,10 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
+  // Dynamic food DB module
+  type FoodDBModule = typeof import('../data/foodDatabaseNew');
+  const [foodApi, setFoodApi] = useState<FoodDBModule | null>(null);
+  const [loadingFoodApi, setLoadingFoodApi] = useState(false);
   // Entradas personalizadas como strings para permitir vacío mientras se edita
   const [customGrams, setCustomGrams] = useState('');
   const [customUnits, setCustomUnits] = useState('');
@@ -138,6 +142,16 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
   // Ref para el selector de porciones
   const portionRef = useRef<HTMLDivElement | null>(null);
+
+  // Cargar el módulo de alimentos cuando se abre el modal de agregar
+  useEffect(() => {
+    if (activeModal === 'add-food' && !foodApi && !loadingFoodApi) {
+      setLoadingFoodApi(true);
+      import('../data/foodDatabaseNew')
+        .then(mod => setFoodApi(mod))
+        .finally(() => setLoadingFoodApi(false));
+    }
+  }, [activeModal, foodApi, loadingFoodApi]);
 
   // Al seleccionar un alimento, hacer scroll al selector de porciones (en desktop mantiene visibilidad, en mobile se abre el paso 2)
   useEffect(() => {
@@ -193,7 +207,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
   // Agregar alimento por unidades
   const addFoodByUnits = (food: FoodItem, units: number, meal: string) => {
-    const nutrition = calculateNutritionFromUnits(food.id, units);
+    const nutrition = foodApi?.calculateNutritionFromUnits(food.id, units);
     if (!nutrition) return;
 
     const newEntry: FoodEntry = {
@@ -224,7 +238,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
   // Agregar alimento por gramos
   const addFoodByGrams = (food: FoodItem, grams: number, meal: string) => {
-    const nutrition = calculateNutrition(food.id, grams);
+    const nutrition = foodApi?.calculateNutrition(food.id, grams);
     if (!nutrition) return;
 
     const newEntry: FoodEntry = {
@@ -337,12 +351,13 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
   // Filtrar alimentos combinando categoría + búsqueda sobre lista deduplicada
   const getFilteredFoods = () => {
-    let list = getAllFoodsDeduped();
+    if (!foodApi) return [] as FoodItem[];
+    let list = foodApi.getAllFoodsDeduped();
     if (selectedCategory !== 'all') {
       list = list.filter(f => f.categoria === selectedCategory);
     }
     if (searchQuery.trim().length > 0) {
-      list = searchFoods(searchQuery, list);
+      list = foodApi.searchFoods(searchQuery, list);
     }
     return list.slice(0, 50);
   };
@@ -591,11 +606,12 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                       <button
                         className="duplicate-food-btn"
                         onClick={() => {
+                          if (!foodApi) return;
                           if (entry.units) {
-                            const food = foodDatabase.find(f => f.id === entry.foodId);
+                            const food = foodApi.foodDatabase.find((f: FoodItem) => f.id === entry.foodId);
                             if (food) addFoodByUnits(food, entry.units, entry.meal);
                           } else {
-                            const food = foodDatabase.find(f => f.id === entry.foodId);
+                            const food = foodApi.foodDatabase.find((f: FoodItem) => f.id === entry.foodId);
                             if (food) addFoodByGrams(food, entry.grams, entry.meal);
                           }
                         }}
@@ -704,6 +720,11 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                 ))}
               </div>
             </div>
+
+            {/* Cargando base de alimentos */}
+            {(!foodApi || loadingFoodApi) && (
+              <div style={{ padding: 20, textAlign: 'center', color: '#888' }}>Cargando base de alimentos…</div>
+            )}
 
             {/* Lista de alimentos (oculta en paso 2 móvil) */}
             <div className="foods-list-final">
