@@ -9,13 +9,15 @@
   color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
-  .modal-content-final .registro-pro-final .meal-header-final { padding: 0.75rem 0.85rem; }
-  .modal-content-final .registro-pro-final .meal-name { font-size: 1rem; }
-  .modal-content-final .registro-pro-final .add-food-btn-final { width: 32px; height: 32px; font-size: 0.9rem; }
-  .modal-content-final .registro-pro-final .meal-foods-final .food-entry-final { padding: 0.5rem 0.6rem; border-radius: 9px; }
-  .modal-content-final .registro-pro-final .meal-foods-final .food-emoji { font-size: 1.05rem; }
-  .modal-content-final .registro-pro-final .meal-foods-final .food-name { font-size: 0.9rem; }
-  .modal-content-final .registro-pro-final .meal-foods-final .food-meta-line { font-size: 0.72rem; }
+
+/* Mobile/Modal compact tweaks for meal list shown inside modal context */
+.modal-content-final .registro-pro-final .meal-header-final { padding: 0.75rem 0.85rem; }
+.modal-content-final .registro-pro-final .meal-name { font-size: 1rem; }
+.modal-content-final .registro-pro-final .add-food-btn-final { width: 32px; height: 32px; font-size: 0.9rem; }
+.modal-content-final .registro-pro-final .meal-foods-final .food-entry-final { padding: 0.5rem 0.6rem; border-radius: 9px; }
+.modal-content-final .registro-pro-final .meal-foods-final .food-emoji { font-size: 1.05rem; }
+.modal-content-final .registro-pro-final .meal-foods-final .food-name { font-size: 0.9rem; }
+.modal-content-final .registro-pro-final .meal-foods-final .food-meta-line { font-size: 0.72rem; }
 
 /* Header mejorado con progress bars */
 .registro-header-final {
@@ -34,8 +36,14 @@
     "actions";
   row-gap: 0.85rem;
   justify-items: center;
-  .modal-content-final .registro-pro-final .meal-foods-final .duplicate-food-btn,
-  .modal-content-final .registro-pro-final .meal-foods-final .remove-food-btn-final { width: 26px; height: 26px; font-size: 0.95rem; }
+}
+
+/* Moved out of nested block: button sizes inside meal list when in modal context (mobile tweaks) */
+.modal-content-final .registro-pro-final .meal-foods-final .duplicate-food-btn,
+.modal-content-final .registro-pro-final .meal-foods-final .remove-food-btn-final {
+  width: 26px;
+  height: 26px;
+  font-size: 0.95rem;
 }
 
 .date-section {
@@ -261,6 +269,7 @@
 .qa-icon { font-size: 1rem; }
 .qa-text { font-size: 0.85rem; }
 
+/* Legacy quick action large button (kept hidden) - candidate for removal */
 .quick-actions-btn-final {
   background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
   border: none;
@@ -694,19 +703,20 @@ body.is-mobile .portion-selector-final { position: sticky; bottom: 0; z-index: 9
 }
 
 .modal-header-final {
-  background: linear-gradient(135deg, var(--color-primary) 0%, #8B5CF6 100%);
+  /* Cohesive dark header, remove saturated gradient */
+  background: var(--bg-secondary);
   padding: 0.9rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  border-bottom: 1px solid var(--glass-10);
+  border-bottom: 1px solid var(--glass-15);
 }
 
 .modal-title-section { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
 .modal-title-section h3 {
   margin: 0;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 1.2rem;
   font-weight: 700;
 }
@@ -717,7 +727,7 @@ body.is-mobile .portion-selector-final { position: sticky; bottom: 0; z-index: 9
 .time-input-final { background: var(--glass-15); border: 1px solid var(--glass-25); color: var(--text-primary); border-radius: 6px; padding: 0.3rem 0.45rem; font-weight: 600; }
 
 .modal-close-final {
-  background: var(--glass-20);
+  background: var(--glass-15);
   border: none;
   border-radius: 8px;
   width: 40px;
@@ -732,7 +742,7 @@ body.is-mobile .portion-selector-final { position: sticky; bottom: 0; z-index: 9
 }
 
 .modal-close-final:hover {
-  background: var(--glass-30);
+  background: var(--glass-25);
   transform: scale(1.1);
 }
 
@@ -740,6 +750,56 @@ body.is-mobile .portion-selector-final { position: sticky; bottom: 0; z-index: 9
   padding: 1.5rem;
   border-bottom: 1px solid var(--glass-10);
 }
+
+/* New compact list UI classes used in TSX */
+.search-row { margin-bottom: 0.75rem; }
+.categories-row {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding: 0.25rem 0 0.5rem;
+}
+.categories-row::-webkit-scrollbar { height: 4px; }
+.categories-row::-webkit-scrollbar-thumb { background: var(--glass-25); border-radius: 2px; }
+
+.category-pill {
+  background: var(--glass-10);
+  border: 1px solid var(--glass-20);
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 0.4rem 0.6rem;
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  font-size: 0.86rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.category-pill:hover { background: var(--glass-15); transform: translateY(-1px); }
+.category-pill.active { background: var(--glass-20); border-color: var(--glass-30); }
+.pill-emoji { font-size: 1rem; }
+.pill-text { opacity: 0.9; }
+
+.food-list-final { display: flex; flex-direction: column; gap: 0.4rem; max-height: 46vh; overflow-y: auto; padding: 0.25rem 0.15rem 0.5rem; }
+.food-item-btn {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  background: var(--glass-08);
+  border: 1px solid var(--glass-15);
+  color: var(--text-primary);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  transition: all 0.2s ease;
+}
+.food-item-btn:hover { background: var(--glass-12); border-color: var(--glass-25); transform: translateY(-1px); }
+.food-item-btn .food-emoji { font-size: 1.1rem; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2)); }
+.food-item-btn .food-name { font-weight: 700; font-size: 0.95rem; opacity: 0.95; }
+.food-item-btn .food-meta-small { font-size: 0.82rem; color: var(--text-secondary); }
+.food-item-btn:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 2px; }
 
 .search-container {
   position: relative;
@@ -764,8 +824,8 @@ body.is-mobile .portion-selector-final { position: sticky; bottom: 0; z-index: 9
 
 .search-input-final:focus {
   outline: none;
-  border-color: #D4AF37;
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  border-color: var(--glass-30);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
   background: var(--glass-15);
 }
 

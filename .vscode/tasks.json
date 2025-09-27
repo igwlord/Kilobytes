@@ -84,6 +84,31 @@
 			"label": "git: add",
 			"type": "shell",
 			"command": "git add -A"
+		},
+		{
+			"label": "git: commit",
+			"type": "shell",
+			"command": "git commit -m \"data: agrega alimentos no saludables (Base de alimentos ~l590+) y tragos/snacks; categorías y porciones; build OK\""
+		},
+		{
+			"label": "git: commit (safe)",
+			"type": "shell",
+			"command": "git commit -m 'data: agrega no saludables desde Base de alimentos (l590+), tragos y snacks; categorías y porciones; build ok'"
+		},
+		{
+			"label": "git: push origin main",
+			"type": "shell",
+			"command": "git push origin HEAD:main"
+		},
+		{
+			"label": "git: add (phase1)",
+			"type": "shell",
+			"command": "git add apps/frontend/src/components/RegistroProFinal.tsx apps/frontend/src/components/RegistroProFinal.css"
+		},
+		{
+			"label": "git: commit (phase1)",
+			"type": "shell",
+			"command": "git commit -m \"registro: fase 1 – helpers de proyección/alertas + fix selector CSS anidado; build ok\""
 		}
 	]
 }
