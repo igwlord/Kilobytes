@@ -93,6 +93,19 @@ input {
   font-family: inherit;
 }
 
+/* Global focus-visible ring using theme token */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+summary:focus-visible,
+.btn:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
 .card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
