@@ -1,3 +1,22 @@
+.onboarding-card {
+  background: var(--glass-08);
+  border: 1px solid var(--glass-15);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.onboarding-card h2 { margin: 0 0 0.25rem 0; }
+.onboarding-card p { margin: 0 0 0.75rem 0; color: var(--text-secondary); }
+.onboarding-steps { list-style: decimal inside; padding: 0; margin: 0 0 0.75rem 0; }
+.onboarding-steps li { display: grid; grid-template-columns: 1fr auto; gap: 0.25rem 0.75rem; align-items: center; padding: 0.5rem 0; border-bottom: 1px dashed var(--glass-15); }
+.onboarding-steps li:last-child { border-bottom: none; }
+.onboarding-steps .step-title { font-weight: 700; }
+.onboarding-steps .step-desc { color: var(--text-secondary); font-size: 0.9rem; grid-column: 1 / -1; }
+.onboarding-steps li.done .step-title { opacity: 0.7; text-decoration: line-through; }
+.step-cta { background: var(--glass-15); border: 1px solid var(--glass-25); padding: 0.4rem 0.6rem; border-radius: 8px; color: var(--text-primary); cursor: pointer; }
+.onboarding-actions { display: flex; gap: 0.5rem; }
+.onboarding-actions .primary { background: linear-gradient(135deg, var(--color-primary), #8B5CF6); border: none; color: white; padding: 0.5rem 0.8rem; border-radius: 10px; cursor: pointer; }
+.onboarding-actions .secondary { background: var(--glass-12); border: 1px solid var(--glass-25); color: var(--text-primary); padding: 0.5rem 0.8rem; border-radius: 10px; cursor: pointer; }
 .dashboard {
   min-height: 100vh;
   background-color: var(--bg-primary);

@@ -12,6 +12,7 @@ import Progreso from './Progreso';
 import Perfil from './Perfil';
 import Toast from './ToastPro';
 import './Dashboard.css';
+import OnboardingGuide from './OnboardingGuide';
 
 interface UserProfile {
   nombre: string;
@@ -214,9 +215,19 @@ const Dashboard: React.FC = () => {
         return <Plan appState={appState} updateAppState={updateAppState} showToast={showToast} />;
       case 'perfil':
         return <Perfil appState={appState} updateAppState={updateAppState as unknown as (s: unknown) => void} showToast={showToast} />;
-      default:
+      default: {
+        const needsProfile = !appState.perfil?.nombre || !appState.perfil?.peso || !appState.perfil?.altura_cm;
+        const needsGoals = !appState.metas?.kcal || !appState.metas?.prote_g_dia || !appState.metas?.grasa_g_dia || !appState.metas?.carbs_g_dia;
         return (
           <div className="dashboard-content">
+            {(needsProfile || needsGoals) && (
+              <OnboardingGuide 
+                goToSection={navigateToSection}
+                nombre={appState.perfil?.nombre}
+                needsProfile={!!needsProfile}
+                needsGoals={!!needsGoals}
+              />
+            )}
             <div className="dashboard-header">
               <h1 className="welcome-message">¡Hola, {appState.perfil.nombre || 'Usuario'}!</h1>
               <p className="dashboard-subtitle">
@@ -432,6 +443,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         );
+      }
     }
   };
 
