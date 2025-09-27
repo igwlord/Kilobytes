@@ -733,11 +733,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                       <span className="chevron">▾</span>
                     </button>
                   </div>
-                  <div 
-                    className="meal-time"
-                  >
-                    {info.time}
-                  </div>
+                  {/* Hora oculta en todas las plataformas por solicitud */}
                 </div>
                 
                 <div className="meal-stats">
@@ -777,16 +773,14 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                     <div className="food-info-final">
                       <span className="food-emoji">{entry.emoji}</span>
                       <div className="food-details-final">
-                        <span className="food-name">
-                          {entry.nombre}
-                          {entry.hora && <span className="entry-time-badge" style={{ marginLeft: 8 }}>{entry.hora}</span>}
-                        </span>
+                        <span className="food-name">{entry.nombre}</span>
                         <div className="food-meta">
                           <span className="food-meta-line">
                             {entry.units && entry.unit_name
                               ? `${entry.units} ${entry.unit_name}${entry.units > 1 ? 's' : ''} • ${entry.grams}g`
                               : `${entry.grams}g`}
-                            {` • ${Math.round(entry.kcal)} kcal • ${Math.round(entry.prot)}g prot`}
+                            {` • ${Math.round(entry.kcal)} kcal`}
+                            {!isMobile && ` • ${Math.round(entry.prot)}g prot`}
                           </span>
                         </div>
                       </div>
