@@ -389,6 +389,15 @@
 .g-term { font-weight:700; margin-bottom:.15rem; }
 .g-desc { color: var(--text-secondary); font-size: .9rem; }
 
+/* Glossary controls */
+.glossary-controls { display: grid; gap: .6rem; margin-bottom: .8rem; }
+.g-search { width: 100%; padding: 0.55rem 0.65rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); }
+.g-filters { display:flex; flex-wrap: wrap; gap: .4rem; }
+.g-pill { background: var(--glass-10); border: 1px solid var(--glass-20); color: var(--text-primary); border-radius: 999px; padding: 0.35rem 0.6rem; font-weight: 700; font-size: .85rem; cursor:pointer; }
+.g-pill.active { background: var(--glass-20); border-color: var(--glass-30); }
+.g-section { margin: 0.8rem 0; }
+.g-section-title { margin: 0 0 .4rem 0; font-size: 1rem; color: var(--text-primary); }
+
 /* Responsive tweaks for small phones (iPhone 8 width ~375px) */
 @media (max-width: 400px) {
   .progreso-title { font-size: 1.4rem; }

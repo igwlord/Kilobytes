@@ -223,6 +223,67 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
   const toggleMeal = (k: string) => setOpenMealGroups(s => ({ ...s, [k]: !s[k] }));
   const [search, setSearch] = useState('');
   const [showGlossary, setShowGlossary] = useState(false);
+  type GlossCat = 'macros' | 'hábitos' | 'microbiota' | 'entrenamiento' | 'metabólico' | 'planificación';
+  type GlossaryTerm = { t: string; d: string; cat: GlossCat };
+  const glossaryCats: Array<{key: GlossCat; label: string}> = [
+    { key: 'macros', label: 'Macros' },
+    { key: 'hábitos', label: 'Hábitos' },
+    { key: 'microbiota', label: 'Microbiota' },
+    { key: 'entrenamiento', label: 'Entrenamiento' },
+    { key: 'metabólico', label: 'Metabólico' },
+    { key: 'planificación', label: 'Planificación' },
+  ];
+  const [gQuery, setGQuery] = useState('');
+  const [gCat, setGCat] = useState<'todos' | GlossCat>('todos');
+  const GLOSSARY: GlossaryTerm[] = [
+    {t:'Calorías vacías',d:'Energía con pocos nutrientes (azúcar, harinas refinadas). Mejor limitar.',cat:'macros'},
+    {t:'Proteína completa',d:'Aporta todos los aminoácidos esenciales (huevo, lácteos, soja, quinoa).',cat:'macros'},
+    {t:'Índice glucémico (IG)',d:'Qué tan rápido sube la glucosa un alimento. IG bajo/medio evita picos.',cat:'macros'},
+    {t:'Carga glucémica (CG)',d:'IG + porción. Evalúa el impacto real en glucosa.',cat:'macros'},
+    {t:'Fibra soluble',d:'Se disuelve en agua, retrasa vaciamiento y alimenta microbiota.',cat:'macros'},
+    {t:'Fibra insoluble',d:'Aumenta volumen y acelera tránsito (salvado, verduras).',cat:'macros'},
+    {t:'Grasas saludables',d:'Oliva, palta, frutos secos, pescado azul; ayudan a saciedad y salud.',cat:'macros'},
+    {t:'Omega-3',d:'Ácidos grasos antiinflamatorios (pescado azul, chía, lino).',cat:'macros'},
+    {t:'Densidad nutricional',d:'Nutrientes por caloría. Priorizá alimentos densos en nutrientes.',cat:'macros'},
+    {t:'Densidad calórica',d:'Calorías por gramo; baja densidad ayuda a perder peso.',cat:'macros'},
+
+    {t:'Adherencia',d:'Sostener el plan en el tiempo; más importante que la perfección.',cat:'hábitos'},
+    {t:'Mindful eating',d:'Comer con atención plena; ayuda a la saciedad y disfrute.',cat:'hábitos'},
+    {t:'Ritmo de comidas',d:'Comer lento mejora señales de saciedad (10–20 min por comida).',cat:'hábitos'},
+    {t:'Entorno alimentario',d:'Dejá a la vista opciones saludables; lo que está a mano, se come.',cat:'hábitos'},
+    {t:'Micrometas',d:'Cambios pequeños sostenibles (agua +500 ml, 1 fruta/día).',cat:'hábitos'},
+    {t:'Volumetría',d:'Más volumen con pocas calorías (verduras, sopas, ensaladas).',cat:'hábitos'},
+    {t:'Plan anti-antojos',d:'Dormí, proteína, fibra, grasas buenas; tené snacks reales listos.',cat:'hábitos'},
+    {t:'Ayuno intermitente',d:'Ventana sin calorías; útil si mejora tu adherencia y orden.',cat:'hábitos'},
+
+    {t:'Microbiota',d:'Microbios del intestino; impacta digestión, inmunidad y saciedad.',cat:'microbiota'},
+    {t:'Prebióticos',d:'Fibras que nutren bacterias buenas (inulina, avena, banana verde).',cat:'microbiota'},
+    {t:'Probióticos',d:'Microorganismos vivos beneficiosos (yogur, kéfir, chucrut).',cat:'microbiota'},
+    {t:'Polifenoles',d:'Compuestos vegetales que apoyan una microbiota diversa.',cat:'microbiota'},
+    {t:'Harinas refinadas',d:'Pueden empobrecer la microbiota si desplazan fibra vegetal.',cat:'microbiota'},
+
+    {t:'NEAT',d:'Gasto no asociado a ejercicio (caminar, moverse). Suma mucho.',cat:'entrenamiento'},
+    {t:'HIIT',d:'Entrenamiento interválico de alta intensidad; eficiente.',cat:'entrenamiento'},
+    {t:'Fuerza progresiva',d:'Aumentar cargas/volumen para ganar/retener músculo.',cat:'entrenamiento'},
+    {t:'Refeed',d:'Día con más calorías/carbohidratos para sostener adherencia.',cat:'entrenamiento'},
+    {t:'Steps post comida',d:'Caminatas cortas tras comer ayudan a la glucosa.',cat:'entrenamiento'},
+
+    {t:'Resistencia a la insulina',d:'Células responden menos a la insulina; mejora con peso y actividad.',cat:'metabólico'},
+    {t:'HbA1c',d:'Glucosa promedio 3 meses; útil para seguimiento metabólico.',cat:'metabólico'},
+    {t:'Hígado graso',d:'Grasa en hígado; mejora con pérdida de peso y movimiento.',cat:'metabólico'},
+    {t:'TMB (BMR)',d:'Energía mínima para funciones vitales en reposo.',cat:'metabólico'},
+    {t:'TEF',d:'Energía de la digestión/metabolismo de alimentos.',cat:'metabólico'},
+    {t:'Balance energético',d:'Calorías que entran vs. salen.',cat:'metabólico'},
+    {t:'Déficit calórico',d:'Consumir menos de lo que gastás para perder peso.',cat:'metabólico'},
+    {t:'Superávit calórico',d:'Consumir más de lo que gastás para ganar masa.',cat:'metabólico'},
+    {t:'Plateau',d:'Meseta de progreso; ajustar calorías, actividad o sueño.',cat:'metabólico'},
+
+    {t:'Porción',d:'Cantidad estandarizada para medir y comparar.',cat:'planificación'},
+    {t:'Granola casera',d:'Versión sin azúcar añadida; controlás ingredientes.',cat:'planificación'},
+    {t:'Batch cooking',d:'Cocinar en tandas para ahorrar tiempo y cumplir el plan.',cat:'planificación'},
+    {t:'Lista de compras',d:'Guía concreta para evitar compras impulsivas.',cat:'planificación'},
+    {t:'Mise en place',d:'Dejar todo listo antes de cocinar; fluidez y menos estrés.',cat:'planificación'},
+  ];
 
   const onChangeRange = (n: number) => { setRangeDays(n); localStorage.setItem('kiloByteProgressRange', String(n)); };
 
@@ -557,58 +618,52 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
               <button className="close-btn" onClick={()=> setShowGlossary(false)} aria-label="Cerrar">×</button>
             </div>
             <div className="recipe-modal-body">
-              <div className="glossary-grid">
-                {[
-                  {t:'Microbiota',d:'Conjunto de microbios del intestino que impacta digestión, inmunidad y saciedad.'},
-                  {t:'Calorías vacías',d:'Energía con pocos nutrientes (azúcar, harinas refinadas). Mejor limitar.'},
-                  {t:'Adherencia',d:'Sostener el plan en el tiempo; más importante que la perfección diaria.'},
-                  {t:'Índice glucémico (IG)',d:'Qué tan rápido sube la glucosa un alimento. Bajo/medio evita picos.'},
-                  {t:'Carga glucémica (CG)',d:'IG + porción. Ayuda a evaluar el impacto real en glucosa.'},
-                  {t:'Proteína completa',d:'Aporta todos los aminoácidos esenciales (huevo, lácteos, soja, quinoa).'},
-                  {t:'Fibra soluble',d:'Se disuelve en agua, retrasa vaciamiento gástrico y alimenta microbiota.'},
-                  {t:'Fibra insoluble',d:'Aumenta el volumen fecal y acelera tránsito (salvado, verduras).'},
-                  {t:'Prebióticos',d:'Fibras que nutren bacterias buenas (inulina, FOS, avena, banana verde).'},
-                  {t:'Probióticos',d:'Microorganismos vivos beneficiosos (yogur, kéfir, chucrut).'},
-                  {t:'Sarcopenia',d:'Pérdida de masa y fuerza muscular; prevención: proteína y entrenamiento.'},
-                  {t:'NEAT',d:'Gasto no asociado a ejercicio (moverse, caminar, gesticular). Suma mucho.'},
-                  {t:'Termogénesis',d:'Energía usada en digerir y metabolizar alimentos.'},
-                  {t:'Balance energético',d:'Relación entre calorías que entran y salen.'},
-                  {t:'Déficit calórico',d:'Consumir menos de lo que gastás para perder peso.'},
-                  {t:'Superávit calórico',d:'Consumir más de lo que gastás para ganar masa.'},
-                  {t:'Densidad nutricional',d:'Nutrientes por caloría. Priorizá alimentos densos en nutrientes.'},
-                  {t:'Saciedad',d:'Sensación de estar satisfecho y sin hambre.'},
-                  {t:'Saciación',d:'Proceso de llenarte durante una comida.'},
-                  {t:'Ultraprocesados',d:'Productos industriales con aditivos; suelen desplazar comida real.'},
-                  {t:'Aceites saludables',d:'Oliva, palta, frutos secos; mejoran perfil lipídico y saciedad.'},
-                  {t:'Omega-3',d:'Ácidos grasos antiinflamatorios (pescado azul, chía, lino).'},
-                  {t:'Resistencia a la insulina',d:'Células responden menos; puede mejorar con peso, fibra y actividad.'},
-                  {t:'Índice de saciedad',d:'Comparación de qué tan saciante es un alimento por caloría.'},
-                  {t:'Crononutrición',d:'Sincronizar comidas con ritmos circadianos.'},
-                  {t:'Ayuno intermitente',d:'Ventana sin calorías. Útil si ayuda a adherencia y orden.'},
-                  {t:'Hígado graso',d:'Acumulación de grasa en el hígado; mejora con dieta y movimiento.'},
-                  {t:'HbA1c',d:'Hemoglobina glicosilada; indicador de glucosa promedio 3 meses.'},
-                  {t:'Sodio/Potasio',d:'Electrolitos clave para presión y función muscular.'},
-                  {t:'Índice andrónico',d:'Relación cintura/altura; útil para riesgo cardiometabólico.'},
-                  {t:'TMB (BMR)',d:'Tasa metabólica basal; energía mínima para funciones vitales.'},
-                  {t:'TEF',d:'Efecto térmico de los alimentos; gasto al digerir.'},
-                  {t:'IG bajo',d:'Alimentos que suben la glucosa lentamente (legumbres, avena, batata).'},
-                  {t:'Azúcares añadidos',d:'Azúcar incorporada en productos; conviene reducir.'},
-                  {t:'Harinas refinadas',d:'Procesadas; suben glucosa rápido y sacian menos.'},
-                  {t:'Granola casera',d:'Versión sin azúcar añadida; mejor control de ingredientes.'},
-                  {t:'Porción',d:'Cantidad estandarizada para medir y comparar.'},
-                  {t:'Mindful eating',d:'Comer con atención plena; ayuda a la saciedad y disfrute.'},
-                  {t:'Volumetría',d:'Comer más volumen con pocas calorías (verduras, sopas).'},
-                  {t:'Densidad calórica',d:'Calorías por gramo; baja densidad ayuda a perder peso.'},
-                  {t:'HIIT',d:'Entrenamiento interválico de alta intensidad; eficiente en poco tiempo.'},
-                  {t:'Refeed',d:'Día con más calorías/carbohidratos para sostener adherencia.'},
-                  {t:'Plateau',d:'Meseta de progreso; romper con ajustes de calorías, actividad o sueño.'},
-                ].map((g,i)=> (
-                  <div key={i} className="glossary-item">
-                    <div className="g-term">{g.t}</div>
-                    <div className="g-desc">{g.d}</div>
-                  </div>
-                ))}
+              <div className="glossary-controls">
+                <input className="g-search" placeholder="Buscar término…" value={gQuery} onChange={e=> setGQuery(e.target.value)} />
+                <div className="g-filters" role="tablist" aria-label="Categorías del glosario">
+                  <button className={`g-pill ${gCat==='todos'?'active':''}`} role="tab" aria-selected={gCat==='todos'} onClick={()=> setGCat('todos')}>Todos</button>
+                  {glossaryCats.map(c => (
+                    <button key={c.key} className={`g-pill ${gCat===c.key?'active':''}`} role="tab" aria-selected={gCat===c.key} onClick={()=> setGCat(c.key)}>{c.label}</button>
+                  ))}
+                </div>
               </div>
+
+              {(() => {
+                const search = (gQuery||'').toLowerCase();
+                const match = (x: GlossaryTerm) => !search || x.t.toLowerCase().includes(search) || x.d.toLowerCase().includes(search);
+                const base = GLOSSARY.filter(match);
+                if (gCat !== 'todos') {
+                  const list = base.filter(x=> x.cat===gCat);
+                  return (
+                    <div className="glossary-grid">
+                      {list.map((g,i)=> (
+                        <div key={i} className="glossary-item">
+                          <div className="g-term">{g.t}</div>
+                          <div className="g-desc">{g.d}</div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+                const byCat = glossaryCats.map(c => ({ cat: c, items: base.filter(x=> x.cat===c.key) })).filter(section=> section.items.length);
+                return (
+                  <div>
+                    {byCat.map(section => (
+                      <div key={section.cat.key} className="g-section">
+                        <h4 className="g-section-title">{section.cat.label}</h4>
+                        <div className="glossary-grid">
+                          {section.items.map((g,i)=> (
+                            <div key={i} className="glossary-item">
+                              <div className="g-term">{g.t}</div>
+                              <div className="g-desc">{g.d}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
