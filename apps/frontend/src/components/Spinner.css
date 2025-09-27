@@ -1,0 +1,50 @@
+:root{
+  --spinner-size: 42px;
+  --spinner-thickness: 4px;
+}
+
+.spinner {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  color: var(--text-primary);
+}
+
+/* Default: take available space and center within parent */
+.spinner.centered {
+  width: 100%;
+  min-height: 200px;
+}
+
+.spinner.tight {
+  min-height: 0;
+}
+
+.spinner-wheel {
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  border-radius: 50%;
+  border: var(--spinner-thickness) solid var(--glass-20);
+  border-top-color: var(--color-primary);
+  border-right-color: color-mix(in oklab, var(--color-primary), transparent 40%);
+  animation: spinner-rotate 0.9s linear infinite;
+}
+
+.spinner.tight .spinner-wheel {
+  --spinner-size: 24px;
+  --spinner-thickness: 3px;
+}
+
+.spinner-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+@keyframes spinner-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Dark mode subtlety */
+.dark .spinner-wheel { border-color: rgba(255,255,255,0.12); border-top-color: var(--color-primary); }

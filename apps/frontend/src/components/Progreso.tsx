@@ -16,7 +16,7 @@ interface ProgresoProps {
   appState: AppStateMin;
 }
 
-type Section = 'resumen' | 'kpis' | 'peso' | 'tendencias' | 'recetas' | 'tips' | null;
+type Section = 'resumen' | 'peso' | 'tendencias' | 'recetas' | 'tips' | null;
 type KPIKey = 'kcal' | 'prot' | 'carbs' | 'grasa' | 'agua' | 'sueno' | 'ayuno';
 
 const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
@@ -24,14 +24,6 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
   const [rangeDays, setRangeDays] = useState<number>(() => {
     const saved = Number(localStorage.getItem('kiloByteProgressRange') || '7');
     return [7, 14, 30].includes(saved) ? saved : 7;
-  });
-  const [visibleKPIs, setVisibleKPIs] = useState<Set<KPIKey>>(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('kiloByteProgressKPIs') || '[]');
-      const def: KPIKey[] = ['kcal','prot','agua','sueno','ayuno'];
-      const arr: KPIKey[] = Array.isArray(saved) && saved.length ? saved : def;
-      return new Set(arr);
-    } catch { return new Set(['kcal','prot','agua','sueno','ayuno']); }
   });
 
   const generateWeightData = () => {
@@ -231,35 +223,18 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
   const toggleMeal = (k: string) => setOpenMealGroups(s => ({ ...s, [k]: !s[k] }));
   const [search, setSearch] = useState('');
 
-  // Persist preferences
-  const onToggleKPI = (k: KPIKey) => {
-    setVisibleKPIs(prev => {
-      const n = new Set(prev);
-      if (n.has(k)) n.delete(k); else n.add(k);
-      localStorage.setItem('kiloByteProgressKPIs', JSON.stringify(Array.from(n)));
-      return n;
-    });
-  };
   const onChangeRange = (n: number) => { setRangeDays(n); localStorage.setItem('kiloByteProgressRange', String(n)); };
 
   return (
     <div className="progreso-container">
       <h1 className="progreso-title">Mi Progreso</h1>
       
-      {/* Preferencias rápidas */}
+      {/* Preferencias rápidas (solo rango) */}
       <div className="progress-prefs">
         <div className="prefs-range" role="group" aria-label="Rango de días">
           <button className={`chip ${rangeDays===7?'active':''}`} onClick={()=>onChangeRange(7)}>7d</button>
           <button className={`chip ${rangeDays===14?'active':''}`} onClick={()=>onChangeRange(14)}>14d</button>
           <button className={`chip ${rangeDays===30?'active':''}`} onClick={()=>onChangeRange(30)}>30d</button>
-        </div>
-        <div className="prefs-kpis" aria-label="KPIs visibles">
-          {(['kcal','prot','carbs','grasa','agua','sueno','ayuno'] as KPIKey[]).map(k => (
-            <label key={k} className={`kpi-toggle ${visibleKPIs.has(k)?'on':''}`}>
-              <input type="checkbox" checked={visibleKPIs.has(k)} onChange={()=>onToggleKPI(k)} />
-              <span>{({kcal:'Kcal',prot:'Prote',carbs:'Carbs',grasa:'Grasa',agua:'Agua',sueno:'Sueño',ayuno:'Ayuno'})[k]}</span>
-            </label>
-          ))}
         </div>
       </div>
 
@@ -292,53 +267,7 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
         )}
       </div>
       
-      {/* Panel de KPIs seleccionados */}
-      <div className="progress-card collapsible">
-        <div className="collapsible-header">
-          <h2 className="card-title">Panel de KPIs</h2>
-          <button className={`collapse-toggle ${openSection==='kpis'?'open':''}`} onClick={()=> setOpenSection(s=> s==='kpis'? null : 'kpis')} aria-label="Alternar">▾</button>
-        </div>
-        {openSection==='kpis' && (
-          <p className="card-help">KPI = indicador clave. Activá los que más te importan. Cada tarjeta muestra tendencia y el porcentaje de adherencia al objetivo.</p>
-        )}
-        {openSection==='kpis' && (
-          <div className="kpi-board">
-            {Array.from(visibleKPIs).map(k => {
-              const keyMap: Record<KPIKey, { label: string; colorVar: string; values: number[]; pcts: number[] }>= {
-                kcal: { label: 'Calorías', colorVar: 'var(--color-primary)', values: trends.map(d=>d.kcal), pcts: trends.map(d=>d.pct.kcal) },
-                prot: { label: 'Proteínas', colorVar: 'var(--color-secondary)', values: trends.map(d=>d.prot), pcts: trends.map(d=>d.pct.prot) },
-                carbs:{ label: 'Carbs', colorVar: '#45B7D1', values: trends.map(d=>d.carbs), pcts: trends.map(d=>d.pct.carbs) },
-                grasa:{ label: 'Grasa', colorVar: '#96CEB4', values: trends.map(d=>d.grasa), pcts: trends.map(d=>d.pct.grasa) },
-                agua: { label: 'Agua (ml)', colorVar: 'var(--color-primary)', values: trends.map(d=>d.agua), pcts: trends.map(d=>d.pct.agua) },
-                sueno:{ label: 'Sueño (h)', colorVar: '#7C3AED', values: trends.map(d=>d.sueno), pcts: trends.map(d=>d.pct.sueno) },
-                ayuno:{ label: 'Ayuno (h)', colorVar: '#F43F5E', values: trends.map(d=>d.ayuno), pcts: trends.map(d=>d.pct.ayuno) },
-              };
-              const cfg = keyMap[k];
-              const avgPct = Math.round(cfg.pcts.reduce((a,b)=>a+b,0) / Math.max(1,cfg.pcts.length));
-              const maxVal = Math.max(1, ...cfg.values);
-              const points = cfg.values.map((v,i)=>{
-                const x = (i/(cfg.values.length-1||1))*100;
-                const y = 100 - (v/maxVal)*100;
-                return `${x},${y}`;
-              }).join(' ');
-              return (
-                <div key={k} className="kpi-mini">
-                  <div className="mini-head">
-                    <span className="mini-label">{cfg.label}</span>
-                    <span className={`mini-pct ${avgPct>=90?'ok':avgPct>=70?'warn':'bad'}`}>{avgPct}%</span>
-                  </div>
-                  <svg className="sparkline" viewBox="0 0 100 28" preserveAspectRatio="none">
-                    <polyline fill="none" stroke={cfg.colorVar} strokeWidth="2" points={points} />
-                  </svg>
-                  <div className="mini-days">
-                    {trends.map((d,i)=> <span key={i} className="day-dot" title={`${d.date}: ${cfg.values[i]}`}></span>)}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      {/* Panel de KPIs eliminado por pedido */}
 
       {/* Gráfico de peso (colapsable) */}
       <div className="progress-card collapsible">
@@ -445,7 +374,7 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
         <>
         <p className="card-help">Barras diarias comparadas con tus metas. Verde = dentro del rango ideal (90–110%). Amarillo = aceptable (70–130%).</p>
         <div className="trends-summary">
-          {(['kcal','prot'] as KPIKey[]).filter(k=>visibleKPIs.has(k)).map(k => (
+          {(['kcal','prot'] as KPIKey[]).map(k => (
             <div key={k} className="trend-stat">
               <span className="trend-label">{k==='kcal'?'Adherencia promedio - Calorías':'Adherencia promedio - Proteínas'}</span>
               <span className={`trend-value ${ (k==='kcal'?avg.kcal:avg.prot) >= 90 ? 'success' : (k==='kcal'?avg.kcal:avg.prot) >= 70 ? 'warning' : 'error'}`}>
@@ -460,9 +389,7 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
             <div key={index} className="daily-trend">
               <div className="day-label">{day.date}</div>
               <div className="trend-bars">
-                {(['kcal','prot','carbs','grasa','agua','sueno','ayuno'] as KPIKey[])
-                  .filter(k => visibleKPIs.has(k))
-                  .map(k => {
+                {(['kcal','prot'] as KPIKey[]).map(k => {
                     const label = ({kcal:'Calorías',prot:'Proteínas',carbs:'Carbs',grasa:'Grasa',agua:'Agua',sueno:'Sueño',ayuno:'Ayuno'})[k];
                     const pct = day.pct[k];
                     const cls = pct >= 90 && pct <= 110 ? 'success' : pct >= 70 && pct <= 130 ? 'warning' : 'error';
@@ -517,7 +444,6 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
                     <div key={meal} className="recipe-sub-accordion">
                       <button className={`sub-acc-header ${open?'open':''}`} onClick={()=> toggleMeal(meal)}>
                         <span>{meal}</span>
-                        <span className="count">{items.length}</span>
                         <span className="chev">▾</span>
                       </button>
                       {open && (

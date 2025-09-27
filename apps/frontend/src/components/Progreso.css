@@ -371,7 +371,6 @@
 .recipes-search { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); min-width: 220px; }
 .recipe-sub-accordion { border-top: 1px dashed var(--border-color); }
 .sub-acc-header { width:100%; display:flex; align-items:center; justify-content:space-between; background:transparent; border:none; padding: 0.5rem 1rem; cursor:pointer; font-weight:600; color: var(--text-primary); }
-.sub-acc-header .count { font-size: .85rem; color: var(--text-secondary); }
 .sub-acc-header .chev { transition: transform .2s ease; }
 .sub-acc-header.open .chev { transform: rotate(180deg); }
 
