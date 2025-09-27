@@ -801,6 +801,16 @@ body.is-mobile .portion-selector-final { position: sticky; bottom: 0; z-index: 9
 .food-item-btn .food-meta-small { font-size: 0.82rem; color: var(--text-secondary); }
 .food-item-btn:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 3px; box-shadow: 0 0 0 3px rgba(0,0,0,0.25); }
 
+/* Consistent focus-visible across controls */
+.qa-btn:focus-visible,
+.wb-btn:focus-visible,
+.add-food-btn-final:focus-visible,
+.meal-toggle-btn:focus-visible,
+.duplicate-food-btn:focus-visible,
+.remove-food-btn-final:focus-visible,
+.category-pill:focus-visible,
+.category-btn-final:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 2px; box-shadow: 0 0 0 3px rgba(0,0,0,0.25); }
+
 .search-container {
   position: relative;
   margin-bottom: 1rem;
@@ -1556,7 +1566,10 @@ body.is-mobile .modal-content-final .portion-kcal { font-size: 0.73rem; }
 
 @media (max-width: 430px) {
   /* Hide list & filters when a food is selected on mobile */
-  .modal-content-final.mobile-portion .food-search-final,
+  /* In portion step, hide only search & lists, keep portion header visible */
+  .modal-content-final.mobile-portion .search-row,
+  .modal-content-final.mobile-portion .categories-row,
+  .modal-content-final.mobile-portion .food-list-final,
   .modal-content-final.mobile-portion .category-filters-final,
   .modal-content-final.mobile-portion .foods-list-final { display: none; }
 
