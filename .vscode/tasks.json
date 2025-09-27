@@ -74,6 +74,16 @@
 				"$tsc",
 				"$eslint-stylish"
 			]
+		},
+		{
+			"label": "git: status",
+			"type": "shell",
+			"command": "git --no-pager status -sb"
+		},
+		{
+			"label": "git: add",
+			"type": "shell",
+			"command": "git add -A"
 		}
 	]
 }

@@ -588,3 +588,207 @@ interface FoodItem {
 
 *Base de datos completada y lista para producción* ✨
 ```
+
+
+
+nuevos alimentos 
+
+¡De una, Gui! Acá va la **lista “no saludables / ultraprocesados” súper completa** que pediste, separada por subcategorías y con **porción típica, gramos/ml, kcal, macros, azúcar y sodio** (valores **promedio** de etiquetas locales para uso de app; pueden variar por marca).
+
+> **Columnas:** kcal | Prot (g) | Carb (g) | Grasa (g) | Azúcares (g) | Sodio (mg) | Fibra (g)
+
+---
+
+# 🥤 Gaseosas, jugos y energéticas
+
+| Producto                        | Porción   | g/ml | kcal | P | C  | G | Azú | Na  | Fib |
+| ------------------------------- | --------- | ---- | ---- | - | -- | - | --- | --- | --- |
+| Gaseosa cola común              | 1 lata    | 354  | 140  | 0 | 35 | 0 | 35  | 15  | 0   |
+| Gaseosa lima-limón común        | 1 lata    | 354  | 145  | 0 | 36 | 0 | 36  | 20  | 0   |
+| Gaseosa cola **light/diet**     | 1 lata    | 354  | 1    | 0 | 0  | 0 | 0   | 35  | 0   |
+| Gaseosa “zero azúcar”           | 1 bote    | 500  | 2    | 0 | 0  | 0 | 0   | 50  | 0   |
+| Tónica                          | 1 lata    | 354  | 120  | 0 | 30 | 0 | 30  | 15  | 0   |
+| Néctar de naranja (industrial)  | 1 vaso    | 200  | 90   | 1 | 22 | 0 | 20  | 5   | 0   |
+| Bebida deportiva (isotónica)    | 1 botella | 500  | 120  | 0 | 30 | 0 | 30  | 230 | 0   |
+| Energética estándar             | 1 lata    | 473  | 210  | 2 | 54 | 0 | 54  | 200 | 0   |
+| Té frío azucarado (embotellado) | 1 botella | 500  | 150  | 0 | 37 | 0 | 35  | 10  | 0   |
+| Agua saborizada con azúcar      | 1 botella | 500  | 95   | 0 | 24 | 0 | 24  | 10  | 0   |
+
+---
+
+# 🍺 Bebidas alcohólicas (promedios habituales)
+
+| Producto                    | Porción  | ml  | kcal | P | C  | G | Azú | Na | Fib |
+| --------------------------- | -------- | --- | ---- | - | -- | - | --- | -- | --- |
+| Cerveza rubia 5%            | 1 lata   | 473 | 200  | 2 | 15 | 0 | 0   | 15 | 0   |
+| Cerveza artesanal 6–7%      | 1 pinta  | 473 | 240  | 3 | 18 | 0 | 0   | 20 | 0   |
+| Vino tinto                  | 1 copa   | 150 | 125  | 0 | 4  | 0 | 1   | 5  | 0   |
+| Vino blanco                 | 1 copa   | 150 | 120  | 0 | 4  | 0 | 1   | 5  | 0   |
+| Sidra                       | 1 vaso   | 200 | 90   | 0 | 10 | 0 | 10  | 10 | 0   |
+| Fernet + cola               | 1 trago  | 250 | 230  | 0 | 28 | 0 | 26  | 15 | 0   |
+| Gin & tonic                 | 1 trago  | 250 | 190  | 0 | 14 | 0 | 12  | 5  | 0   |
+| Vodka + energizante         | 1 trago  | 250 | 250  | 0 | 28 | 0 | 27  | 60 | 0   |
+| Whisky (solo)               | 1 medida | 50  | 110  | 0 | 0  | 0 | 0   | 0  | 0   |
+| Licor dulce (Baileys, etc.) | 1 medida | 50  | 160  | 2 | 11 | 7 | 10  | 25 | 0   |
+| Aperitivo amargo            | 1 medida | 90  | 130  | 0 | 12 | 0 | 12  | 10 | 0   |
+
+> 💡 Para la app: permitir **“trago personalizado”** (ml de alcohol + mixer) y calcular.
+
+---
+
+# 🥐 Facturas, bollería y pastelería
+
+| Producto                   | Porción   | g   | kcal | P | C  | G  | Azú | Na  | Fib |
+| -------------------------- | --------- | --- | ---- | - | -- | -- | --- | --- | --- |
+| Medialuna de manteca       | 1 unidad  | 60  | 220  | 4 | 28 | 10 | 8   | 180 | 1   |
+| Medialuna de grasa         | 1 unidad  | 55  | 210  | 4 | 26 | 10 | 6   | 220 | 1   |
+| Vigilante/dulce de leche   | 1 unidad  | 85  | 320  | 6 | 42 | 14 | 20  | 240 | 1   |
+| Tortita negra              | 1 unidad  | 70  | 260  | 5 | 40 | 7  | 14  | 230 | 1   |
+| Berlinesa (bola)           | 1 unidad  | 90  | 330  | 6 | 44 | 14 | 18  | 300 | 1   |
+| Churro simple              | 1 unidad  | 45  | 170  | 3 | 20 | 8  | 6   | 120 | 1   |
+| Churro relleno dulce leche | 1 unidad  | 70  | 260  | 4 | 32 | 11 | 16  | 160 | 1   |
+| Donut glaseada             | 1 unidad  | 80  | 340  | 5 | 38 | 18 | 20  | 320 | 1   |
+| Muffin chocolate           | 1 unidad  | 100 | 420  | 6 | 50 | 20 | 32  | 360 | 2   |
+| Brownie                    | 1 porción | 60  | 280  | 3 | 34 | 14 | 24  | 120 | 2   |
+| Bizcochuelo vainilla       | 1 porción | 80  | 250  | 4 | 40 | 7  | 22  | 180 | 1   |
+| Tarta dulce (fruta/ricota) | 1 porción | 120 | 360  | 7 | 48 | 14 | 22  | 260 | 2   |
+
+---
+
+# 🧀 Alfajores y golosinas cubiertas
+
+| Producto            | Porción    | g  | kcal | P | C  | G  | Azú | Na  | Fib |
+| ------------------- | ---------- | -- | ---- | - | -- | -- | --- | --- | --- |
+| Alfajor simple      | 1 unidad   | 55 | 250  | 3 | 35 | 11 | 22  | 90  | 1   |
+| Alfajor triple      | 1 unidad   | 75 | 380  | 5 | 52 | 16 | 32  | 140 | 1   |
+| Alfajor de maicena  | 1 unidad   | 50 | 220  | 2 | 34 | 8  | 18  | 70  | 1   |
+| Barquillo bañado    | 1 unidad   | 30 | 160  | 2 | 18 | 9  | 13  | 40  | 1   |
+| Turrón de maní      | 1 barra    | 25 | 120  | 2 | 16 | 5  | 14  | 45  | 0   |
+| Confites tipo “M&M” | 1 porción  | 40 | 200  | 2 | 28 | 8  | 26  | 30  | 1   |
+| Gomitas azucaradas  | 1 porción  | 40 | 140  | 2 | 33 | 0  | 28  | 15  | 0   |
+| Caramelos duros     | 5 unidades | 25 | 100  | 0 | 25 | 0  | 24  | 0   | 0   |
+
+---
+
+# 🍫 Chocolates y tabletas
+
+| Producto                    | Porción   | g  | kcal | P | C  | G  | Azú | Na | Fib |
+| --------------------------- | --------- | -- | ---- | - | -- | -- | --- | -- | --- |
+| Chocolate con leche         | 1 tableta | 25 | 135  | 2 | 14 | 8  | 13  | 20 | 1   |
+| Chocolate amargo 70%        | 1 tableta | 25 | 120  | 2 | 8  | 9  | 6   | 5  | 2   |
+| Chocolate relleno (caramel) | 1 porción | 40 | 210  | 2 | 25 | 12 | 22  | 30 | 1   |
+| Tableta “blanco”            | 1 porción | 30 | 165  | 2 | 16 | 10 | 16  | 25 | 0   |
+
+---
+
+# 🧂 Snacks “chatarra” (palitos, chizitos, papas, etc.)
+
+| Producto                          | Porción       | g  | kcal | P | C  | G  | Azú | Na  | Fib |
+| --------------------------------- | ------------- | -- | ---- | - | -- | -- | --- | --- | --- |
+| Papas fritas clásicas (bolsa)     | 1 porción     | 50 | 270  | 3 | 29 | 15 | 0   | 320 | 2   |
+| Papas onduladas                   | 1 porción     | 50 | 280  | 3 | 28 | 17 | 0   | 350 | 2   |
+| Palitos salados                   | 1 porción     | 30 | 150  | 3 | 20 | 6  | 1   | 380 | 1   |
+| **Chizitos** (maíz inflado)       | 1 porción     | 30 | 160  | 2 | 14 | 10 | 1   | 380 | 1   |
+| Palitos de maíz sabor queso       | 1 porción     | 30 | 160  | 2 | 16 | 9  | 1   | 420 | 1   |
+| Nachos de maíz                    | 1 porción     | 40 | 200  | 3 | 24 | 10 | 0   | 240 | 2   |
+| Popcorn microondas (manteca)      | porción serv. | 25 | 130  | 2 | 14 | 7  | 0   | 230 | 3   |
+| Popcorn microondas (bolsa entera) | 1 bolsa       | 70 | 420  | 7 | 42 | 24 | 0   | 650 | 9   |
+| Galletitas saladas (crackers)     | 1 porción     | 30 | 140  | 3 | 20 | 6  | 1   | 300 | 1   |
+| Maní salado saborizado            | 1 porción     | 30 | 180  | 7 | 6  | 14 | 1   | 260 | 2   |
+
+---
+
+# 🧴 Grasas trans / untables industriales*
+
+| Producto                                     | Porción | g  | kcal | P | C | G  | **Trans (g)** | Sat (g) | Na |
+| -------------------------------------------- | ------- | -- | ---- | - | - | -- | ------------- | ------- | -- |
+| **Manteca vegetal hidrogenada / shortening** | 1 cda   | 14 | 120  | 0 | 0 | 14 | 1–3           | 5–7     | 0  |
+| Margarina “tipo panadería” (antigua)         | 1 cda   | 14 | 100  | 0 | 0 | 11 | 0–2           | 2–4     | 90 |
+| Cobertura hidrogenada (baño)                 | 20 g    | 20 | 160  | 0 | 2 | 16 | 0–2           | 8–10    | 10 |
+
+* **Nota:** muchas marcas modernas **declaran 0 g de trans** por regulaciones; cuando no hay información clara o se trata de **grasas hidrogenadas/parcialmente hidrogenadas**, se suele asumir **presencia potencial** de trans. En la app, suma un **flag “posible trans”** por ingrediente.
+
+---
+
+# 🍜 Sopas y comidas instantáneas
+
+| Producto                               | Porción preparada        | g/ml | kcal | P | C  | G  | Azú | **Na**        | Fib |
+| -------------------------------------- | ------------------------ | ---- | ---- | - | -- | -- | --- | ------------- | --- |
+| Sopa instantánea en sobre (verduras)   | 1 taza (rec.)            | 250  | 70   | 2 | 12 | 1  | 2   | **800–1200**  | 1   |
+| Caldo concentrado en cubo              | 1 cubo en 250 ml         | 250  | 10   | 0 | 1  | 0  | 0   | **1800–2200** | 0   |
+| Fideos **ramen instantáneo** (seco)    | 1 paquete (sin escurrir) | 85   | 380  | 8 | 52 | 14 | 2   | **1500–2000** | 3   |
+| Puré de papa instantáneo               | 1 porción preparada      | 200  | 120  | 2 | 22 | 3  | 2   | 500           | 2   |
+| Arroz saborizado instantáneo (sobre)   | 1 porción preparada      | 200  | 180  | 4 | 35 | 2  | 2   | 700           | 1   |
+| Salsa seca en sobre (4 quesos, etc.)   | 60 ml preparada          | 60   | 90   | 3 | 6  | 5  | 2   | 400           | 0   |
+| Polenta instantánea (lista en 1–3 min) | 1 porción                | 200  | 170  | 4 | 36 | 1  | 0   | 5–200         | 2   |
+| Ñoquis listos (envasados al vacío)     | 1 porción                | 180  | 270  | 6 | 58 | 1  | 1   | 550           | 3   |
+
+---
+
+# 🍨 Postres, helados y lácteos azucarados
+
+| Producto                   | Porción   | g   | kcal | P | C  | G | Azú | Na  | Fib |
+| -------------------------- | --------- | --- | ---- | - | -- | - | --- | --- | --- |
+| Helado crema (bola)        | 1 unidad  | 60  | 120  | 2 | 15 | 5 | 14  | 40  | 0   |
+| Helado tipo “amer.” pote   | 1 porción | 100 | 200  | 3 | 24 | 9 | 22  | 65  | 0   |
+| Postre flan con caramelo   | 1 pote    | 110 | 160  | 5 | 28 | 3 | 26  | 120 | 0   |
+| Arroz con leche industrial | 1 pote    | 120 | 190  | 5 | 32 | 4 | 24  | 150 | 0   |
+| Yogur azucarado saborizado | 1 pote    | 190 | 160  | 6 | 28 | 3 | 24  | 95  | 0   |
+
+---
+
+# 🥣 Cereales azucarados y panificados blancos
+
+| Producto                    | Porción     | g   | kcal | P | C  | G  | Azú | Na  | Fib |
+| --------------------------- | ----------- | --- | ---- | - | -- | -- | --- | --- | --- |
+| Cereal desayuno azucarado   | 1 taza      | 40  | 160  | 3 | 34 | 2  | 14  | 200 | 2   |
+| Granola comercial azucarada | ½ taza      | 50  | 230  | 5 | 32 | 8  | 12  | 60  | 4   |
+| Pan lactal blanco           | 2 rebanadas | 60  | 160  | 6 | 28 | 2  | 5   | 260 | 2   |
+| Medialunas envasadas        | 2 unidades  | 100 | 360  | 6 | 48 | 16 | 18  | 360 | 2   |
+| Galletitas dulces simples   | 6 unidades  | 36  | 170  | 2 | 26 | 6  | 10  | 180 | 1   |
+
+---
+
+# 🌭 Embutidos y ultra-procesados cárnicos (alto sodio)
+
+| Producto             | Porción    | g   | kcal | P  | C | G  | Azú | **Na**  | Fib |
+| -------------------- | ---------- | --- | ---- | -- | - | -- | --- | ------- | --- |
+| Salame               | 4 fetas    | 40  | 170  | 8  | 1 | 14 | 1   | **620** | 0   |
+| Mortadela            | 4 fetas    | 40  | 120  | 5  | 2 | 9  | 1   | **500** | 0   |
+| Chorizo parrillero   | 1 unidad   | 100 | 310  | 13 | 1 | 28 | 0   | 900     | 0   |
+| Salchicha tipo Viena | 2 unidades | 100 | 280  | 11 | 3 | 24 | 2   | **900** | 0   |
+| Jamón cocido común   | 2 fetas    | 60  | 90   | 9  | 2 | 4  | 2   | **700** | 0   |
+
+---
+
+## ✅ Recomendaciones para la **App Nutrición (registro realista)**
+
+* **Flags inteligentes**: `alto_azucar`, `alto_sodio`, `alto_grasa_sat`, `posible_trans`, `alcohol`.
+* **Medidas rápidas**: “lata 354 ml”, “botella 500 ml”, “copa 150 ml”, “porción 30/40/50 g”, “unidad”.
+* **Combinadores**: Tragos **(alcohol + mixer)** y combos fast-food **(hamburguesa + papas + bebida)**.
+* **Marcas**: deja campo opcional de marca para ajuste de valores.
+
+¡Buenísima pregunta! No los habíamos listado aún en la parte “no saludable/ultraprocesados”. Acá te dejo **mermeladas y dulces/untables** con porción típica y macros (promedios locales para app).
+
+> Columnas: **kcal | Prot (g) | Carb (g) | Grasa (g) | Azúcares (g) | Sodio (mg) | Fibra (g)**
+
+### 🍯 Mermeladas, dulces y untable azucarados
+
+| Producto                          | Porción       | g   | kcal | P | C  | G | Azú | Na | Fib |
+| --------------------------------- | ------------- | --- | ---- | - | -- | - | --- | -- | --- |
+| Mermelada común (con azúcar)      | 1 cda         | 20  | 50   | 0 | 13 | 0 | 12  | 5  | 0   |
+| Mermelada **light** (edulcorada)  | 1 cda         | 20  | 15   | 0 | 4  | 0 | 2   | 5  | 1   |
+| Jalea (gelificada)                | 1 cda         | 20  | 50   | 0 | 13 | 0 | 12  | 5  | 0   |
+| Dulce de leche **clásico**        | 1 cda colmada | 20  | 65   | 1 | 11 | 2 | 10  | 25 | 0   |
+| Dulce de leche **light**          | 1 cda colmada | 20  | 45   | 2 | 9  | 1 | 6   | 25 | 0   |
+| Dulce de **membrillo**            | 1 feta        | 30  | 80   | 0 | 20 | 0 | 18  | 5  | 1   |
+| Dulce de **batata**               | 1 feta        | 30  | 70   | 0 | 17 | 0 | 16  | 5  | 1   |
+| Compota industrial (manzana)      | 1 pote        | 100 | 50   | 0 | 12 | 0 | 10  | 5  | 1   |
+| Crema de cacao/avellanas (tipo N) | 1 cda         | 15  | 80   | 1 | 9  | 5 | 8   | 5  | 1   |
+| Miel                              | 1 cda         | 20  | 61   | 0 | 17 | 0 | 17  | 2  | 0   |
+| Jarabe de arce                    | 1 cda         | 20  | 52   | 0 | 13 | 0 | 12  | 2  | 0   |
+| Sirope tipo pancake               | 1 cda         | 20  | 50   | 0 | 13 | 0 | 12  | 15 | 0   |
+| Dulce de leche **repostero**      | 1 cda colmada | 20  | 75   | 1 | 12 | 3 | 11  | 30 | 0   |
+
+
+

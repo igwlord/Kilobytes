@@ -1951,6 +1951,281 @@ export const foodDatabase: FoodItem[] = [
       { nombre: '1 pinta 500ml', cantidad: 1.5, gramos: 500 }
     ]
   },
+  // --- Nuevas bebidas azucaradas/energéticas/zero ---
+  {
+    id: 'gaseosa_lima_limon',
+    nombre: 'Gaseosa lima-limón',
+    categoria: 'bebidas',
+    subcategoria: 'Ultraprocesadas',
+    kcal_100g: 41,
+    prot_g_100g: 0,
+    carbs_g_100g: 10.2,
+    grasa_g_100g: 0,
+    emoji: '🥤',
+    unidad_base: { nombre: 'lata 354ml', peso_g: 354, kcal_unidad: 145 },
+    porciones_comunes: [
+      { nombre: '1/2 lata', cantidad: 0.5, gramos: 177 },
+      { nombre: '1 lata', cantidad: 1, gramos: 354 },
+      { nombre: 'botella 500ml', cantidad: 1.41, gramos: 500 }
+    ]
+  },
+  {
+    id: 'gaseosa_cola_light',
+    nombre: 'Gaseosa cola light/diet',
+    categoria: 'bebidas',
+    subcategoria: 'Sin azúcar',
+    kcal_100g: 0.3,
+    prot_g_100g: 0,
+    carbs_g_100g: 0,
+    grasa_g_100g: 0,
+    emoji: '🥤',
+    unidad_base: { nombre: 'lata 354ml', peso_g: 354, kcal_unidad: 1 },
+    porciones_comunes: [
+      { nombre: '1 lata', cantidad: 1, gramos: 354 },
+      { nombre: 'botella 500ml', cantidad: 1.41, gramos: 500 }
+    ]
+  },
+  {
+    id: 'gaseosa_zero',
+    nombre: 'Gaseosa zero azúcar',
+    categoria: 'bebidas',
+    subcategoria: 'Sin azúcar',
+    kcal_100g: 0.4,
+    prot_g_100g: 0,
+    carbs_g_100g: 0,
+    grasa_g_100g: 0,
+    emoji: '🥤',
+    unidad_base: { nombre: 'botella 500ml', peso_g: 500, kcal_unidad: 2 },
+    porciones_comunes: [
+      { nombre: '1/2 botella', cantidad: 0.5, gramos: 250 },
+      { nombre: '1 botella', cantidad: 1, gramos: 500 }
+    ]
+  },
+  {
+    id: 'tonica',
+    nombre: 'Tónica',
+    categoria: 'bebidas',
+    subcategoria: 'Ultraprocesadas',
+    kcal_100g: 34,
+    prot_g_100g: 0,
+    carbs_g_100g: 8.5,
+    grasa_g_100g: 0,
+    emoji: '🥤',
+    unidad_base: { nombre: 'lata 354ml', peso_g: 354, kcal_unidad: 120 },
+    porciones_comunes: [
+      { nombre: '1/2 lata', cantidad: 0.5, gramos: 177 },
+      { nombre: '1 lata', cantidad: 1, gramos: 354 }
+    ]
+  },
+  {
+    id: 'nectar_naranja_industrial',
+    nombre: 'Néctar de naranja (industrial)',
+    categoria: 'bebidas',
+    subcategoria: 'Con calorías',
+    kcal_100g: 45,
+    prot_g_100g: 0.5,
+    carbs_g_100g: 11,
+    grasa_g_100g: 0,
+    emoji: '🍊',
+    unidad_base: { nombre: 'vaso', peso_g: 200, kcal_unidad: 90 },
+    porciones_comunes: [
+      { nombre: '1/2 vaso', cantidad: 0.5, gramos: 100 },
+      { nombre: '1 vaso', cantidad: 1, gramos: 200 }
+    ]
+  },
+  {
+    id: 'bebida_isotonica',
+    nombre: 'Bebida deportiva (isotónica)',
+    categoria: 'bebidas',
+    subcategoria: 'Ultraprocesadas',
+    kcal_100g: 24,
+    prot_g_100g: 0,
+    carbs_g_100g: 6,
+    grasa_g_100g: 0,
+    emoji: '🏃',
+    unidad_base: { nombre: 'botella 500ml', peso_g: 500, kcal_unidad: 120 },
+    porciones_comunes: [
+      { nombre: '1/2 botella', cantidad: 0.5, gramos: 250 },
+      { nombre: '1 botella', cantidad: 1, gramos: 500 }
+    ]
+  },
+  {
+    id: 'energetica_estandar',
+    nombre: 'Bebida energética',
+    categoria: 'bebidas',
+    subcategoria: 'Ultraprocesadas',
+    kcal_100g: 44.4,
+    prot_g_100g: 0.4,
+    carbs_g_100g: 11.4,
+    grasa_g_100g: 0,
+    emoji: '⚡',
+    unidad_base: { nombre: 'lata 473ml', peso_g: 473, kcal_unidad: 210 },
+    porciones_comunes: [
+      { nombre: '1/2 lata', cantidad: 0.5, gramos: 236.5 },
+      { nombre: '1 lata', cantidad: 1, gramos: 473 }
+    ]
+  },
+  {
+    id: 'te_frio_azucarado',
+    nombre: 'Té frío azucarado (embotellado)',
+    categoria: 'bebidas',
+    subcategoria: 'Ultraprocesadas',
+    kcal_100g: 30,
+    prot_g_100g: 0,
+    carbs_g_100g: 7.4,
+    grasa_g_100g: 0,
+    emoji: '🧋',
+    unidad_base: { nombre: 'botella 500ml', peso_g: 500, kcal_unidad: 150 },
+    porciones_comunes: [
+      { nombre: '1/2 botella', cantidad: 0.5, gramos: 250 },
+      { nombre: '1 botella', cantidad: 1, gramos: 500 }
+    ]
+  },
+  {
+    id: 'agua_saborizada_azucar',
+    nombre: 'Agua saborizada con azúcar',
+    categoria: 'bebidas',
+    subcategoria: 'Ultraprocesadas',
+    kcal_100g: 19,
+    prot_g_100g: 0,
+    carbs_g_100g: 4.8,
+    grasa_g_100g: 0,
+    emoji: '💧',
+    unidad_base: { nombre: 'botella 500ml', peso_g: 500, kcal_unidad: 95 },
+    porciones_comunes: [
+      { nombre: '1/2 botella', cantidad: 0.5, gramos: 250 },
+      { nombre: '1 botella', cantidad: 1, gramos: 500 }
+    ]
+  },
+  // --- Nuevos tragos/alcohólicas ---
+  {
+    id: 'cerveza_artesanal_7',
+    nombre: 'Cerveza artesanal 6–7%',
+    categoria: 'bebidas',
+    subcategoria: 'Alcohólicas',
+    kcal_100g: 50.7,
+    prot_g_100g: 0.6,
+    carbs_g_100g: 3.8,
+    grasa_g_100g: 0,
+    emoji: '🍺',
+    unidad_base: { nombre: 'pinta 473ml', peso_g: 473, kcal_unidad: 240 },
+    porciones_comunes: [
+      { nombre: '1/2 pinta', cantidad: 0.5, gramos: 236.5 },
+      { nombre: '1 pinta', cantidad: 1, gramos: 473 }
+    ]
+  },
+  {
+    id: 'vino_blanco',
+    nombre: 'Vino blanco',
+    categoria: 'bebidas',
+    subcategoria: 'Alcohólicas',
+    kcal_100g: 80,
+    prot_g_100g: 0,
+    carbs_g_100g: 2.7,
+    grasa_g_100g: 0,
+    emoji: '🥂',
+    unidad_base: { nombre: 'copa', peso_g: 150, kcal_unidad: 120 },
+    porciones_comunes: [
+      { nombre: '1/2 copa', cantidad: 0.5, gramos: 75 },
+      { nombre: '1 copa', cantidad: 1, gramos: 150 }
+    ]
+  },
+  {
+    id: 'sidra',
+    nombre: 'Sidra',
+    categoria: 'bebidas',
+    subcategoria: 'Alcohólicas',
+    kcal_100g: 45,
+    prot_g_100g: 0,
+    carbs_g_100g: 5,
+    grasa_g_100g: 0,
+    emoji: '🍾',
+    unidad_base: { nombre: 'vaso', peso_g: 200, kcal_unidad: 90 },
+    porciones_comunes: [
+      { nombre: '1/2 vaso', cantidad: 0.5, gramos: 100 },
+      { nombre: '1 vaso', cantidad: 1, gramos: 200 }
+    ]
+  },
+  {
+    id: 'fernet_cola',
+    nombre: 'Fernet + cola',
+    categoria: 'bebidas',
+    subcategoria: 'Tragos',
+    kcal_100g: 92,
+    prot_g_100g: 0,
+    carbs_g_100g: 11.2,
+    grasa_g_100g: 0,
+    emoji: '🥃',
+    unidad_base: { nombre: 'trago 250ml', peso_g: 250, kcal_unidad: 230 },
+    porciones_comunes: [
+      { nombre: '1 trago', cantidad: 1, gramos: 250 }
+    ]
+  },
+  {
+    id: 'gin_tonic',
+    nombre: 'Gin & tonic',
+    categoria: 'bebidas',
+    subcategoria: 'Tragos',
+    kcal_100g: 76,
+    prot_g_100g: 0,
+    carbs_g_100g: 5.6,
+    grasa_g_100g: 0,
+    emoji: '🍸',
+    unidad_base: { nombre: 'trago 250ml', peso_g: 250, kcal_unidad: 190 },
+    porciones_comunes: [ { nombre: '1 trago', cantidad: 1, gramos: 250 } ]
+  },
+  {
+    id: 'vodka_energizante',
+    nombre: 'Vodka + energizante',
+    categoria: 'bebidas',
+    subcategoria: 'Tragos',
+    kcal_100g: 100,
+    prot_g_100g: 0,
+    carbs_g_100g: 11.2,
+    grasa_g_100g: 0,
+    emoji: '🥤',
+    unidad_base: { nombre: 'trago 250ml', peso_g: 250, kcal_unidad: 250 },
+    porciones_comunes: [ { nombre: '1 trago', cantidad: 1, gramos: 250 } ]
+  },
+  {
+    id: 'whisky_medida',
+    nombre: 'Whisky (solo)',
+    categoria: 'bebidas',
+    subcategoria: 'Alcohólicas',
+    kcal_100g: 220,
+    prot_g_100g: 0,
+    carbs_g_100g: 0,
+    grasa_g_100g: 0,
+    emoji: '🥃',
+    unidad_base: { nombre: 'medida 50ml', peso_g: 50, kcal_unidad: 110 },
+    porciones_comunes: [ { nombre: '1 medida', cantidad: 1, gramos: 50 } ]
+  },
+  {
+    id: 'licor_dulce',
+    nombre: 'Licor dulce (tipo Baileys)',
+    categoria: 'bebidas',
+    subcategoria: 'Tragos',
+    kcal_100g: 320,
+    prot_g_100g: 4,
+    carbs_g_100g: 22,
+    grasa_g_100g: 14,
+    emoji: '🥛',
+    unidad_base: { nombre: 'medida 50ml', peso_g: 50, kcal_unidad: 160 },
+    porciones_comunes: [ { nombre: '1 medida', cantidad: 1, gramos: 50 } ]
+  },
+  {
+    id: 'aperitivo_amargo',
+    nombre: 'Aperitivo amargo',
+    categoria: 'bebidas',
+    subcategoria: 'Tragos',
+    kcal_100g: 144,
+    prot_g_100g: 0,
+    carbs_g_100g: 13.3,
+    grasa_g_100g: 0,
+    emoji: '🍹',
+    unidad_base: { nombre: 'medida 90ml', peso_g: 90, kcal_unidad: 130 },
+    porciones_comunes: [ { nombre: '1 medida', cantidad: 1, gramos: 90 } ]
+  },
 
   // 🍟 SNACKS Y ULTRAPROCESADOS
   {
@@ -2106,6 +2381,84 @@ export const foodDatabase: FoodItem[] = [
       { nombre: '1 cucurucho', cantidad: 3, gramos: 150 }
     ]
   },
+  // --- Pastelería / alfajores / golosinas ---
+  { id: 'medialuna_manteca', nombre: 'Medialuna de manteca', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 367, prot_g_100g: 6.7, carbs_g_100g: 46.7, grasa_g_100g: 16.7, emoji: '🥐', unidad_base: { nombre: 'unidad', peso_g: 60, kcal_unidad: 220 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 60 }, { nombre: '2 unidades', cantidad: 2, gramos: 120 } ] },
+  { id: 'medialuna_grasa', nombre: 'Medialuna de grasa', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 382, prot_g_100g: 7.3, carbs_g_100g: 47.3, grasa_g_100g: 18.2, emoji: '🥐', unidad_base: { nombre: 'unidad', peso_g: 55, kcal_unidad: 210 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 55 } ] },
+  { id: 'vigilante_ddl', nombre: 'Vigilante (dulce de leche)', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 376, prot_g_100g: 7.1, carbs_g_100g: 49.4, grasa_g_100g: 16.5, emoji: '🍰', unidad_base: { nombre: 'unidad', peso_g: 85, kcal_unidad: 320 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 85 } ] },
+  { id: 'tortita_negra', nombre: 'Tortita negra', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 371, prot_g_100g: 7.1, carbs_g_100g: 57.1, grasa_g_100g: 10, emoji: '🍞', unidad_base: { nombre: 'unidad', peso_g: 70, kcal_unidad: 260 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 70 } ] },
+  { id: 'berlinesa', nombre: 'Berlinesa (bola)', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 367, prot_g_100g: 6.7, carbs_g_100g: 48.9, grasa_g_100g: 15.6, emoji: '🍩', unidad_base: { nombre: 'unidad', peso_g: 90, kcal_unidad: 330 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 90 } ] },
+  { id: 'churro_simple', nombre: 'Churro simple', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 378, prot_g_100g: 6.7, carbs_g_100g: 44.4, grasa_g_100g: 17.8, emoji: '🥖', unidad_base: { nombre: 'unidad', peso_g: 45, kcal_unidad: 170 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 45 } ] },
+  { id: 'churro_relleno', nombre: 'Churro relleno (ddl)', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 371, prot_g_100g: 5.7, carbs_g_100g: 45.7, grasa_g_100g: 15.7, emoji: '🥖', unidad_base: { nombre: 'unidad', peso_g: 70, kcal_unidad: 260 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 70 } ] },
+  { id: 'donut_glaseada', nombre: 'Donut glaseada', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 425, prot_g_100g: 6.3, carbs_g_100g: 47.5, grasa_g_100g: 22.5, emoji: '🍩', unidad_base: { nombre: 'unidad', peso_g: 80, kcal_unidad: 340 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 80 } ] },
+  { id: 'muffin_chocolate', nombre: 'Muffin de chocolate', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 420, prot_g_100g: 6, carbs_g_100g: 50, grasa_g_100g: 20, emoji: '🧁', unidad_base: { nombre: 'unidad', peso_g: 100, kcal_unidad: 420 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 100 } ] },
+  { id: 'brownie', nombre: 'Brownie', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 467, prot_g_100g: 5, carbs_g_100g: 56.7, grasa_g_100g: 23.3, emoji: '🍫', unidad_base: { nombre: 'porción', peso_g: 60, kcal_unidad: 280 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 60 } ] },
+  { id: 'bizcochuelo_vainilla', nombre: 'Bizcochuelo de vainilla', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 312.5, prot_g_100g: 5, carbs_g_100g: 50, grasa_g_100g: 8.8, emoji: '🍰', unidad_base: { nombre: 'porción', peso_g: 80, kcal_unidad: 250 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 80 } ] },
+  { id: 'tarta_dulce', nombre: 'Tarta dulce (fruta/ricotta)', categoria: 'snacks', subcategoria: 'Pastelería', kcal_100g: 300, prot_g_100g: 5.8, carbs_g_100g: 40, grasa_g_100g: 11.7, emoji: '🥧', unidad_base: { nombre: 'porción', peso_g: 120, kcal_unidad: 360 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 120 } ] },
+  { id: 'alfajor_simple', nombre: 'Alfajor simple', categoria: 'snacks', subcategoria: 'Dulces', kcal_100g: 455, prot_g_100g: 5.5, carbs_g_100g: 63.6, grasa_g_100g: 20, emoji: '🍪', unidad_base: { nombre: 'unidad', peso_g: 55, kcal_unidad: 250 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 55 } ] },
+  { id: 'alfajor_triple', nombre: 'Alfajor triple', categoria: 'snacks', subcategoria: 'Dulces', kcal_100g: 507, prot_g_100g: 6.7, carbs_g_100g: 69.3, grasa_g_100g: 21.3, emoji: '🍪', unidad_base: { nombre: 'unidad', peso_g: 75, kcal_unidad: 380 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 75 } ] },
+  { id: 'alfajor_maicena', nombre: 'Alfajor de maicena', categoria: 'snacks', subcategoria: 'Dulces', kcal_100g: 440, prot_g_100g: 4, carbs_g_100g: 68, grasa_g_100g: 16, emoji: '🥯', unidad_base: { nombre: 'unidad', peso_g: 50, kcal_unidad: 220 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 50 } ] },
+  { id: 'barquillo_banado', nombre: 'Barquillo bañado', categoria: 'snacks', subcategoria: 'Dulces', kcal_100g: 533, prot_g_100g: 6.7, carbs_g_100g: 60, grasa_g_100g: 30, emoji: '🍫', unidad_base: { nombre: 'unidad', peso_g: 30, kcal_unidad: 160 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 30 } ] },
+  { id: 'turron_mani', nombre: 'Turrón de maní', categoria: 'snacks', subcategoria: 'Dulces', kcal_100g: 480, prot_g_100g: 8, carbs_g_100g: 64, grasa_g_100g: 20, emoji: '🥜', unidad_base: { nombre: 'barra', peso_g: 25, kcal_unidad: 120 }, porciones_comunes: [ { nombre: '1 barra', cantidad: 1, gramos: 25 } ] },
+  { id: 'confites_mm', nombre: 'Confites tipo M&M', categoria: 'snacks', subcategoria: 'Dulces', kcal_100g: 500, prot_g_100g: 5, carbs_g_100g: 70, grasa_g_100g: 20, emoji: '🍬', unidad_base: { nombre: 'porción', peso_g: 40, kcal_unidad: 200 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 40 } ] },
+  { id: 'gomitas_azucaradas', nombre: 'Gomitas azucaradas', categoria: 'snacks', subcategoria: 'Dulces', kcal_100g: 350, prot_g_100g: 5, carbs_g_100g: 82.5, grasa_g_100g: 0, emoji: '🟠', unidad_base: { nombre: 'porción', peso_g: 40, kcal_unidad: 140 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 40 } ] },
+  { id: 'caramelos_duros', nombre: 'Caramelos duros', categoria: 'snacks', subcategoria: 'Dulces', kcal_100g: 400, prot_g_100g: 0, carbs_g_100g: 100, grasa_g_100g: 0, emoji: '🍬', unidad_base: { nombre: '5 unidades', peso_g: 25, kcal_unidad: 100 }, porciones_comunes: [ { nombre: '5 unidades', cantidad: 1, gramos: 25 } ] },
+  { id: 'chocolate_amargo_70', nombre: 'Chocolate amargo 70%', categoria: 'snacks', subcategoria: 'Dulces', kcal_100g: 480, prot_g_100g: 8, carbs_g_100g: 32, grasa_g_100g: 36, emoji: '🍫', unidad_base: { nombre: 'tableta 25g', peso_g: 25, kcal_unidad: 120 }, porciones_comunes: [ { nombre: '1 tableta', cantidad: 1, gramos: 25 } ] },
+  { id: 'chocolate_relleno_caramel', nombre: 'Chocolate relleno (caramel)', categoria: 'snacks', subcategoria: 'Dulces', kcal_100g: 525, prot_g_100g: 5, carbs_g_100g: 62.5, grasa_g_100g: 30, emoji: '🍫', unidad_base: { nombre: 'porción', peso_g: 40, kcal_unidad: 210 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 40 } ] },
+  { id: 'chocolate_blanco', nombre: 'Chocolate blanco', categoria: 'snacks', subcategoria: 'Dulces', kcal_100g: 550, prot_g_100g: 6.7, carbs_g_100g: 53.3, grasa_g_100g: 33.3, emoji: '🍫', unidad_base: { nombre: 'porción', peso_g: 30, kcal_unidad: 165 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 30 } ] },
+  // Snacks salados adicionales
+  { id: 'papas_onduladas', nombre: 'Papas onduladas', categoria: 'snacks', subcategoria: 'Ultraprocesados', kcal_100g: 560, prot_g_100g: 6, carbs_g_100g: 56, grasa_g_100g: 34, emoji: '🍟', unidad_base: { nombre: 'porción', peso_g: 50, kcal_unidad: 280 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 50 } ] },
+  { id: 'palitos_salados', nombre: 'Palitos salados', categoria: 'snacks', subcategoria: 'Ultraprocesados', kcal_100g: 500, prot_g_100g: 10, carbs_g_100g: 66.7, grasa_g_100g: 20, emoji: '🥨', unidad_base: { nombre: 'porción', peso_g: 30, kcal_unidad: 150 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 30 } ] },
+  { id: 'chizitos', nombre: 'Chizitos', categoria: 'snacks', subcategoria: 'Ultraprocesados', kcal_100g: 533, prot_g_100g: 6.7, carbs_g_100g: 46.7, grasa_g_100g: 33.3, emoji: '🧀', unidad_base: { nombre: 'porción', peso_g: 30, kcal_unidad: 160 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 30 } ] },
+  { id: 'palitos_maiz_queso', nombre: 'Palitos de maíz sabor queso', categoria: 'snacks', subcategoria: 'Ultraprocesados', kcal_100g: 533, prot_g_100g: 6.7, carbs_g_100g: 53.3, grasa_g_100g: 30, emoji: '🧀', unidad_base: { nombre: 'porción', peso_g: 30, kcal_unidad: 160 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 30 } ] },
+  { id: 'nachos_maiz', nombre: 'Nachos de maíz', categoria: 'snacks', subcategoria: 'Ultraprocesados', kcal_100g: 500, prot_g_100g: 7.5, carbs_g_100g: 60, grasa_g_100g: 25, emoji: '🔺', unidad_base: { nombre: 'porción', peso_g: 40, kcal_unidad: 200 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 40 } ] },
+  { id: 'popcorn_manteca_porcion', nombre: 'Popcorn microondas (manteca)', categoria: 'snacks', subcategoria: 'Ultraprocesados', kcal_100g: 520, prot_g_100g: 8, carbs_g_100g: 56, grasa_g_100g: 28, emoji: '🍿', unidad_base: { nombre: 'porción servida', peso_g: 25, kcal_unidad: 130 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 25 } ] },
+  { id: 'popcorn_bolsa_entera', nombre: 'Popcorn microondas (bolsa entera)', categoria: 'snacks', subcategoria: 'Ultraprocesados', kcal_100g: 600, prot_g_100g: 10, carbs_g_100g: 60, grasa_g_100g: 34.3, emoji: '🍿', unidad_base: { nombre: 'bolsa', peso_g: 70, kcal_unidad: 420 }, porciones_comunes: [ { nombre: '1 bolsa', cantidad: 1, gramos: 70 } ] },
+  { id: 'crackers_saladas', nombre: 'Galletitas saladas (crackers)', categoria: 'snacks', subcategoria: 'Ultraprocesados', kcal_100g: 467, prot_g_100g: 10, carbs_g_100g: 66.7, grasa_g_100g: 20, emoji: '🍘', unidad_base: { nombre: 'porción', peso_g: 30, kcal_unidad: 140 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 30 } ] },
+  { id: 'mani_salado', nombre: 'Maní salado saborizado', categoria: 'snacks', subcategoria: 'Ultraprocesados', kcal_100g: 600, prot_g_100g: 23.3, carbs_g_100g: 20, grasa_g_100g: 46.7, emoji: '🥜', unidad_base: { nombre: 'porción', peso_g: 30, kcal_unidad: 180 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 30 } ] },
+  // Instantáneos / sopas
+  { id: 'sopa_sobre', nombre: 'Sopa instantánea (sobre)', categoria: 'snacks', subcategoria: 'Instantáneos', kcal_100g: 28, prot_g_100g: 0.8, carbs_g_100g: 4.8, grasa_g_100g: 0.4, emoji: '🍜', unidad_base: { nombre: 'taza preparada', peso_g: 250, kcal_unidad: 70 }, porciones_comunes: [ { nombre: '1 taza', cantidad: 1, gramos: 250 } ] },
+  { id: 'caldo_cubo', nombre: 'Caldo concentrado (cubo)', categoria: 'snacks', subcategoria: 'Instantáneos', kcal_100g: 4, prot_g_100g: 0, carbs_g_100g: 0.4, grasa_g_100g: 0, emoji: '🧊', unidad_base: { nombre: 'taza preparada', peso_g: 250, kcal_unidad: 10 }, porciones_comunes: [ { nombre: '1 taza', cantidad: 1, gramos: 250 } ] },
+  { id: 'ramen_instantaneo', nombre: 'Ramen instantáneo (seco)', categoria: 'snacks', subcategoria: 'Instantáneos', kcal_100g: 447, prot_g_100g: 9.4, carbs_g_100g: 61.2, grasa_g_100g: 16.5, emoji: '🍜', unidad_base: { nombre: 'paquete', peso_g: 85, kcal_unidad: 380 }, porciones_comunes: [ { nombre: '1 paquete', cantidad: 1, gramos: 85 } ] },
+  { id: 'pure_papa_instantaneo', nombre: 'Puré de papa instantáneo', categoria: 'snacks', subcategoria: 'Instantáneos', kcal_100g: 60, prot_g_100g: 1, carbs_g_100g: 11, grasa_g_100g: 1.5, emoji: '🥔', unidad_base: { nombre: 'porción', peso_g: 200, kcal_unidad: 120 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 200 } ] },
+  { id: 'arroz_saborizado_instantaneo', nombre: 'Arroz saborizado instantáneo', categoria: 'snacks', subcategoria: 'Instantáneos', kcal_100g: 90, prot_g_100g: 2, carbs_g_100g: 17.5, grasa_g_100g: 1, emoji: '🍚', unidad_base: { nombre: 'porción', peso_g: 200, kcal_unidad: 180 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 200 } ] },
+  { id: 'salsa_sobre_preparada', nombre: 'Salsa seca (sobre) preparada', categoria: 'snacks', subcategoria: 'Instantáneos', kcal_100g: 150, prot_g_100g: 5, carbs_g_100g: 10, grasa_g_100g: 8.3, emoji: '🥫', unidad_base: { nombre: 'porción 60ml', peso_g: 60, kcal_unidad: 90 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 60 } ] },
+  { id: 'polenta_instantanea', nombre: 'Polenta instantánea', categoria: 'snacks', subcategoria: 'Instantáneos', kcal_100g: 85, prot_g_100g: 2, carbs_g_100g: 18, grasa_g_100g: 0.5, emoji: '🍛', unidad_base: { nombre: 'porción', peso_g: 200, kcal_unidad: 170 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 200 } ] },
+  { id: 'gnocchi_listos', nombre: 'Ñoquis listos (envasados)', categoria: 'snacks', subcategoria: 'Instantáneos', kcal_100g: 150, prot_g_100g: 3.3, carbs_g_100g: 32.2, grasa_g_100g: 0.6, emoji: '🥟', unidad_base: { nombre: 'porción', peso_g: 180, kcal_unidad: 270 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 180 } ] },
+  // Postres y lácteos azucarados
+  { id: 'helado_pote_americano', nombre: 'Helado tipo americano (pote)', categoria: 'snacks', subcategoria: 'Dulces lácteos', kcal_100g: 200, prot_g_100g: 3, carbs_g_100g: 24, grasa_g_100g: 9, emoji: '🍨', unidad_base: { nombre: 'porción', peso_g: 100, kcal_unidad: 200 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 100 } ] },
+  { id: 'flan_caramelo', nombre: 'Postre flan con caramelo', categoria: 'snacks', subcategoria: 'Dulces lácteos', kcal_100g: 145.5, prot_g_100g: 4.5, carbs_g_100g: 25.5, grasa_g_100g: 2.7, emoji: '🍮', unidad_base: { nombre: 'pote', peso_g: 110, kcal_unidad: 160 }, porciones_comunes: [ { nombre: '1 pote', cantidad: 1, gramos: 110 } ] },
+  { id: 'arroz_con_leche_industrial', nombre: 'Arroz con leche (industrial)', categoria: 'snacks', subcategoria: 'Dulces lácteos', kcal_100g: 158.3, prot_g_100g: 4.2, carbs_g_100g: 26.7, grasa_g_100g: 3.3, emoji: '🍚', unidad_base: { nombre: 'pote', peso_g: 120, kcal_unidad: 190 }, porciones_comunes: [ { nombre: '1 pote', cantidad: 1, gramos: 120 } ] },
+  { id: 'yogur_azucarado', nombre: 'Yogur azucarado saborizado', categoria: 'snacks', subcategoria: 'Dulces lácteos', kcal_100g: 84.2, prot_g_100g: 3.2, carbs_g_100g: 14.7, grasa_g_100g: 1.6, emoji: '🥛', unidad_base: { nombre: 'pote', peso_g: 190, kcal_unidad: 160 }, porciones_comunes: [ { nombre: '1 pote', cantidad: 1, gramos: 190 } ] },
+  // Embutidos / cárnicos procesados
+  { id: 'salame', nombre: 'Salame', categoria: 'snacks', subcategoria: 'Embutidos', kcal_100g: 425, prot_g_100g: 20, carbs_g_100g: 2.5, grasa_g_100g: 35, emoji: '🥓', unidad_base: { nombre: '4 fetas', peso_g: 40, kcal_unidad: 170 }, porciones_comunes: [ { nombre: '4 fetas', cantidad: 1, gramos: 40 } ] },
+  { id: 'mortadela', nombre: 'Mortadela', categoria: 'snacks', subcategoria: 'Embutidos', kcal_100g: 300, prot_g_100g: 12.5, carbs_g_100g: 5, grasa_g_100g: 22.5, emoji: '🥓', unidad_base: { nombre: '4 fetas', peso_g: 40, kcal_unidad: 120 }, porciones_comunes: [ { nombre: '4 fetas', cantidad: 1, gramos: 40 } ] },
+  { id: 'chorizo_parrillero', nombre: 'Chorizo parrillero', categoria: 'snacks', subcategoria: 'Embutidos', kcal_100g: 310, prot_g_100g: 13, carbs_g_100g: 1, grasa_g_100g: 28, emoji: '🌭', unidad_base: { nombre: 'unidad', peso_g: 100, kcal_unidad: 310 }, porciones_comunes: [ { nombre: '1 unidad', cantidad: 1, gramos: 100 } ] },
+  { id: 'salchicha_viena', nombre: 'Salchicha tipo Viena', categoria: 'snacks', subcategoria: 'Embutidos', kcal_100g: 280, prot_g_100g: 11, carbs_g_100g: 3, grasa_g_100g: 24, emoji: '🌭', unidad_base: { nombre: '2 unidades', peso_g: 100, kcal_unidad: 280 }, porciones_comunes: [ { nombre: '2 unidades', cantidad: 1, gramos: 100 } ] },
+  { id: 'jamon_cocido_comun', nombre: 'Jamón cocido común', categoria: 'snacks', subcategoria: 'Embutidos', kcal_100g: 150, prot_g_100g: 15, carbs_g_100g: 3.3, grasa_g_100g: 6.7, emoji: '🍖', unidad_base: { nombre: '2 fetas', peso_g: 60, kcal_unidad: 90 }, porciones_comunes: [ { nombre: '2 fetas', cantidad: 1, gramos: 60 } ] },
+  // Grasas industriales/untables
+  { id: 'manteca_vegetal_hidrogenada', nombre: 'Manteca vegetal hidrogenada', categoria: 'grasas', subcategoria: 'Industriales', kcal_100g: 857, prot_g_100g: 0, carbs_g_100g: 0, grasa_g_100g: 100, emoji: '🧈', unidad_base: { nombre: 'cucharada', peso_g: 14, kcal_unidad: 120 }, porciones_comunes: [ { nombre: '1 cda', cantidad: 1, gramos: 14 } ] },
+  { id: 'margarina_panaderia', nombre: 'Margarina (tipo panadería)', categoria: 'grasas', subcategoria: 'Industriales', kcal_100g: 714, prot_g_100g: 0, carbs_g_100g: 0, grasa_g_100g: 78.6, emoji: '🧈', unidad_base: { nombre: 'cucharada', peso_g: 14, kcal_unidad: 100 }, porciones_comunes: [ { nombre: '1 cda', cantidad: 1, gramos: 14 } ] },
+  { id: 'cobertura_hidrogenada', nombre: 'Cobertura hidrogenada (baño)', categoria: 'grasas', subcategoria: 'Industriales', kcal_100g: 800, prot_g_100g: 0, carbs_g_100g: 10, grasa_g_100g: 80, emoji: '🧁', unidad_base: { nombre: 'porción', peso_g: 20, kcal_unidad: 160 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 20 } ] },
+  // Untables azucarados / mermeladas / miel
+  { id: 'mermelada_azucar', nombre: 'Mermelada común (con azúcar)', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 250, prot_g_100g: 0, carbs_g_100g: 65, grasa_g_100g: 0, emoji: '🍓', unidad_base: { nombre: 'cucharada', peso_g: 20, kcal_unidad: 50 }, porciones_comunes: [ { nombre: '1 cda', cantidad: 1, gramos: 20 } ] },
+  { id: 'mermelada_light', nombre: 'Mermelada light (edulcorada)', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 75, prot_g_100g: 0, carbs_g_100g: 20, grasa_g_100g: 0, emoji: '🍓', unidad_base: { nombre: 'cucharada', peso_g: 20, kcal_unidad: 15 }, porciones_comunes: [ { nombre: '1 cda', cantidad: 1, gramos: 20 } ] },
+  { id: 'jalea', nombre: 'Jalea (gelificada)', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 250, prot_g_100g: 0, carbs_g_100g: 65, grasa_g_100g: 0, emoji: '🟣', unidad_base: { nombre: 'cucharada', peso_g: 20, kcal_unidad: 50 }, porciones_comunes: [ { nombre: '1 cda', cantidad: 1, gramos: 20 } ] },
+  { id: 'dulce_leche_clasico', nombre: 'Dulce de leche (clásico)', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 325, prot_g_100g: 5, carbs_g_100g: 55, grasa_g_100g: 10, emoji: '🍮', unidad_base: { nombre: 'cda colmada', peso_g: 20, kcal_unidad: 65 }, porciones_comunes: [ { nombre: '1 cda colmada', cantidad: 1, gramos: 20 } ] },
+  { id: 'dulce_leche_light', nombre: 'Dulce de leche (light)', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 225, prot_g_100g: 10, carbs_g_100g: 45, grasa_g_100g: 5, emoji: '🍮', unidad_base: { nombre: 'cda colmada', peso_g: 20, kcal_unidad: 45 }, porciones_comunes: [ { nombre: '1 cda colmada', cantidad: 1, gramos: 20 } ] },
+  { id: 'dulce_membrillo', nombre: 'Dulce de membrillo', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 267, prot_g_100g: 0, carbs_g_100g: 66.7, grasa_g_100g: 0, emoji: '🟥', unidad_base: { nombre: 'feta', peso_g: 30, kcal_unidad: 80 }, porciones_comunes: [ { nombre: '1 feta', cantidad: 1, gramos: 30 } ] },
+  { id: 'dulce_batata', nombre: 'Dulce de batata', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 233, prot_g_100g: 0, carbs_g_100g: 56.7, grasa_g_100g: 0, emoji: '🟧', unidad_base: { nombre: 'feta', peso_g: 30, kcal_unidad: 70 }, porciones_comunes: [ { nombre: '1 feta', cantidad: 1, gramos: 30 } ] },
+  { id: 'compota_manzana', nombre: 'Compota industrial (manzana)', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 50, prot_g_100g: 0, carbs_g_100g: 12, grasa_g_100g: 0, emoji: '🍎', unidad_base: { nombre: 'pote', peso_g: 100, kcal_unidad: 50 }, porciones_comunes: [ { nombre: '1 pote', cantidad: 1, gramos: 100 } ] },
+  { id: 'crema_cacao_avellanas', nombre: 'Crema de cacao/avellanas', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 533, prot_g_100g: 6.7, carbs_g_100g: 60, grasa_g_100g: 33.3, emoji: '🍫', unidad_base: { nombre: 'cucharada', peso_g: 15, kcal_unidad: 80 }, porciones_comunes: [ { nombre: '1 cda', cantidad: 1, gramos: 15 } ] },
+  { id: 'miel', nombre: 'Miel', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 305, prot_g_100g: 0, carbs_g_100g: 85, grasa_g_100g: 0, emoji: '🍯', unidad_base: { nombre: 'cucharada', peso_g: 20, kcal_unidad: 61 }, porciones_comunes: [ { nombre: '1 cda', cantidad: 1, gramos: 20 } ] },
+  { id: 'jarabe_arce', nombre: 'Jarabe de arce', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 260, prot_g_100g: 0, carbs_g_100g: 65, grasa_g_100g: 0, emoji: '🍁', unidad_base: { nombre: 'cucharada', peso_g: 20, kcal_unidad: 52 }, porciones_comunes: [ { nombre: '1 cda', cantidad: 1, gramos: 20 } ] },
+  { id: 'sirope_pancake', nombre: 'Sirope tipo pancake', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 250, prot_g_100g: 0, carbs_g_100g: 65, grasa_g_100g: 0, emoji: '🥞', unidad_base: { nombre: 'cucharada', peso_g: 20, kcal_unidad: 50 }, porciones_comunes: [ { nombre: '1 cda', cantidad: 1, gramos: 20 } ] },
+  { id: 'dulce_leche_repostero', nombre: 'Dulce de leche repostero', categoria: 'extras', subcategoria: 'Untables azucarados', kcal_100g: 375, prot_g_100g: 5, carbs_g_100g: 60, grasa_g_100g: 15, emoji: '🍮', unidad_base: { nombre: 'cda colmada', peso_g: 20, kcal_unidad: 75 }, porciones_comunes: [ { nombre: '1 cda colmada', cantidad: 1, gramos: 20 } ] },
+  // Cereales azucarados y panificados blancos
+  { id: 'cereal_azucarado_desayuno', nombre: 'Cereal desayuno azucarado', categoria: 'carbohidratos', subcategoria: 'Cereales azucarados', kcal_100g: 400, prot_g_100g: 7.5, carbs_g_100g: 85, grasa_g_100g: 5, emoji: '🥣', unidad_base: { nombre: 'taza', peso_g: 40, kcal_unidad: 160 }, porciones_comunes: [ { nombre: '1 taza', cantidad: 1, gramos: 40 } ] },
+  { id: 'granola_azucarada', nombre: 'Granola comercial azucarada', categoria: 'carbohidratos', subcategoria: 'Cereales azucarados', kcal_100g: 460, prot_g_100g: 10, carbs_g_100g: 64, grasa_g_100g: 16, emoji: '🥣', unidad_base: { nombre: '1/2 taza', peso_g: 50, kcal_unidad: 230 }, porciones_comunes: [ { nombre: '1/2 taza', cantidad: 1, gramos: 50 } ] },
+  { id: 'pan_lactal_blanco', nombre: 'Pan lactal blanco', categoria: 'carbohidratos', subcategoria: 'Panificados', kcal_100g: 267, prot_g_100g: 10, carbs_g_100g: 46.7, grasa_g_100g: 3.3, emoji: '🍞', unidad_base: { nombre: 'rebanada', peso_g: 30, kcal_unidad: 80 }, porciones_comunes: [ { nombre: '2 rebanadas', cantidad: 2, gramos: 60 } ] },
+  { id: 'medialunas_envasadas', nombre: 'Medialunas envasadas', categoria: 'carbohidratos', subcategoria: 'Pastelería envasada', kcal_100g: 360, prot_g_100g: 6, carbs_g_100g: 48, grasa_g_100g: 16, emoji: '🥐', unidad_base: { nombre: '2 unidades', peso_g: 100, kcal_unidad: 360 }, porciones_comunes: [ { nombre: '2 unidades', cantidad: 1, gramos: 100 } ] },
+  { id: 'galletitas_dulces_simples', nombre: 'Galletitas dulces simples', categoria: 'carbohidratos', subcategoria: 'Panificados', kcal_100g: 472, prot_g_100g: 5.6, carbs_g_100g: 72.2, grasa_g_100g: 16.7, emoji: '🍪', unidad_base: { nombre: 'porción', peso_g: 36, kcal_unidad: 170 }, porciones_comunes: [ { nombre: '1 porción', cantidad: 1, gramos: 36 } ] },
 
   // 🥯 CEREALES Y DESAYUNO
   {
