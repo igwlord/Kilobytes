@@ -14,7 +14,7 @@
   border-radius: 0.75rem;
   padding: 1.5rem;
   border: 1px solid var(--border-color);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
   margin-bottom: 1.5rem;
 }
 
@@ -26,6 +26,7 @@
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border-color);
 }
+.collapsible-header { position: sticky; top: -1px; background: var(--bg-secondary); z-index: 1; box-shadow: 0 2px 0 0 var(--glass-05); }
 .collapsible-header .card-title { margin: 0; }
 .collapse-toggle {
   background: var(--bg-primary);

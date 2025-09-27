@@ -222,6 +222,7 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
   const [openMealGroups, setOpenMealGroups] = useState<Record<string, boolean>>({ Desayuno: true, Almuerzo: false, Cena: false, Snack: false });
   const toggleMeal = (k: string) => setOpenMealGroups(s => ({ ...s, [k]: !s[k] }));
   const [search, setSearch] = useState('');
+  const [showGlossary, setShowGlossary] = useState(false);
 
   const onChangeRange = (n: number) => { setRangeDays(n); localStorage.setItem('kiloByteProgressRange', String(n)); };
 
@@ -493,10 +494,10 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
           </div>
         )}
       </div>
-      {/* Consejos, información y glosario */}
+      {/* Consejos e información (glosario se abre en modal) */}
       <div className="progress-card collapsible">
         <div className="collapsible-header">
-          <h2 className="card-title">Consejos, info y glosario</h2>
+          <h2 className="card-title">Consejos e info</h2>
           <button
             className={`collapse-toggle ${openSection === 'tips' ? 'open' : ''}`}
             onClick={() => setOpenSection(prev => (prev === 'tips' ? null : 'tips'))}
@@ -540,19 +541,67 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
                 </div>
               ))}
             </div>
+            <div style={{ marginTop: 12 }}>
+              <button className="btn btn-secondary" onClick={()=> setShowGlossary(true)}>📚 Abrir glosario</button>
+            </div>
+          </div>
+        )}
+      </div>
 
-            <div className="glossary">
-              <h3 className="glossary-title">Glosario rápido</h3>
+      {/* Modal de glosario */}
+      {showGlossary && (
+        <div className="recipe-modal-overlay" onClick={()=> setShowGlossary(false)}>
+          <div className="recipe-modal" onClick={(e)=> e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Glosario de términos">
+            <div className="recipe-modal-header">
+              <h3>Glosario</h3>
+              <button className="close-btn" onClick={()=> setShowGlossary(false)} aria-label="Cerrar">×</button>
+            </div>
+            <div className="recipe-modal-body">
               <div className="glossary-grid">
                 {[
-                  {t:'Microbiota',d:'Conjunto de microbios del intestino. Influye en digestión, inmunidad y saciedad.'},
+                  {t:'Microbiota',d:'Conjunto de microbios del intestino que impacta digestión, inmunidad y saciedad.'},
                   {t:'Calorías vacías',d:'Energía con pocos nutrientes (azúcar, harinas refinadas). Mejor limitar.'},
-                  {t:'Adherencia',d:'Capacidad de sostener el plan en el tiempo. Importa más que la perfección diaria.'},
-                  {t:'Índice glucémico',d:'Qué tan rápido sube la glucosa un alimento. Bajo/medio ayuda a controlar el hambre.'},
-                  {t:'Proteína saciante',d:'La proteína ayuda a sentirte lleno y protege músculo.'},
-                  {t:'Fibra',d:'Carbohidrato no digerible que alimenta la microbiota y suma saciedad.'},
-                  {t:'Ayuno',d:'Espacio sin calorías. Útil para ordenar horarios si te sienta bien.'},
-                  {t:'Ultraprocesados',d:'Productos muy industriales; suelen tener sal/azúcar/grasas de baja calidad.'},
+                  {t:'Adherencia',d:'Sostener el plan en el tiempo; más importante que la perfección diaria.'},
+                  {t:'Índice glucémico (IG)',d:'Qué tan rápido sube la glucosa un alimento. Bajo/medio evita picos.'},
+                  {t:'Carga glucémica (CG)',d:'IG + porción. Ayuda a evaluar el impacto real en glucosa.'},
+                  {t:'Proteína completa',d:'Aporta todos los aminoácidos esenciales (huevo, lácteos, soja, quinoa).'},
+                  {t:'Fibra soluble',d:'Se disuelve en agua, retrasa vaciamiento gástrico y alimenta microbiota.'},
+                  {t:'Fibra insoluble',d:'Aumenta el volumen fecal y acelera tránsito (salvado, verduras).'},
+                  {t:'Prebióticos',d:'Fibras que nutren bacterias buenas (inulina, FOS, avena, banana verde).'},
+                  {t:'Probióticos',d:'Microorganismos vivos beneficiosos (yogur, kéfir, chucrut).'},
+                  {t:'Sarcopenia',d:'Pérdida de masa y fuerza muscular; prevención: proteína y entrenamiento.'},
+                  {t:'NEAT',d:'Gasto no asociado a ejercicio (moverse, caminar, gesticular). Suma mucho.'},
+                  {t:'Termogénesis',d:'Energía usada en digerir y metabolizar alimentos.'},
+                  {t:'Balance energético',d:'Relación entre calorías que entran y salen.'},
+                  {t:'Déficit calórico',d:'Consumir menos de lo que gastás para perder peso.'},
+                  {t:'Superávit calórico',d:'Consumir más de lo que gastás para ganar masa.'},
+                  {t:'Densidad nutricional',d:'Nutrientes por caloría. Priorizá alimentos densos en nutrientes.'},
+                  {t:'Saciedad',d:'Sensación de estar satisfecho y sin hambre.'},
+                  {t:'Saciación',d:'Proceso de llenarte durante una comida.'},
+                  {t:'Ultraprocesados',d:'Productos industriales con aditivos; suelen desplazar comida real.'},
+                  {t:'Aceites saludables',d:'Oliva, palta, frutos secos; mejoran perfil lipídico y saciedad.'},
+                  {t:'Omega-3',d:'Ácidos grasos antiinflamatorios (pescado azul, chía, lino).'},
+                  {t:'Resistencia a la insulina',d:'Células responden menos; puede mejorar con peso, fibra y actividad.'},
+                  {t:'Índice de saciedad',d:'Comparación de qué tan saciante es un alimento por caloría.'},
+                  {t:'Crononutrición',d:'Sincronizar comidas con ritmos circadianos.'},
+                  {t:'Ayuno intermitente',d:'Ventana sin calorías. Útil si ayuda a adherencia y orden.'},
+                  {t:'Hígado graso',d:'Acumulación de grasa en el hígado; mejora con dieta y movimiento.'},
+                  {t:'HbA1c',d:'Hemoglobina glicosilada; indicador de glucosa promedio 3 meses.'},
+                  {t:'Sodio/Potasio',d:'Electrolitos clave para presión y función muscular.'},
+                  {t:'Índice andrónico',d:'Relación cintura/altura; útil para riesgo cardiometabólico.'},
+                  {t:'TMB (BMR)',d:'Tasa metabólica basal; energía mínima para funciones vitales.'},
+                  {t:'TEF',d:'Efecto térmico de los alimentos; gasto al digerir.'},
+                  {t:'IG bajo',d:'Alimentos que suben la glucosa lentamente (legumbres, avena, batata).'},
+                  {t:'Azúcares añadidos',d:'Azúcar incorporada en productos; conviene reducir.'},
+                  {t:'Harinas refinadas',d:'Procesadas; suben glucosa rápido y sacian menos.'},
+                  {t:'Granola casera',d:'Versión sin azúcar añadida; mejor control de ingredientes.'},
+                  {t:'Porción',d:'Cantidad estandarizada para medir y comparar.'},
+                  {t:'Mindful eating',d:'Comer con atención plena; ayuda a la saciedad y disfrute.'},
+                  {t:'Volumetría',d:'Comer más volumen con pocas calorías (verduras, sopas).'},
+                  {t:'Densidad calórica',d:'Calorías por gramo; baja densidad ayuda a perder peso.'},
+                  {t:'HIIT',d:'Entrenamiento interválico de alta intensidad; eficiente en poco tiempo.'},
+                  {t:'Refeed',d:'Día con más calorías/carbohidratos para sostener adherencia.'},
+                  {t:'Plateau',d:'Meseta de progreso; romper con ajustes de calorías, actividad o sueño.'},
                 ].map((g,i)=> (
                   <div key={i} className="glossary-item">
                     <div className="g-term">{g.t}</div>
@@ -562,8 +611,8 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

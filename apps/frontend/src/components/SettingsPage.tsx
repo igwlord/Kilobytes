@@ -143,6 +143,14 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
     showToast('Guía de inicio abierta ✅');
   };
 
+  const toggleMute = () => {
+    const next = !muteToasts;
+    setMuteToasts(next);
+    const newState = { ...appState, perfil: { ...appState.perfil, silenciarNotificaciones: next } };
+    updateAppState(newState);
+    try { localStorage.setItem('kiloByteData', JSON.stringify(newState)); } catch { /* ignore */ }
+  };
+
   return (
     <div className="settings-page">
       <header className="settings-page-header">
@@ -169,10 +177,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
         <p className="hint">Se aplica al instante. Probá los tres para ver cuál te motiva más.</p>
       </div>
 
-      <div className="card settings-block">
-        <h3 className="settings-block-title">Recetas y plan</h3>
-          {/* Sección de recetas eliminada: las recetas están siempre visibles y el plan se destaca automáticamente */}
-      </div>
+      {/* Sección de recetas/plan removida por pedido */}
 
       <div className="card settings-block">
         <h3 className="settings-block-title">Notificaciones y alertas</h3>
@@ -183,7 +188,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
             role="switch"
             aria-checked={muteToasts}
             className={`ios-switch ${muteToasts ? 'on' : ''}`}
-            onClick={() => setMuteToasts(v => !v)}
+            onClick={toggleMute}
           >
             <span className="knob" />
           </button>
