@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 import SettingsModal from './SettingsModal';
 import ProgressRing from './ProgressRing';
-import Plan from './Plan';
 import WaterTracker from './WaterTracker';
-import RegistroNew from './RegistroProFinal';
-import Calendario from './Calendario';
-import Progreso from './Progreso';
+// Eager imports removidos; ahora se cargan de forma diferida arriba
 // import Metas from './Metas'; // Unificado dentro de Plan
-import Perfil from './Perfil';
+const Plan = React.lazy(() => import('./Plan'));
+const RegistroNew = React.lazy(() => import('./RegistroProFinal'));
+const Calendario = React.lazy(() => import('./Calendario'));
+const Progreso = React.lazy(() => import('./Progreso'));
+const Perfil = React.lazy(() => import('./Perfil'));
 import Toast from './ToastPro';
 import './Dashboard.css';
 import OnboardingOverlay from './OnboardingOverlay';
@@ -210,24 +211,46 @@ const Dashboard: React.FC = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'plan':
-        return <Plan appState={appState} updateAppState={updateAppState} showToast={showToast} />;
+        return (
+          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+            <Plan appState={appState} updateAppState={updateAppState} showToast={showToast} />
+          </Suspense>
+        );
       case 'registro':
         return (
-          <RegistroNew 
-            appState={appState} 
-            updateAppState={(ns) => updateAppState(ns as unknown as AppState)} 
-            showToast={showToast} 
-          />
+          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+            <RegistroNew 
+              appState={appState} 
+              updateAppState={(ns) => updateAppState(ns as unknown as AppState)} 
+              showToast={showToast} 
+            />
+          </Suspense>
         );
       case 'calendario':
-        return <Calendario appState={appState} updateAppState={updateAppState as unknown as (s: unknown) => void} />;
+        return (
+          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+            <Calendario appState={appState} updateAppState={updateAppState as unknown as (s: unknown) => void} />
+          </Suspense>
+        );
       case 'progreso':
-        return <Progreso appState={appState} />;
+        return (
+          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+            <Progreso appState={appState} />
+          </Suspense>
+        );
       case 'metas':
         // Metas y Plan unificados: usamos el componente Plan como única experiencia
-        return <Plan appState={appState} updateAppState={updateAppState} showToast={showToast} />;
+        return (
+          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+            <Plan appState={appState} updateAppState={updateAppState} showToast={showToast} />
+          </Suspense>
+        );
       case 'perfil':
-        return <Perfil appState={appState} updateAppState={updateAppState as unknown as (s: unknown) => void} showToast={showToast} />;
+        return (
+          <Suspense fallback={<div style={{ padding: 16 }}>Cargando…</div>}>
+            <Perfil appState={appState} updateAppState={updateAppState as unknown as (s: unknown) => void} showToast={showToast} />
+          </Suspense>
+        );
       default: {
         const needsProfile = !appState.perfil?.nombre || !appState.perfil?.peso || !appState.perfil?.altura_cm;
         const needsGoals = !appState.metas?.kcal || !appState.metas?.prote_g_dia || !appState.metas?.grasa_g_dia || !appState.metas?.carbs_g_dia;
