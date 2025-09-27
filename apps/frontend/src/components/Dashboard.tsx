@@ -486,6 +486,7 @@ const Dashboard: React.FC = () => {
         updateAppState={(ns: unknown) => updateAppState(ns as AppState)}
         showToast={showToast}
         onShowOnboarding={() => setShowOverlay(true)}
+        onGoToPerfil={() => { setSettingsOpen(false); setActiveSection('perfil'); }}
       />
     </div>
   );

@@ -41,6 +41,7 @@ interface SettingsModalProps {
   updateAppState: (newState: unknown) => void;
   showToast: (message: string) => void;
   onShowOnboarding?: () => void;
+  onGoToPerfil?: () => void;
 }
 
 const THEMES = [
@@ -48,20 +49,19 @@ const THEMES = [
   { id: 'light', label: 'Claro', className: 'light' },
 ];
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, updateAppState, showToast, onShowOnboarding }) => {
-  const [nombre, setNombre] = useState(appState.perfil?.nombre || '');
+const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, updateAppState, showToast, onShowOnboarding, onGoToPerfil }) => {
+  // Nombre ahora se edita únicamente en la pantalla Perfil
   const [theme, setTheme] = useState(appState.perfil?.theme || 'dark');
   const [unlockRecipes, setUnlockRecipes] = useState(!!appState.perfil?.desbloquearRecetas);
   const [muteToasts, setMuteToasts] = useState(!!appState.perfil?.silenciarNotificaciones);
 
   useEffect(() => {
     if (open) {
-      setNombre(appState.perfil?.nombre || '');
       setTheme(appState.perfil?.theme || 'dark');
       setUnlockRecipes(!!appState.perfil?.desbloquearRecetas);
       setMuteToasts(!!appState.perfil?.silenciarNotificaciones);
     }
-  }, [open, appState.perfil?.nombre, appState.perfil?.theme, appState.perfil?.desbloquearRecetas, appState.perfil?.silenciarNotificaciones]);
+  }, [open, appState.perfil?.theme, appState.perfil?.desbloquearRecetas, appState.perfil?.silenciarNotificaciones]);
 
   if (!open) return null;
 
@@ -75,7 +75,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
   const handleSaveProfile = () => {
     const newState = {
       ...appState,
-      perfil: { ...appState.perfil, nombre, theme, desbloquearRecetas: unlockRecipes, silenciarNotificaciones: muteToasts }
+      // Solo guardamos preferencias, el nombre se edita en Perfil
+      perfil: { ...appState.perfil, theme, desbloquearRecetas: unlockRecipes, silenciarNotificaciones: muteToasts }
     };
     updateAppState(newState);
     applyTheme(theme);
@@ -180,13 +181,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
 
         <div className="settings-section">
           <h3>Perfil</h3>
-          <label className="field-label">Nombre de usuario</label>
-          <input
-            className="text-input"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            placeholder="Tu nombre"
-          />
+          <p className="hint">Para editar tu información personal, abrí la pantalla de Perfil.</p>
+          <button className="btn btn-secondary" onClick={() => { onGoToPerfil?.(); }}>Abrir Perfil</button>
         </div>
 
         <div className="settings-section">

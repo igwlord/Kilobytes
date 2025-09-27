@@ -91,8 +91,9 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
-  const [customGrams, setCustomGrams] = useState('100');
-  const [customUnits, setCustomUnits] = useState('1');
+  // Entradas personalizadas como strings para permitir vacío mientras se edita
+  const [customGrams, setCustomGrams] = useState('');
+  const [customUnits, setCustomUnits] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   // Acciones compactas: no se necesita estado de panel
   const [inputMethod, setInputMethod] = useState<'units' | 'grams'>('units');
@@ -217,8 +218,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     setActiveModal(null);
     setSelectedFood(null);
     setSearchQuery('');
-    setCustomUnits('1');
-    showToast(`✅ ${units} ${food.unidad_base.nombre}${units > 1 ? 's' : ''} de ${food.nombre} agregado`);
+  // No forzar valor por defecto; dejar vacío tras agregar
+  setCustomUnits('');
   };
 
   // Agregar alimento por gramos
@@ -246,8 +247,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     setActiveModal(null);
     setSelectedFood(null);
     setSearchQuery('');
-    setCustomGrams('100');
-    showToast(`✅ ${grams}g de ${food.nombre} agregado`);
+  // No forzar valor por defecto; dejar vacío tras agregar
+  setCustomGrams('');
   };
 
   // Eliminar alimento
@@ -794,6 +795,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                           value={customUnits}
                           onChange={(e) => setCustomUnits(e.target.value)}
                           className="custom-input-final"
+                          placeholder="p. ej. 1"
                           min="0.1"
                           step="0.5"
                           max="50"
@@ -801,6 +803,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                         <span className="input-unit">{selectedFood.unidad_base.nombre}s</span>
                         <button
                           className="add-custom-btn-final"
+                          disabled={!(parseFloat(customUnits) > 0)}
                           onClick={() => {
                             const units = parseFloat(customUnits);
                             if (units > 0) {
@@ -850,12 +853,14 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                           value={customGrams}
                           onChange={(e) => setCustomGrams(e.target.value)}
                           className="custom-input-final"
+                          placeholder="p. ej. 100"
                           min="1"
                           max="2000"
                         />
                         <span className="input-unit">gramos</span>
                         <button
                           className="add-custom-btn-final"
+                          disabled={!(parseInt(customGrams) > 0)}
                           onClick={() => {
                             const grams = parseInt(customGrams);
                             if (grams > 0) {
