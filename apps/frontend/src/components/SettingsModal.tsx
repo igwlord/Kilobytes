@@ -218,8 +218,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
         <div className="settings-section">
           <h3>Respaldo de datos</h3>
           <div className="backup-row">
-            <button className="btn settings-btn primary" onClick={exportData}>📤 Guardar JSON</button>
-            <label className="btn settings-btn" htmlFor="import-json">📥 Cargar JSON</label>
+            <button className="btn settings-btn primary" onClick={exportData}>📤 Guardar datos</button>
+            <label className="btn settings-btn" htmlFor="import-json">📥 Cargar datos</label>
             <input id="import-json" type="file" accept="application/json" onChange={onImportFile} style={{ display: 'none' }} />
           </div>
           <p className="hint">El archivo incluye fecha y hora en el nombre.</p>
