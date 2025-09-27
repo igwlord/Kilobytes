@@ -116,3 +116,19 @@ input {
   opacity: 0.9;
   transform: translateY(-2px);
 }
+
+/* Secondary and small button variants */
+.btn-secondary {
+  background-color: var(--btn-active-bg);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  opacity: 0.95;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.7rem;
+  font-weight: 600;
+}

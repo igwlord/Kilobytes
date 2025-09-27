@@ -12,6 +12,7 @@ import Progreso from './Progreso';
 import Perfil from './Perfil';
 import Toast from './ToastPro';
 import './Dashboard.css';
+import OnboardingOverlay from './OnboardingOverlay';
 import OnboardingGuide from './OnboardingGuide';
 
 interface UserProfile {
@@ -63,6 +64,7 @@ const Dashboard: React.FC = () => {
   const [activeSection, setActiveSection] = useState('inicio');
   const [toast, setToast] = useState({ message: '', isVisible: false });
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
   
   const [appState, setAppState] = useState<AppState>({
     perfil: {
@@ -135,6 +137,17 @@ const Dashboard: React.FC = () => {
       navigate('/');
     }
   }, [navigate]);
+
+  // Decide if overlay should show on first entry to dashboard
+  useEffect(() => {
+    const seen = localStorage.getItem('kiloByteOnboardingSeen') === '1';
+    // Show overlay on the first visit regardless of completeness; guide card below still adapts to missing data
+    if (!seen) {
+      setShowOverlay(true);
+    } else {
+      setShowOverlay(false);
+    }
+  }, [appState]);
 
   const updateAppState = (newState: AppState) => {
     setAppState(newState);
@@ -220,6 +233,13 @@ const Dashboard: React.FC = () => {
         const needsGoals = !appState.metas?.kcal || !appState.metas?.prote_g_dia || !appState.metas?.grasa_g_dia || !appState.metas?.carbs_g_dia;
         return (
           <div className="dashboard-content">
+            {showOverlay && (
+              <OnboardingOverlay 
+                goToSection={navigateToSection}
+                onDismiss={() => setShowOverlay(false)}
+                nombre={appState.perfil?.nombre}
+              />
+            )}
             {(needsProfile || needsGoals) && (
               <OnboardingGuide 
                 goToSection={navigateToSection}

@@ -17,6 +17,19 @@
 .onboarding-actions { display: flex; gap: 0.5rem; }
 .onboarding-actions .primary { background: linear-gradient(135deg, var(--color-primary), #8B5CF6); border: none; color: white; padding: 0.5rem 0.8rem; border-radius: 10px; cursor: pointer; }
 .onboarding-actions .secondary { background: var(--glass-12); border: 1px solid var(--glass-25); color: var(--text-primary); padding: 0.5rem 0.8rem; border-radius: 10px; cursor: pointer; }
+
+/* Full-screen onboarding overlay */
+.onboarding-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.onboarding-modal { width: 100%; max-width: 560px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; padding: 1rem; box-shadow: 0 12px 32px rgba(0,0,0,0.25); }
+.onboarding-modal h2 { margin: 0 0 0.25rem 0; }
+.onboarding-modal p { margin: 0 0 0.75rem 0; color: var(--text-secondary); }
+.overlay-steps { display: grid; gap: 0.6rem; margin-bottom: 0.9rem; }
+.overlay-step { display: grid; grid-template-columns: auto 1fr auto; gap: 0.6rem; align-items: center; padding: 0.6rem; border: 1px dashed var(--glass-20); border-radius: 12px; }
+.overlay-step .num { width: 28px; height: 28px; border-radius: 50%; background: var(--glass-15); display: grid; place-items: center; font-weight: 700; color: var(--text-primary); }
+.overlay-step .title { font-weight: 800; }
+.overlay-step .desc { color: var(--text-secondary); font-size: 0.9rem; }
+.overlay-actions { display: flex; gap: 0.6rem; justify-content: flex-end; }
+/* Buttons now reuse .btn classes from App.css */
 .dashboard {
   min-height: 100vh;
   background-color: var(--bg-primary);

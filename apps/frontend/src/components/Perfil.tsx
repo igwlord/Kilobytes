@@ -181,6 +181,7 @@ const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState, showToast }) 
               onChange={(e) => actualizarCampo('nombre', e.target.value)}
               className="form-input"
               placeholder="Tu nombre"
+              title="Tu nombre"
             />
           </div>
 
