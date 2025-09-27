@@ -245,6 +245,22 @@
 				"$tsc"
 			],
 			"group": "build"
+		},
+		{
+			"label": "frontend: build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build",
+				"--prefix",
+				"apps/frontend"
+			],
+			"problemMatcher": [
+				"$tsc",
+				"$eslint - stylish"
+			],
+			"group": "build"
 		}
 	]
 }

@@ -53,15 +53,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
   // Map legacy 'dark'/'light' to new defaults (dark->uva, light->banana)
   const mapLegacy = (t?: string): ThemeId => (t === 'light' ? 'banana' : t === 'dark' ? 'uva' : (t as ThemeId) || 'uva');
   const [theme, setTheme] = useState<ThemeId>(mapLegacy(appState.perfil?.theme));
-  const [unlockRecipes, setUnlockRecipes] = useState(!!appState.perfil?.desbloquearRecetas);
   const [muteToasts, setMuteToasts] = useState(!!appState.perfil?.silenciarNotificaciones);
   const [busy, setBusy] = useState<'export' | 'import' | null>(null);
 
   useEffect(() => {
     setTheme(mapLegacy(appState.perfil?.theme));
-    setUnlockRecipes(!!appState.perfil?.desbloquearRecetas);
     setMuteToasts(!!appState.perfil?.silenciarNotificaciones);
-  }, [appState.perfil?.theme, appState.perfil?.desbloquearRecetas, appState.perfil?.silenciarNotificaciones]);
+  }, [appState.perfil?.theme, appState.perfil?.silenciarNotificaciones]);
 
   const applyTheme = (id: ThemeId) => {
     document.body.classList.remove('dark', 'light', 'theme-banana', 'theme-sandia', 'theme-uva', 'theme-pastel-magenta', 'theme-pastel-green', 'theme-gold');
@@ -173,22 +171,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
 
       <div className="card settings-block">
         <h3 className="settings-block-title">Recetas y plan</h3>
-        <label className="switch-row">
-          <span>Desbloquear recetas de otros planes</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={unlockRecipes}
-            className={`ios-switch ${unlockRecipes ? 'on' : ''}`}
-            onClick={() => setUnlockRecipes(v => !v)}
-          >
-            <span className="knob" />
-          </button>
-        </label>
-        <p className="hint" style={{ marginTop: 8 }}>
-          Al habilitarlo, podrás elegir cualquier receta aunque no sea parte de tu plan actual.
-          Tené en cuenta los riesgos de salir del plan: podrías afectar tu progreso.
-        </p>
+          {/* Sección de recetas eliminada: las recetas están siempre visibles y el plan se destaca automáticamente */}
       </div>
 
       <div className="card settings-block">

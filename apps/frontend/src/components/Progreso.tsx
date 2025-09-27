@@ -16,7 +16,7 @@ interface ProgresoProps {
   appState: AppStateMin;
 }
 
-type Section = 'resumen' | 'kpis' | 'peso' | 'tendencias' | 'recetas' | null;
+type Section = 'resumen' | 'kpis' | 'peso' | 'tendencias' | 'recetas' | 'tips' | null;
 type KPIKey = 'kcal' | 'prot' | 'carbs' | 'grasa' | 'agua' | 'sueno' | 'ayuno';
 
 const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
@@ -219,7 +219,6 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
 
   const objetivoRaw = (appState.perfil?.objetivo || 'mantener').toLowerCase();
   const objetivoActual: Objetivo = objetivoRaw === 'bajar' ? 'bajar' : objetivoRaw === 'subir' ? 'subir' : 'mantener';
-  const desbloquear = !!appState.perfil?.desbloquearRecetas;
   const grupos: Array<{ key: Objetivo; label: string; colorClass: string }> = [
     { key: 'bajar', label: 'Pérdida de peso', colorClass: 'goal-lose' },
     { key: 'subir', label: 'Aumento de masa muscular', colorClass: 'goal-gain' },
@@ -273,6 +272,9 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
           </button>
         </div>
         {openSection==='resumen' && (
+          <p className="card-help">Promedio de adherencia a tus metas clave. Te muestra qué tan cerca estuviste de tus objetivos de calorías, proteínas e hidratación.</p>
+        )}
+        {openSection==='resumen' && (
           <div className="kpi-grid-impact">
             <div className="kpi-card-impact">
               <div className="kpi-ring" data-pct={avg.kcal}><div style={{ ['--pct' as string]: `${Math.min(100, avg.kcal)}%` } as React.CSSProperties} /></div>
@@ -296,6 +298,9 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
           <h2 className="card-title">Panel de KPIs</h2>
           <button className={`collapse-toggle ${openSection==='kpis'?'open':''}`} onClick={()=> setOpenSection(s=> s==='kpis'? null : 'kpis')} aria-label="Alternar">▾</button>
         </div>
+        {openSection==='kpis' && (
+          <p className="card-help">KPI = indicador clave. Activá los que más te importan. Cada tarjeta muestra tendencia y el porcentaje de adherencia al objetivo.</p>
+        )}
         {openSection==='kpis' && (
           <div className="kpi-board">
             {Array.from(visibleKPIs).map(k => {
@@ -348,6 +353,8 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
           </button>
         </div>
         {openSection === 'peso' && (
+        <>
+        <p className="card-help">Tu trayectoria de peso. Si aún no registraste, mostramos un ejemplo. Pronto tomará tus mediciones reales.</p>
         <div className="weight-chart">
           <svg width="100%" height="150" viewBox="0 0 300 150" className="chart-svg">
             {/* Grid lines */}
@@ -399,6 +406,7 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
             )}
           </svg>
         </div>
+        </>
         )}
         
         {openSection === 'peso' && (
@@ -435,6 +443,7 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
         </div>
         {openSection === 'tendencias' && (
         <>
+        <p className="card-help">Barras diarias comparadas con tus metas. Verde = dentro del rango ideal (90–110%). Amarillo = aceptable (70–130%).</p>
         <div className="trends-summary">
           {(['kcal','prot'] as KPIKey[]).filter(k=>visibleKPIs.has(k)).map(k => (
             <div key={k} className="trend-stat">
@@ -489,16 +498,16 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
         </div>
         {openSection === 'recetas' && (
         <div className="recipes">
+          <p className="card-help">Todas las recetas están visibles. Tu plan actual se resalta como recomendado.</p>
           <div className="recipes-toolbar">
             <input className="recipes-search" placeholder="Buscar receta..." value={search} onChange={(e)=> setSearch(e.target.value)} />
           </div>
           {grupos.map((g) => {
-            const enabled = desbloquear || g.key === objetivoActual;
             return (
-              <div key={g.key} className={`recipe-group ${g.colorClass} ${enabled ? 'enabled' : 'disabled'}`}>
+              <div key={g.key} className={`recipe-group ${g.colorClass} enabled ${g.key===objetivoActual ? 'selected' : ''}`}>
                 <div className="recipe-group-header">
                   <h3>{g.label}</h3>
-                  {!enabled && <span className="badge-disabled">Bloqueado por plan</span>}
+                  {g.key===objetivoActual && <span className="plan-badge" title="Plan recomendado">Tu plan</span>}
                 </div>
                 {(['Desayuno','Almuerzo','Cena','Snack'] as const).map(meal => {
                   const items = recetas[g.key].filter(r => r.group === meal && (!search || r.title.toLowerCase().includes(search.toLowerCase())));
@@ -516,14 +525,13 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
                           {items.map((r, idx) => (
                             <div
                               key={idx}
-                              className={`recipe-card ${enabled ? '' : 'disabled'}`}
-                              title={enabled ? r.title : 'No disponible: esta receta no es parte de tu plan actual'}
-                              onClick={(e) => {
-                                if (!enabled) { e.preventDefault(); return; }
+                              className={`recipe-card`}
+                              title={r.title}
+                              onClick={() => {
                                 const steps = getRecipeSteps(r.title);
                                 if (steps && steps.length) setOpenRecipe({ title: r.title, steps });
                               }}
-                              aria-disabled={!enabled}
+                              aria-disabled={false}
                               role="button"
                             >
                               <div className="recipe-title">{r.title}</div>
@@ -554,6 +562,77 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
                     <li key={i}>{s}</li>
                   ))}
                 </ol>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      {/* Consejos, información y glosario */}
+      <div className="progress-card collapsible">
+        <div className="collapsible-header">
+          <h2 className="card-title">Consejos, info y glosario</h2>
+          <button
+            className={`collapse-toggle ${openSection === 'tips' ? 'open' : ''}`}
+            onClick={() => setOpenSection(prev => (prev === 'tips' ? null : 'tips'))}
+            aria-label={openSection === 'tips' ? 'Colapsar' : 'Expandir'}
+          >
+            ▾
+          </button>
+        </div>
+        {openSection === 'tips' && (
+          <div className="tips-content">
+            <p className="card-help">Ideas prácticas y conceptos clave para mejorar adherencia, saciedad y salud digestiva. Leelos de a poco y elegí 1–2 para aplicar esta semana.</p>
+            <div className="tips-grid">
+              {[
+                {t:'Calorías vacías',d:'Alimentos con alta energía y pocos nutrientes (gaseosas, harinas refinadas, dulces). Limitarlas mejora saciedad y control del apetito.'},
+                {t:'Adherencia > perfección',d:'Seguir el plan 80–90% del tiempo gana a buscar perfección. Un desliz no borra tu progreso.'},
+                {t:'Proteína en cada comida',d:'Aumenta la saciedad y protege masa muscular (huevos, yogur, legumbres, carnes magras).'},
+                {t:'Fibra soluble',d:'Aporta saciedad y nutre la microbiota (avena, chía, lino, legumbres).'},
+                {t:'Hidratación inteligente',d:'Tomar agua antes y entre comidas puede reducir el hambre por confundir sed con apetito.'},
+                {t:'Harinas y antojos',d:'Las harinas refinadas pueden disparar apetito por picos de insulina. Elegí integrales o reducí frecuencia.'},
+                {t:'Índice glucémico',d:'Preferí carbohidratos de IG bajo/medio para evitar picos bruscos (batata, legumbres, quinoa, fruta entera).'},
+                {t:'Grasas de calidad',d:'Ayudan a la saciedad y salud hormonal: palta, frutos secos, oliva, pescado azul.'},
+                {t:'Plan anti-atracón',d:'Dormí bien, comé proteína, fibra y grasas buenas. Tené snacks reales a mano (yogur, frutas, frutos secos).'},
+                {t:'Ritmo de comidas',d:'Comer lento mejora señales de saciedad; 10–20 minutos por comida es un buen objetivo.'},
+                {t:'Ayuno intermitente',d:'Puede ayudarte a ordenar horarios. Beneficios: mejor sensibilidad a la insulina y control del hambre en algunos casos.'},
+                {t:'Picos de insulina',d:'Grandes picos de azúcar generan bajones de energía y más hambre. Combiná carbos con proteína y fibra.'},
+                {t:'Pro-microbiota',d:'Vegetales, frutas, legumbres, fermentados (kéfir, yogur, chucrut) y cereales integrales.'},
+                {t:'Perjudican microbiota',d:'Exceso de ultraprocesados, alcohol frecuente, harinas y azúcares en exceso.'},
+                {t:'Saciedad práctica',d:'Comenzá con ensalada o sopa de verduras. Sumá 20–30g de proteína por comida.'},
+                {t:'Porciones visuales',d:'Usá plato pequeño, servite en cocina, evitá “picar de la fuente”.'},
+                {t:'Entorno',d:'Dejá a la vista opciones saludables. Lo que está a mano, se come.'},
+                {t:'Dormir mejor',d:'Menos sueño = más hambre. Objetivo: 7–9 horas; rutina constante y menos pantallas.'},
+                {t:'Movimiento diario',d:'Caminatas después de comer ayudan a la glucosa y a la digestión.'},
+                {t:'Micrometas',d:'Elegí 1 cambio a la vez (agua +500 ml, 1 fruta/día, 10 min de caminata). Sostenibilidad gana a la velocidad.'}
+              ].map((tip, i) => (
+                <div key={i} className="tip-card">
+                  <div className="tip-icon">💡</div>
+                  <div className="tip-body">
+                    <div className="tip-title">{tip.t}</div>
+                    <div className="tip-text">{tip.d}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="glossary">
+              <h3 className="glossary-title">Glosario rápido</h3>
+              <div className="glossary-grid">
+                {[
+                  {t:'Microbiota',d:'Conjunto de microbios del intestino. Influye en digestión, inmunidad y saciedad.'},
+                  {t:'Calorías vacías',d:'Energía con pocos nutrientes (azúcar, harinas refinadas). Mejor limitar.'},
+                  {t:'Adherencia',d:'Capacidad de sostener el plan en el tiempo. Importa más que la perfección diaria.'},
+                  {t:'Índice glucémico',d:'Qué tan rápido sube la glucosa un alimento. Bajo/medio ayuda a controlar el hambre.'},
+                  {t:'Proteína saciante',d:'La proteína ayuda a sentirte lleno y protege músculo.'},
+                  {t:'Fibra',d:'Carbohidrato no digerible que alimenta la microbiota y suma saciedad.'},
+                  {t:'Ayuno',d:'Espacio sin calorías. Útil para ordenar horarios si te sienta bien.'},
+                  {t:'Ultraprocesados',d:'Productos muy industriales; suelen tener sal/azúcar/grasas de baja calidad.'},
+                ].map((g,i)=> (
+                  <div key={i} className="glossary-item">
+                    <div className="g-term">{g.t}</div>
+                    <div className="g-desc">{g.d}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

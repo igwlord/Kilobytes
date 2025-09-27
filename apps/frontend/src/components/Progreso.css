@@ -42,6 +42,9 @@
 }
 .collapse-toggle.open { transform: rotate(180deg); }
 
+/* Breves ayudas descriptivas */
+.card-help { margin: 0 1.25rem 0.75rem; color: var(--text-secondary); font-size: .9rem; }
+
 .progress-card .weight-chart,
 .progress-card .weight-summary,
 .progress-card .trends-summary,
@@ -291,6 +294,9 @@
 .recipe-group.disabled { background: var(--glass-05); }
 .recipe-group-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); }
 .recipe-group-header h3 { margin: 0; font-size: 1rem; color: var(--text-primary); }
+.recipe-group.selected .recipe-group-header h3 { position: relative; }
+.recipe-group.selected .recipe-group-header h3::after { content: ""; position: absolute; inset: -4px -10px; border-radius: 999px; box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-primary), transparent 40%), 0 0 18px color-mix(in oklab, var(--color-primary), transparent 40%); pointer-events: none; }
+.plan-badge { background: color-mix(in oklab, var(--color-primary), transparent 85%); color: var(--color-primary); border: 1px solid var(--color-primary); padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 700; }
 .badge-disabled { background: var(--glass-15); color: var(--text-secondary); padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
 .recipe-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; padding: 0.75rem; }
 .recipe-card { border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.75rem; cursor: pointer; background: var(--bg-secondary); transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease; }
@@ -368,3 +374,32 @@
 .sub-acc-header .count { font-size: .85rem; color: var(--text-secondary); }
 .sub-acc-header .chev { transition: transform .2s ease; }
 .sub-acc-header.open .chev { transform: rotate(180deg); }
+
+/* Consejos y glosario */
+.tips-content { padding: 0 1.25rem 1.25rem; }
+.tips-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .75rem; }
+.tip-card { display:flex; gap:.6rem; border:1px solid var(--border-color); background: var(--bg-primary); border-radius: 10px; padding: .6rem .7rem; }
+.tip-icon { font-size:1.2rem; }
+.tip-title { font-weight:700; color: var(--text-primary); }
+.tip-text { color: var(--text-secondary); font-size: .9rem; }
+.glossary { margin-top: 1rem; }
+.glossary-title { margin: 0 0 .5rem 0; font-size: 1rem; }
+.glossary-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .6rem; }
+.glossary-item { border:1px dashed var(--border-color); border-radius: 10px; padding: .6rem .7rem; background: var(--bg-primary); }
+.g-term { font-weight:700; margin-bottom:.15rem; }
+.g-desc { color: var(--text-secondary); font-size: .9rem; }
+
+/* Responsive tweaks for small phones (iPhone 8 width ~375px) */
+@media (max-width: 400px) {
+  .progreso-title { font-size: 1.4rem; }
+  .kpi-grid-impact { grid-template-columns: 1fr; }
+  .kpi-board { grid-template-columns: 1fr; }
+  .recipe-grid { grid-template-columns: 1fr; }
+  .recipes-toolbar { justify-content: stretch; }
+  .recipes-search { width: 100%; min-width: 0; }
+}
+
+/* Responsive tweaks for tall, narrow (S21 Ultra) */
+@media (max-width: 500px) and (min-height: 700px) {
+  .progress-card .trends-summary { grid-template-columns: 1fr; }
+}
