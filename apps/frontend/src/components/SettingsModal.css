@@ -10,11 +10,11 @@
 .theme-option input{accent-color:var(--color-primary)}
 .theme-label{font-weight:600}
 .text-input{background:var(--bg-primary);border:1px solid var(--border-color);border-radius:8px;padding:.65rem .8rem;color:var(--text-primary)}
-.backup-row{display:flex;gap:.5rem;flex-wrap:wrap}
+.backup-row{display:flex;gap:.6rem;flex-wrap:wrap}
 .hint{color:var(--text-secondary);font-size:.85rem}
 .settings-footer{padding:1rem 1.25rem;border-top:1px solid var(--border-color);display:flex;gap:.5rem;justify-content:flex-end}
-.btn.settings-btn{background:var(--btn-active-bg);color:var(--text-primary)}
-.btn.settings-btn.primary{background:var(--color-primary);color:#0B0A1A}
+/* Buttons rely on global .btn variants; ensure consistent padding and roundedness here if needed */
+.settings-modal .btn{font-family: var(--font-body); padding: 0.7rem 1.2rem; border-radius: 12px; font-weight: 700;}
 
 /* Theme swatches */
 .swatch{display:inline-block;width:16px;height:16px;border-radius:50%;border:1px solid var(--border-color)}

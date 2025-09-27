@@ -117,6 +117,21 @@ input {
   transform: translateY(-2px);
 }
 
+/* Success/Danger pastel variants for consistent UX */
+.btn-success {
+  background-color: #86EFAC; /* pastel green */
+  color: #0B0A1A;
+}
+.dark .btn-success { color: var(--text-primary); }
+.btn-success:hover { opacity: 0.95; transform: translateY(-2px); }
+
+.btn-danger {
+  background-color: #FCA5A5; /* pastel red */
+  color: #0B0A1A;
+}
+.dark .btn-danger { color: var(--text-primary); }
+.btn-danger:hover { opacity: 0.95; transform: translateY(-2px); }
+
 /* Secondary and small button variants */
 .btn-secondary {
   background-color: var(--btn-active-bg);
