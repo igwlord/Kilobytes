@@ -834,16 +834,38 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
             <div className="modal-header-final">
               <div className="modal-title-section">
                 <h3 id="add-food-title">{activeModal === 'edit-food' ? 'Editar alimento' : `Agregar a ${getMealInfo(selectedMeal).name}`}</h3>
-                <div className="modal-time-control">
-                  <label className="time-label" htmlFor="add-time">Hora</label>
-                  <input
-                    id="add-time"
-                    type="time"
-                    value={selectedTime}
-                    onChange={(e) => setSelectedTime(e.target.value)}
-                    className="time-input-final"
-                  />
-                </div>
+                {/* En móviles, reemplazar la hora por el selector Unidades/Gramos en el header */}
+                {isMobile ? (
+                  selectedFood && (
+                    <div className="input-method-toggle">
+                      <button
+                        className={`toggle-btn ${inputMethod === 'units' ? 'active' : ''}`}
+                        onClick={() => setInputMethod('units')}
+                        aria-pressed={inputMethod === 'units'}
+                      >
+                        Unidades
+                      </button>
+                      <button
+                        className={`toggle-btn ${inputMethod === 'grams' ? 'active' : ''}`}
+                        onClick={() => setInputMethod('grams')}
+                        aria-pressed={inputMethod === 'grams'}
+                      >
+                        Gramos
+                      </button>
+                    </div>
+                  )
+                ) : (
+                  <div className="modal-time-control">
+                    <label className="time-label" htmlFor="add-time">Hora</label>
+                    <input
+                      id="add-time"
+                      type="time"
+                      value={selectedTime}
+                      onChange={(e) => setSelectedTime(e.target.value)}
+                      className="time-input-final"
+                    />
+                  </div>
+                )}
               </div>
               <button onClick={() => { setActiveModal(null); setEditingEntry(null); }} className="modal-close-final" aria-label="Cerrar">
                 <span>×</span>
@@ -924,7 +946,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                 </>
               )}
 
-              {selectedFood && (
+              {selectedFood && !isMobile && (
                 <div className="portion-header" ref={portionRef}>
                   <div className="portion-selected">
                     <span className="selected-food-emoji">{selectedFood.emoji}</span>
