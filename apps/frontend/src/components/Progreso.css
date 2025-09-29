@@ -398,6 +398,62 @@
 .g-section { margin: 0.8rem 0; }
 .g-section-title { margin: 0 0 .4rem 0; font-size: 1rem; color: var(--text-primary); }
 
+/* Flip cards (tips) */
+.flip-card {
+  position: relative;
+  border:1px solid var(--border-color);
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  perspective: 1000px;
+  outline: none;
+  height: 240px; /* was 180px: more room for text */
+  overflow: hidden; /* keep internals within card */
+}
+.flip-card:focus-visible { box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-primary), transparent 70%); }
+.flip-inner {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform .5s ease;
+  height: 100%;
+}
+.flip-card.flipped .flip-inner { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute;
+  inset: 0;
+  display:flex;
+  flex-direction:column;
+  gap: .35rem;
+  padding: .8rem;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  background: var(--bg-primary);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  overflow: hidden; /* avoid spilling content */
+}
+.flip-front { min-height: 150px; }
+.flip-front { align-items: flex-start; justify-content: flex-start; }
+.flip-back {
+  transform: rotateY(180deg);
+  overflow: auto; /* allow scrolling in back face if content is long */
+}
+.flip-emoji { font-size: 1.25rem; }
+.flip-title { font-size: 1rem; margin: 0; color: var(--text-primary); }
+.flip-summary, .flip-desc {
+  font-size: .9rem;
+  color: var(--text-secondary);
+  margin: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.flip-meta { margin-top: auto; font-size: .8rem; color: var(--text-secondary); opacity: .8; }
+.flip-example { margin-top: .35rem; border-left: 4px solid #f59e0b; border-radius: 10px; padding: .5rem .6rem; background: rgba(245, 158, 11, 0.08); }
+.dark .flip-example { background: rgba(245, 158, 11, 0.12); border-left-color: #fbd38d; }
+.flip-example-title { font-weight: 600; margin-bottom: .15rem; color: var(--text-primary); }
+.flip-example-body { color: var(--text-secondary); font-size: .9rem; }
+
 /* Responsive tweaks for small phones (iPhone 8 width ~375px) */
 @media (max-width: 400px) {
   .progreso-title { font-size: 1.4rem; }
@@ -406,6 +462,35 @@
   .recipe-grid { grid-template-columns: 1fr; }
   .recipes-toolbar { justify-content: stretch; }
   .recipes-search { width: 100%; min-width: 0; }
+  /* Tips: compact card sizing on very small screens */
+  .tips-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .flip-card { height: 165px; border-radius: 10px; }
+  .flip-face { padding: .5rem; border-radius: 10px; }
+  .flip-emoji { font-size: 0.95rem; }
+  .flip-title { font-size: .9rem; }
+  .flip-summary, .flip-desc { font-size: .78rem; }
+  /* Hide long intro text inside Tips on very small screens */
+  .tip-intro { display: none; }
+}
+
+/* Phones up to ~480px: also use compact cards */
+@media (max-width: 480px) {
+  .tips-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .flip-card { height: 175px; }
+  /* Also hide intro on typical small phones */
+  .tip-intro { display: none; }
+  /* Extra breathing room for Tips header and category pills */
+  .tips-content--tips { padding-top: 0.75rem; }
+  .tips-content--tips .g-filters { margin-top: 0.5rem; }
+  .progress-card .collapsible-header + .tips-content--tips { padding-top: 1rem; }
+}
+
+/* Ultra small devices (<=340px width) */
+@media (max-width: 340px) {
+  .tips-grid { grid-template-columns: 1fr 1fr; }
+  .flip-card { height: 150px; }
+  .flip-title { font-size: .85rem; }
+  .flip-summary, .flip-desc, .flip-example-body { font-size: .75rem; }
 }
 
 /* Responsive tweaks for tall, narrow (S21 Ultra) */

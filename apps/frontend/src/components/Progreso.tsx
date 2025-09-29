@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './Progreso.css';
 import { getRecipeSteps } from '../data/recetasPasoAPaso';
+import { tipsCards } from '../data/tipsCards';
 import type { AppState } from '../interfaces/AppState';
 import {
   getDayLog,
@@ -221,6 +222,19 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
   const [openMealGroups, setOpenMealGroups] = useState<Record<string, boolean>>({ Desayuno: true, Almuerzo: false, Cena: false, Snack: false });
   const toggleMeal = (k: string) => setOpenMealGroups(s => ({ ...s, [k]: !s[k] }));
   const [search, setSearch] = useState('');
+  // Flip tips state
+  const tipCats = ['Alimentación','Hábitos','Organización','Sueño','Actividad'] as const;
+  type TipCat = typeof tipCats[number];
+  const [tipCat, setTipCat] = useState<TipCat | null>(null);
+  const [flipped, setFlipped] = useState<Record<number, boolean>>({});
+  const toggleFlip = (idx: number) => setFlipped(s => ({ ...s, [idx]: !s[idx] }));
+  // Forzar que el usuario elija siempre una categoría al abrir la sección de tips
+  useEffect(() => {
+    if (openSection === 'tips') {
+      setTipCat(null);
+      setFlipped({});
+    }
+  }, [openSection]);
   type GlossCat = 'macros' | 'hábitos' | 'microbiota' | 'entrenamiento' | 'metabólico' | 'planificación';
   type GlossaryTerm = { t: string; d: string; cat: GlossCat };
   const glossaryCats: Array<{key: GlossCat; label: string}> = [
@@ -566,40 +580,52 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
           </button>
         </div>
         {openSection === 'tips' && (
-          <div className="tips-content">
-            <p className="card-help">Ideas prácticas y conceptos clave para mejorar adherencia, saciedad y salud digestiva. Leelos de a poco y elegí 1–2 para aplicar esta semana.</p>
-            <div className="tips-grid">
-              {[
-                {t:'Calorías vacías',d:'Alimentos con alta energía y pocos nutrientes (gaseosas, harinas refinadas, dulces). Limitarlas mejora saciedad y control del apetito.'},
-                {t:'Adherencia > perfección',d:'Seguir el plan 80–90% del tiempo gana a buscar perfección. Un desliz no borra tu progreso.'},
-                {t:'Proteína en cada comida',d:'Aumenta la saciedad y protege masa muscular (huevos, yogur, legumbres, carnes magras).'},
-                {t:'Fibra soluble',d:'Aporta saciedad y nutre la microbiota (avena, chía, lino, legumbres).'},
-                {t:'Hidratación inteligente',d:'Tomar agua antes y entre comidas puede reducir el hambre por confundir sed con apetito.'},
-                {t:'Harinas y antojos',d:'Las harinas refinadas pueden disparar apetito por picos de insulina. Elegí integrales o reducí frecuencia.'},
-                {t:'Índice glucémico',d:'Preferí carbohidratos de IG bajo/medio para evitar picos bruscos (batata, legumbres, quinoa, fruta entera).'},
-                {t:'Grasas de calidad',d:'Ayudan a la saciedad y salud hormonal: palta, frutos secos, oliva, pescado azul.'},
-                {t:'Plan anti-atracón',d:'Dormí bien, comé proteína, fibra y grasas buenas. Tené snacks reales a mano (yogur, frutas, frutos secos).'},
-                {t:'Ritmo de comidas',d:'Comer lento mejora señales de saciedad; 10–20 minutos por comida es un buen objetivo.'},
-                {t:'Ayuno intermitente',d:'Puede ayudarte a ordenar horarios. Beneficios: mejor sensibilidad a la insulina y control del hambre en algunos casos.'},
-                {t:'Picos de insulina',d:'Grandes picos de azúcar generan bajones de energía y más hambre. Combiná carbos con proteína y fibra.'},
-                {t:'Pro-microbiota',d:'Vegetales, frutas, legumbres, fermentados (kéfir, yogur, chucrut) y cereales integrales.'},
-                {t:'Perjudican microbiota',d:'Exceso de ultraprocesados, alcohol frecuente, harinas y azúcares en exceso.'},
-                {t:'Saciedad práctica',d:'Comenzá con ensalada o sopa de verduras. Sumá 20–30g de proteína por comida.'},
-                {t:'Porciones visuales',d:'Usá plato pequeño, servite en cocina, evitá “picar de la fuente”.'},
-                {t:'Entorno',d:'Dejá a la vista opciones saludables. Lo que está a mano, se come.'},
-                {t:'Dormir mejor',d:'Menos sueño = más hambre. Objetivo: 7–9 horas; rutina constante y menos pantallas.'},
-                {t:'Movimiento diario',d:'Caminatas después de comer ayudan a la glucosa y a la digestión.'},
-                {t:'Micrometas',d:'Elegí 1 cambio a la vez (agua +500 ml, 1 fruta/día, 10 min de caminata). Sostenibilidad gana a la velocidad.'}
-              ].map((tip, i) => (
-                <div key={i} className="tip-card">
-                  <div className="tip-icon">💡</div>
-                  <div className="tip-body">
-                    <div className="tip-title">{tip.t}</div>
-                    <div className="tip-text">{tip.d}</div>
-                  </div>
-                </div>
+          <div className="tips-content tips-content--tips">
+            <p className="card-help tip-intro">Ideas prácticas y conceptos clave para mejorar adherencia, saciedad y salud digestiva. Leelos de a poco y elegí 1–2 para aplicar esta semana.</p>
+            {/* Pills de categoría */}
+            <div className="g-filters" role="tablist" aria-label="Categorías de tips">
+              {tipCats.map(c => (
+                <button key={c} className={`g-pill ${tipCat===c?'active':''}`} role="tab" aria-selected={tipCat===c} onClick={()=> setTipCat(c)}>{c}</button>
               ))}
             </div>
+
+            {/* Grid de flip-cards */}
+            {tipCat === null ? (
+              <p className="card-help" style={{ marginTop: 8 }}>Elegí una categoría para ver tarjetas con ejemplos prácticos.</p>
+            ) : (
+              <div className="tips-grid">
+                {tipsCards
+                  .filter(t => t.categoria===tipCat)
+                  .map((tip, idx) => {
+                    const isFlipped = !!flipped[idx];
+                    return (
+                      <button
+                        key={`${tip.titulo}-${idx}`}
+                        className={`flip-card ${isFlipped?'flipped':''}`}
+                        onClick={()=> toggleFlip(idx)}
+                        onKeyDown={(e)=>{ if(e.key==='Enter' || e.key===' ' || e.key==='Spacebar'){ e.preventDefault(); toggleFlip(idx);} if(e.key==='Escape'){ e.preventDefault(); setFlipped(s=> ({...s,[idx]:false})); } }}
+                        aria-expanded={isFlipped}
+                      >
+                        <div className="flip-inner">
+                          <div className="flip-face flip-front">
+                            <div className="flip-emoji" aria-hidden>{tip.emoji}</div>
+                            <h3 className="flip-title">{tip.titulo}</h3>
+                            <p className="flip-summary">{tip.resumen}</p>
+                            <div className="flip-meta">{tip.categoria}</div>
+                          </div>
+                          <div className="flip-face flip-back">
+                            <p className="flip-desc">{tip.descripcion}</p>
+                            <div className="flip-example" aria-label="Ejemplo práctico">
+                              <div className="flip-example-title">✅ Ejemplo práctico</div>
+                              <div className="flip-example-body">{tip.ejemplo}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+              </div>
+            )}
           </div>
         )}
       </div>
