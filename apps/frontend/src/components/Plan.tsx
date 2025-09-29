@@ -109,6 +109,7 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
 
   useEffect(() => {
     if (appState.perfil && appState.metas) {
+      console.log('🔄 Plan.tsx useEffect - Syncing with appState.metas.ayuno_h_dia:', appState.metas.ayuno_h_dia);
       setPerfilEdit(appState.perfil);
       setPesoObjetivo(appState.metas.peso_objetivo || appState.perfil.peso);
       setPesoStr(String(appState.perfil.peso ?? ''));
@@ -119,7 +120,9 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
       setExclusiones(appState.perfil.exclusiones || []);
       setAyunoHoras(appState.metas.ayuno_h_dia ?? 14);
       setAyunoHorasStr(String(appState.metas.ayuno_h_dia ?? 14));
-      setAyunoPreset(getPresetFromHours(appState.metas.ayuno_h_dia ?? 14));
+      const newPreset = getPresetFromHours(appState.metas.ayuno_h_dia ?? 14);
+      console.log('🎯 Setting ayunoPreset to:', newPreset, 'from hours:', appState.metas.ayuno_h_dia);
+      setAyunoPreset(newPreset);
       // Precalcular metas automáticas con la info actual
       tryComputeGoals((appState.perfil.objetivo as Objetivo) || 'mantener', intensidad);
     }
@@ -148,6 +151,7 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
     });
   };
   const persistMetas = (patch: Partial<Goals>) => {
+    console.log('💾 persistMetas called with patch:', patch);
     updateAppState({
       ...appState,
       metas: { ...appState.metas, ...patch },
@@ -444,6 +448,11 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
           </button>
           {openAyuno && (
           <div className="accordion-content">
+          <div className="ayuno-info-box">
+            <p className="ayuno-description">
+              💡 <strong>Configura tu meta de ayuno diario aquí.</strong> Una vez establecida, podrás iniciar y registrar tus sesiones de ayuno en la sección de <em>Registro</em>.
+            </p>
+          </div>
           <div className="fasting-section">
             <div className="field-group">
               <label className="field-label">⏰ Tipo de ayuno</label>

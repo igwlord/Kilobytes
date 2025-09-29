@@ -272,6 +272,44 @@
   pointer-events: none;
 }
 
+/* Ayuno info box */
+.ayuno-info-box {
+  background: var(--bg-info-subtle);
+  border: 1px solid var(--border-info);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.ayuno-description {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-info);
+}
+
+.ayuno-description strong {
+  color: var(--text-primary);
+}
+
+.ayuno-description em {
+  color: var(--color-primary);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .ayuno-info-box {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .ayuno-description {
+    font-size: 0.85rem;
+  }
+}
+
 .fasting-section {
   display: grid;
   grid-template-columns: repeat(2, minmax(0,1fr));

@@ -27,6 +27,8 @@ interface DayLog {
   agua_ml: number;
   pasos: number;
   ejercicio_min: number;
+  ayuno_h_iniciado?: string; // timestamp de inicio del ayuno
+  ayuno_h_completado?: number; // horas de ayuno completadas
   comidas: {
     desayuno: LoggedFood[];
     almuerzo: LoggedFood[];
@@ -47,6 +49,7 @@ interface GoalsMin {
   peso_objetivo: number;
   ejercicio_min?: number;
   comidas_saludables?: number;
+  ayuno_h_dia?: number;
 }
 
 interface AppStateLike {
@@ -128,6 +131,10 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     show: false, content: '', x: 0, y: 0
   });
   const [openMeal, setOpenMeal] = useState<string | null>(null);
+  
+  // Estados para ayuno intermitente
+  const [ayunoIniciado, setAyunoIniciado] = useState<string | null>(null);
+  const [horasAyuno, setHorasAyuno] = useState<number>(0);
   // Macro/field alerts deshabilitadas globalmente
   const alertsOn = false;
 
@@ -144,6 +151,81 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     setSelectedDate(today);
     try { localStorage.setItem('kiloByteSelectedDate', today); } catch { /* ignore */ }
   }, []);
+
+  // Funciones de ayuno intermitente
+  const iniciarAyuno = useCallback(() => {
+    const timestamp = new Date().toISOString();
+    setAyunoIniciado(timestamp);
+    
+    // Actualizar en appState
+    const currentLog = appState.log[selectedDate] || {};
+    const newLog = {
+      ...currentLog,
+      ayuno_h_iniciado: timestamp,
+      ayuno_h_completado: undefined // resetear si había uno previo
+    };
+    
+    updateAppState({
+      ...appState,
+      log: { ...appState.log, [selectedDate]: newLog }
+    });
+    
+    showToast('⏰ Ayuno iniciado!');
+  }, [selectedDate, appState, updateAppState, showToast]);
+
+  const terminarAyuno = useCallback(() => {
+    if (!ayunoIniciado) return;
+    
+    const ahora = new Date();
+    const inicio = new Date(ayunoIniciado);
+    const horasCompletadas = (ahora.getTime() - inicio.getTime()) / (1000 * 60 * 60);
+    
+    setAyunoIniciado(null);
+    setHorasAyuno(horasCompletadas);
+    
+    // Actualizar en appState
+    const currentLog = appState.log[selectedDate] || {};
+    const newLog = {
+      ...currentLog,
+      ayuno_h_iniciado: undefined,
+      ayuno_h_completado: horasCompletadas
+    };
+    
+    updateAppState({
+      ...appState,
+      log: { ...appState.log, [selectedDate]: newLog }
+    });
+    
+    const metaAyuno = appState.metas?.ayuno_h_dia || 14;
+    const emoji = horasCompletadas >= metaAyuno ? '🎉' : '⏰';
+    showToast(`${emoji} Ayuno completado: ${horasCompletadas.toFixed(1)}h`);
+  }, [ayunoIniciado, selectedDate, appState, updateAppState, showToast]);
+
+  // Efecto para cargar estado de ayuno del día seleccionado
+  useEffect(() => {
+    const dayLog = appState.log[selectedDate];
+    if (dayLog?.ayuno_h_iniciado) {
+      setAyunoIniciado(dayLog.ayuno_h_iniciado);
+      setHorasAyuno(0);
+    } else {
+      setAyunoIniciado(null);
+      setHorasAyuno(dayLog?.ayuno_h_completado || 0);
+    }
+  }, [selectedDate, appState.log]);
+
+  // Calcular horas transcurridas en tiempo real
+  useEffect(() => {
+    if (!ayunoIniciado) return;
+    
+    const interval = setInterval(() => {
+      const ahora = new Date();
+      const inicio = new Date(ayunoIniciado);
+      const horasTranscurridas = (ahora.getTime() - inicio.getTime()) / (1000 * 60 * 60);
+      setHorasAyuno(horasTranscurridas);
+    }, 60000); // actualizar cada minuto
+    
+    return () => clearInterval(interval);
+  }, [ayunoIniciado]);
 
   // Mobile detection to apply a two-step flow on phones
   // Use a slightly broader width to include larger phones but avoid tablets
@@ -702,6 +784,60 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Sección de ayuno intermitente */}
+        <div className="ayuno-section">
+          <div className="ayuno-header">
+            <span className="ayuno-emoji">⏰</span>
+            <span className="ayuno-title">Ayuno Intermitente</span>
+            <span className="ayuno-meta">Meta: {appState.metas?.ayuno_h_dia || 14}h</span>
+          </div>
+          
+          <div className="ayuno-controls">
+            {!ayunoIniciado ? (
+              <>
+                {horasAyuno > 0 && (
+                  <div className="ayuno-completed">
+                    <span className="ayuno-result">
+                      Completado hoy: {horasAyuno.toFixed(1)}h
+                      {horasAyuno >= (appState.metas?.ayuno_h_dia || 14) && ' 🎉'}
+                    </span>
+                  </div>
+                )}
+                <button 
+                  className="ayuno-btn ayuno-start"
+                  onClick={iniciarAyuno}
+                  aria-label="Iniciar ayuno intermitente"
+                >
+                  <span>▶️ Iniciar ayuno</span>
+                </button>
+              </>
+            ) : (
+              <div className="ayuno-active">
+                <div className="ayuno-status">
+                  <span className="ayuno-current">
+                    En curso: {horasAyuno.toFixed(1)}h
+                  </span>
+                  <div className="ayuno-progress-bar">
+                    <div 
+                      className="ayuno-progress-fill"
+                      style={{ 
+                        width: `${Math.min((horasAyuno / (appState.metas?.ayuno_h_dia || 14)) * 100, 100)}%`
+                      }}
+                    />
+                  </div>
+                </div>
+                <button 
+                  className="ayuno-btn ayuno-stop"
+                  onClick={terminarAyuno}
+                  aria-label="Terminar ayuno intermitente"
+                >
+                  <span>⏹️ Terminar</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Acciones rápidas removidas por solicitud (copiar día completo y favoritos) */}

@@ -14,6 +14,7 @@ export interface Metas {
   prote_g_dia: number;
   carbs_g_dia: number;
   grasa_g_dia: number;
+  ayuno_h_dia?: number;
 }
 
 export interface FoodLog {
@@ -34,6 +35,8 @@ export interface DayLog {
   agua_ml: number;
   pasos: number;
   ejercicio_min: number;
+  ayuno_h_iniciado?: string; // timestamp de inicio del ayuno
+  ayuno_h_completado?: number; // horas de ayuno completadas
   comidas: {
     desayuno: FoodLog[];
     almuerzo: FoodLog[];
