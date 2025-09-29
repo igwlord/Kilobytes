@@ -23,6 +23,15 @@ export function initFirebase(): FirebasePieces {
     // measurementId optional in dev
   };
 
+  // Debug: Log config being used
+  console.log('[firebase] Using config:', {
+    projectId: config.projectId,
+    authDomain: config.authDomain,
+    hasApiKey: !!config.apiKey,
+    messagingSenderId: config.messagingSenderId,
+    appId: config.appId
+  });
+
   if (!config.apiKey || !config.projectId) {
     // Surface a helpful error once in console but avoid breaking the UI
     console.warn('[firebase] Missing env config. Check .env.development');

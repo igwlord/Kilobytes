@@ -22,6 +22,9 @@ export async function loadUserState(uid: string): Promise<CloudState | null> {
     // Usar solo el UID como document ID, sin el :appState
     const url = `https://firestore.googleapis.com/v1/projects/${getProjectId()}/databases/(default)/documents/${COLLECTION}/${uid}`;
     
+    console.log('[cloud] Loading from URL:', url);
+    console.log('[cloud] User ID:', uid);
+    
     const response = await fetch(url, {
       headers: { 'Authorization': `Bearer ${token}` }
     });

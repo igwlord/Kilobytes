@@ -468,6 +468,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
   // Guardar en AppState
   const saveToAppState = (entries: FoodEntry[]) => {
+    console.log('[registro] saveToAppState called with', entries.length, 'entries');
     const newLog = { ...appState.log };
     
     if (!newLog[selectedDate]) {
@@ -536,10 +537,12 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
     newLog[selectedDate].totals = totals;
 
+    console.log('[registro] About to call updateAppState with log for date:', selectedDate);
     updateAppState({
       ...appState,
       log: newLog
     });
+    console.log('[registro] updateAppState called successfully');
   };
 
   // Filtrar alimentos combinando categoría + búsqueda sobre lista deduplicada

@@ -162,8 +162,11 @@ const Dashboard: React.FC = () => {
   // Decide if overlay should show on first entry to dashboard
   useEffect(() => {
     const seen = localStorage.getItem('kiloByteOnboardingSeen') === '1';
-    // Show overlay on the first visit regardless of completeness; guide card below still adapts to missing data
-    if (!seen) {
+    const today = new Date().toISOString().split('T')[0];
+    const hasUserData = hasData(appState.log?.[today]);
+    
+    // Show overlay only if first time AND no data logged today
+    if (!seen && !hasUserData) {
       setShowOverlay(true);
     } else {
       setShowOverlay(false);
