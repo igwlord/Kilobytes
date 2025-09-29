@@ -15,7 +15,7 @@ import Toast from './ToastPro';
 import './Dashboard.css';
 import OnboardingOverlay from './OnboardingOverlay';
 import OnboardingGuide from './OnboardingGuide';
-import Spinner from './Spinner';
+import PlateLoader from './PlateLoader';
 import { useAuth } from '../utils/auth';
 import { loadUserState, saveUserState } from '../utils/cloudSync';
 import SaveStatus from './SaveStatus';
@@ -298,13 +298,13 @@ const Dashboard: React.FC = () => {
     switch (activeSection) {
       case 'plan':
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><PlateLoader tight /></div>}>
             <Plan appState={appState} updateAppState={updateAppState} showToast={showToast} />
           </Suspense>
         );
       case 'registro':
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><PlateLoader tight /></div>}>
             <RegistroNew 
               appState={appState} 
               updateAppState={updateAppState} 
@@ -314,19 +314,19 @@ const Dashboard: React.FC = () => {
         );
       case 'calendario':
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><PlateLoader tight /></div>}>
             <Calendario appState={appState} />
           </Suspense>
         );
       case 'progreso':
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><PlateLoader tight /></div>}>
             <Progreso appState={appState} />
           </Suspense>
         );
       case 'settings':
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><PlateLoader tight /></div>}>
             <SettingsPage
               appState={appState}
               updateAppState={updateAppState}
@@ -338,7 +338,7 @@ const Dashboard: React.FC = () => {
       case 'metas':
         // Metas y Plan unificados: usamos el componente Plan como única experiencia
         return (
-          <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
+          <Suspense fallback={<div style={{ padding: 16 }}><PlateLoader tight /></div>}>
             <Plan appState={appState} updateAppState={updateAppState} showToast={showToast} />
           </Suspense>
         );
@@ -508,7 +508,7 @@ const Dashboard: React.FC = () => {
     <div className="dashboard">
       <Navigation activeSection={activeSection} onNavigate={navigateToSection} />
       <main className="dashboard-main">
-        {authLoading ? <div style={{ padding: 16 }}><Spinner tight label="Cargando…"/></div> : renderContent()}
+  {authLoading ? <div style={{ padding: 16 }}><PlateLoader tight label="Cocinando…"/></div> : renderContent()}
       </main>
       {showOverlay && (
         <OnboardingOverlay 

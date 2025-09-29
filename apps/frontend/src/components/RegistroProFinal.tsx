@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { FoodItem } from '../data/foodDatabaseNew';
 import type { AppState, DayLog, FastingSession, FoodLog } from '../interfaces/AppState';
 import './RegistroProFinal.css';
-import Spinner from './Spinner';
+import PlateLoader from './PlateLoader';
 
 interface FoodEntry {
   id: string;
@@ -1142,7 +1142,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                   {/* Cargando base de alimentos */}
                   {(!foodApi || loadingFoodApi) && (
                     <div style={{ padding: 16, textAlign: 'center' }}>
-                      <Spinner label="Cargando base de alimentos…" />
+                      <PlateLoader label="Cocinando base de alimentos…" />
                     </div>
                   )}
                   {foodApi && !loadingFoodApi && (

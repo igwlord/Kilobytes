@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './SettingsModal.css';
-import Spinner from './Spinner';
+import PlateLoader from './PlateLoader';
 import { useAuth } from '../utils/auth';
 import { saveUserState } from '../utils/cloudSync';
 import type { AppState } from '../interfaces/AppState';
@@ -234,10 +234,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
           <h3>Respaldo de datos</h3>
           <div className="backup-row">
             <button className="btn btn-danger" onClick={exportData} disabled={!!busy}>
-              {busy === 'export' ? <Spinner tight label="Guardando…" /> : '📤 Guardar datos'}
+              {busy === 'export' ? <PlateLoader tight label="Guardando…" /> : '📤 Guardar datos'}
             </button>
             <label className={`btn btn-success ${busy ? 'disabled' : ''}`} htmlFor="import-json" style={{ pointerEvents: busy ? 'none' : undefined }}>
-              {busy === 'import' ? <Spinner tight label="Cargando…" /> : '📥 Cargar datos'}
+              {busy === 'import' ? <PlateLoader tight label="Cargando…" /> : '📥 Cargar datos'}
             </label>
             <input id="import-json" type="file" accept="application/json" onChange={onImportFile} style={{ display: 'none' }} />
           </div>

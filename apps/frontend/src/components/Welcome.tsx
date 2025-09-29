@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Welcome.css';
-import Spinner from './Spinner';
+// Spinner replaced by PlateLoader for a more playful feel
+import PlateLoader from './PlateLoader';
 import { signInWithGoogle, useAuth } from '../utils/auth';
 import { loadUserState, saveUserState } from '../utils/cloudSync';
 
@@ -181,7 +182,7 @@ const Welcome: React.FC = () => {
           aria-label="Entrar con Gmail"
         >
           {loading || authLoading ? (
-            <Spinner tight label="Conectando…" />
+            <PlateLoader tight label="Conectando…" />
           ) : (
             <>
               <span className="google-logo" aria-hidden>

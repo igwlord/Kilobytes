@@ -1,0 +1,29 @@
+.plate-loader { display: grid; place-items: center; gap: 10px; color: var(--text-primary); }
+/* Always center on screen when not tight */
+.plate-loader.centered { width: 100%; min-height: 60vh; }
+.plate-loader.tight { min-height: 0; }
+
+/* Plate */
+.plate { position: relative; width: 56px; height: 56px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #f6f6f6 40%, #efefef 70%, #e8e8e8 100%);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.06), 0 3px 12px rgba(0,0,0,0.12);
+}
+
+/* Food pieces that fade out like being eaten */
+.food { position: absolute; width: 9px; height: 9px; border-radius: 50%; opacity: 1; }
+.food-1 { background: #f4a261; left: 14px; top: 16px; animation: eat 1.2s ease-in-out infinite; }
+.food-2 { background: #2a9d8f; right: 12px; top: 22px; animation: eat 1.2s ease-in-out 0.15s infinite; }
+.food-3 { background: #e76f51; left: 26px; bottom: 12px; animation: eat 1.2s ease-in-out 0.3s infinite; }
+
+/* Fork removed per request */
+
+/* Label */
+.plate-label { font-weight: 600; font-size: 0.95rem; color: var(--text-secondary); }
+
+@keyframes eat { 0% { opacity: 1; transform: scale(1); } 60% { opacity: 0.4; transform: scale(0.88); } 100% { opacity: 0; transform: scale(0.8); } }
+
+/* Dark mode polish */
+.dark .plate { background: radial-gradient(circle at 30% 30%, #f9f9f9 0%, #f1f1f1 40%, #eaeaea 70%, #e2e2e2 100%); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) { .food, .fork { animation: none; } }
