@@ -1,19 +1,20 @@
 import React, { useMemo, useState } from 'react';
 import './Progreso.css';
 import { getRecipeSteps } from '../data/recetasPasoAPaso';
+import type { AppState } from '../interfaces/AppState';
+import {
+  getDayLog,
+  getDayTotals,
+  getFastingHours,
+  getHydrationMl,
+  getSleepHours,
+  getTargets,
+} from '../utils/appStateSelectors';
 
-// Tipos mínimos usados en este componente (evita any)
-interface Totals { kcal?: number; prot?: number; carbs?: number; grasa?: number }
-interface DayLog { totals?: Totals; agua_ml?: number; agua_ml_consumida?: number; sueno_h?: number; ayuno_h?: number }
 type Objetivo = 'bajar' | 'mantener' | 'subir';
-interface AppStateMin {
-  perfil?: { peso?: number; objetivo?: string; desbloquearRecetas?: boolean };
-  metas?: { kcal?: number; prote_g_dia?: number; agua_ml?: number; carbs_g_dia?: number; grasa_g_dia?: number; ayuno_h_dia?: number };
-  log?: Record<string, DayLog | undefined>;
-}
 
 interface ProgresoProps {
-  appState: AppStateMin;
+  appState: AppState;
 }
 
 type Section = 'resumen' | 'peso' | 'tendencias' | 'recetas' | 'tips' | null;
@@ -29,7 +30,7 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
   const generateWeightData = () => {
     // Simulamos datos de peso para mostrar la gráfica
     // En una implementación real, estos datos vendrían del estado de la app
-    const currentWeight = appState.perfil?.peso || 70;
+    const currentWeight = appState.perfil?.peso ?? 70;
     const baseWeight = currentWeight + 3; // Peso inicial simulado
     
     const data = [];
@@ -84,36 +85,34 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
 
   const trends = useMemo(() => {
     const days = getRangeDays(rangeDays);
-    const targetKcal = appState.metas?.kcal || 2000;
-    const targetProt = appState.metas?.prote_g_dia || 140;
-    const targetAgua = appState.metas?.agua_ml || 2000;
-    const targetCarbs = appState.metas?.carbs_g_dia || 225;
-    const targetGrasa = appState.metas?.grasa_g_dia || 60;
-    const targetAyuno = appState.metas?.ayuno_h_dia || 14;
+    const targets = getTargets(appState);
     return days.map(({ key, label }) => {
-      const log = appState.log?.[key];
-      const kcal = log?.totals?.kcal || 0;
-      const prot = log?.totals?.prot || 0;
-      const carbs = log?.totals?.carbs || 0;
-      const grasa = log?.totals?.grasa || 0;
-      const agua = (log?.agua_ml_consumida ?? log?.agua_ml) || 0;
-      const sueno = log?.sueno_h || 0;
-      const ayuno = log?.ayuno_h || 0;
+      const log = getDayLog(appState, key);
+      const totals = getDayTotals(log);
+      const agua = getHydrationMl(log);
+      const sueno = getSleepHours(log);
+      const ayuno = getFastingHours(log);
       return {
         date: label,
-        kcal, prot, carbs, grasa, agua, sueno, ayuno,
+        kcal: totals.kcal,
+        prot: totals.prot,
+        carbs: totals.carbs,
+        grasa: totals.grasa,
+        agua,
+        sueno,
+        ayuno,
         pct: {
-          kcal: targetKcal > 0 ? Math.round((kcal / targetKcal) * 100) : 0,
-          prot: targetProt > 0 ? Math.round((prot / targetProt) * 100) : 0,
-          carbs: targetCarbs > 0 ? Math.round((carbs / targetCarbs) * 100) : 0,
-          grasa: targetGrasa > 0 ? Math.round((grasa / targetGrasa) * 100) : 0,
-          agua: targetAgua > 0 ? Math.round((agua / targetAgua) * 100) : 0,
+          kcal: targets.kcal > 0 ? Math.round((totals.kcal / targets.kcal) * 100) : 0,
+          prot: targets.prot > 0 ? Math.round((totals.prot / targets.prot) * 100) : 0,
+          carbs: targets.carbs > 0 ? Math.round((totals.carbs / targets.carbs) * 100) : 0,
+          grasa: targets.grasa > 0 ? Math.round((totals.grasa / targets.grasa) * 100) : 0,
+          agua: targets.agua > 0 ? Math.round((agua / targets.agua) * 100) : 0,
           sueno: Math.round((sueno / 8) * 100),
-          ayuno: targetAyuno > 0 ? Math.round((ayuno / targetAyuno) * 100) : 0,
+          ayuno: targets.ayuno > 0 ? Math.round((ayuno / targets.ayuno) * 100) : 0,
         }
       };
     });
-  }, [appState.log, appState.metas?.kcal, appState.metas?.prote_g_dia, appState.metas?.agua_ml, appState.metas?.carbs_g_dia, appState.metas?.grasa_g_dia, appState.metas?.ayuno_h_dia, rangeDays]);
+  }, [appState, rangeDays]);
 
   const avg = useMemo(() => {
     const base = { kcal:0, prot:0, carbs:0, grasa:0, agua:0, sueno:0, ayuno:0 };

@@ -8,9 +8,9 @@ import { loadUserState, saveUserState } from '../utils/cloudSync';
 const Welcome: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [error, setError] = useState('');
-  const [typedTitle, setTypedTitle] = useState('');
-  const [caretVisible, setCaretVisible] = useState(true);
   const [animationComplete, setAnimationComplete] = useState(false);
+  const [typedSlogan, setTypedSlogan] = useState('');
+  const [sloganCaretVisible, setSloganCaretVisible] = useState(true);
   const [loading, setLoading] = useState(false);
   const typingTimerRef = useRef<number | null>(null);
   const caretTimerRef = useRef<number | null>(null);
@@ -42,22 +42,24 @@ const Welcome: React.FC = () => {
       }
     }
 
-    // Typewriter suave controlado por JS (evita texto cortado)
-    const fullText = 'KiloByte';
+    // Secuencia: 1) título aparece por fade-in (CSS); 2) luego se tipea el slogan
+    // Disparamos el typewriter del slogan tras un pequeño delay
+  const fullSlogan = 'Cero calorías, 100% productividad.';
+    setAnimationComplete(true); // habilita el fade-in del título
     let i = 0;
-    typingTimerRef.current = window.setInterval(() => {
-      i++;
-      setTypedTitle(fullText.slice(0, i));
-      if (i >= fullText.length) {
-        if (typingTimerRef.current) window.clearInterval(typingTimerRef.current);
-        setAnimationComplete(true);
-      }
-    }, 110);
-
-    // Parpadeo del caret
-    caretTimerRef.current = window.setInterval(() => {
-      setCaretVisible((v) => !v);
-    }, 500);
+    window.setTimeout(() => {
+      typingTimerRef.current = window.setInterval(() => {
+        i++;
+        setTypedSlogan(fullSlogan.slice(0, i));
+        if (i >= fullSlogan.length) {
+          if (typingTimerRef.current) window.clearInterval(typingTimerRef.current);
+        }
+      }, 45);
+      // caret del slogan
+      caretTimerRef.current = window.setInterval(() => {
+        setSloganCaretVisible((v) => !v);
+      }, 520);
+    }, 600);
 
     return () => {
       if (typingTimerRef.current) window.clearInterval(typingTimerRef.current);
@@ -159,18 +161,20 @@ const Welcome: React.FC = () => {
   return (
     <div className="welcome-container">
       <div className="welcome-content">
-        <h1 className={`typewriter-title ${animationComplete ? 'complete' : ''}`} aria-label="KiloByte">
-          <span className="typewriter-text">{typedTitle}</span>
-          <span className={`typewriter-caret ${caretVisible && !animationComplete ? 'visible' : ''}`} aria-hidden="true">|</span>
+        <h1 className={`kb-title ${animationComplete ? 'fade-in' : ''}`} aria-label="KiloByte">
+          KiloByte
         </h1>
-        <p className="subtitle">Tu compañero inteligente para el seguimiento nutricional</p>
+        <p className="slogan" aria-label="Slogan">
+          <span className="slogan-text">{typedSlogan}</span>
+          <span className={`slogan-caret ${sloganCaretVisible ? 'visible' : ''}`} aria-hidden="true">|</span>
+        </p>
 
         {/* Botón de Google como método principal */}
         <button
           onClick={handleGoogleLogin}
           className="google-btn"
           disabled={loading || authLoading}
-          aria-label="Continuar con Google"
+          aria-label="Entrar con Gmail"
         >
           {loading || authLoading ? (
             <Spinner tight label="Conectando…" />
@@ -184,10 +188,13 @@ const Welcome: React.FC = () => {
                   <path fill="#1976D2" d="M43.611 20.083h-1.611V20H24v8h11.303c-.793 2.239-2.279 4.166-4.18 5.565l.003-.002 6.197 5.238C35.043 40.19 40 34.667 40 24c0-1.341-.138-2.651-.389-3.917z"/>
                 </svg>
               </span>
-              <span>Continuar con Google</span>
+              <span>Entrar con Gmail</span>
+              <span className="hover-check" aria-hidden>✅</span>
             </>
           )}
         </button>
+
+        <p className="trust-text" aria-live="polite">No te preocupes, no vamos a espiarte el almuerzo 🍔.</p>
 
         {/* flujo local anterior opcional, oculto por ahora */}
         <div className="input-group" style={{ display: 'none' }}>

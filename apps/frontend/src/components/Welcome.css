@@ -24,7 +24,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #181825;
+  /* Fondo degradado violeta → dorado con estrellas sutiles */
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(212,175,55,0.15), transparent 60%),
+    radial-gradient(900px 500px at 120% 20%, rgba(157,78,221,0.18), transparent 60%),
+    linear-gradient(135deg, #1b1230 0%, #28124a 40%, #4b2fae 75%, #d4af37 100%);
+  background-attachment: fixed;
   padding: 0;
   position: fixed;
   top: 0;
@@ -35,12 +40,27 @@
   z-index: 1;
 }
 
+/* Estrellitas animadas sutiles */
+.welcome-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.6), transparent 60%),
+    radial-gradient(1.5px 1.5px at 40% 70%, rgba(255,255,255,0.45), transparent 60%),
+    radial-gradient(1.5px 1.5px at 65% 25%, rgba(255,255,255,0.5), transparent 60%),
+    radial-gradient(2px 2px at 80% 60%, rgba(255,255,255,0.5), transparent 60%);
+  animation: stars-move 14s linear infinite;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 .welcome-content {
   text-align: center;
   width: 100%;
   max-width: 370px;
   padding: 2.5rem 1.5rem 2.5rem 1.5rem;
-  background: #23233a;
+  background: rgba(23, 18, 45, 0.72);
   border-radius: 1.2rem;
   box-shadow: 0 4px 24px rgba(0,0,0,0.12);
   display: flex;
@@ -64,28 +84,37 @@
   filter: blur(8px);
 }
 
-.typewriter-title {
+.kb-title {
   font-family: 'Poppins', 'Inter', sans-serif;
   font-size: 4rem;
   font-weight: 800;
-  color: #F2F2F2;
-  white-space: nowrap;
-  margin: 0 auto 1.5rem;
+  color: #fff;
+  letter-spacing: 0.5px;
+  margin: 0 auto 1.2rem;
+  opacity: 0;
+  transform: translateY(8px) scale(0.985);
+}
+.kb-title.fade-in {
+  animation: titleFade 850ms ease-out forwards;
 }
 
-.typewriter-text { display: inline-block; }
-.typewriter-caret { display: inline-block; width: 0.5ch; color: var(--color-secondary); opacity: 0; transition: opacity 0.15s ease; }
-.typewriter-caret.visible { opacity: 1; }
-.typewriter-title.complete .typewriter-caret { opacity: 0; }
-
-.subtitle {
-  font-size: 1.5rem;
+.slogan {
+  font-size: 1.2rem;
   font-weight: 500;
-  color: var(--text-primary);
-  margin-bottom: 3rem;
-  opacity: 0;
-  animation: fadeInUp 1.5s ease 2s both;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  color: #f5efe1;
+  margin: 0 0 2.2rem 0;
+  min-height: 1.6em;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+}
+.slogan-text { display: inline-block; }
+.slogan-caret { display: inline-block; width: 0.5ch; color: var(--color-secondary); opacity: 0; transition: opacity 0.15s ease; }
+.slogan-caret.visible { opacity: 1; }
+
+.trust-text {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  opacity: 0.9;
 }
 
 .input-group {
@@ -152,19 +181,26 @@
   .google-btn {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    border-radius: 4px;
+    gap: 12px;
+    padding: 14px 22px;
+    border-radius: 14px;
     border: 1px solid #dadce0;
     background: #ffffff;
     color: #3c4043;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: rgba(60,64,67,0.3) 0px 1px 2px 0px, rgba(60,64,67,0.15) 0px 1px 3px 1px;
+    box-shadow:
+      rgba(60,64,67,0.3) 0px 1px 2px 0px,
+      rgba(60,64,67,0.15) 0px 1px 3px 1px,
+      0 10px 25px rgba(0,0,0,0.18);
+    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    position: relative;
   }
-  .google-btn:hover { background: #f7f8f8; }
+  .google-btn:hover { background: #f7f8f8; transform: translateY(-2px); }
   .google-btn:disabled { opacity: 0.7; cursor: default; }
-  .google-logo { display: inline-flex; width: 18px; height: 18px; }
+  .google-logo { display: inline-flex; width: 20px; height: 20px; }
+  .hover-check { margin-left: 6px; opacity: 0; transform: translateY(2px); transition: opacity 160ms ease, transform 160ms ease; }
+  .google-btn:hover .hover-check { opacity: 1; transform: translateY(0); }
 .start-button:hover {
   background: #4b2fae;
   transform: translateY(-2px) scale(1.04);
@@ -178,6 +214,11 @@
   0% { background-position: 0% 50%, 0% 50%; }
   50% { background-position: 100% 50%, 100% 50%; }
   100% { background-position: 0% 50%, 0% 50%; }
+}
+
+@keyframes stars-move {
+  from { transform: translateY(0); }
+  to { transform: translateY(-12px); }
 }
 
 @keyframes rotate {
@@ -204,4 +245,9 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes titleFade {
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
