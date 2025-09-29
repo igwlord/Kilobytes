@@ -135,6 +135,10 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   // Estados para ayuno intermitente
   const [ayunoIniciado, setAyunoIniciado] = useState<string | null>(null);
   const [horasAyuno, setHorasAyuno] = useState<number>(0);
+  
+  // Estados para editor manual de ayuno
+  const [showAyunoModal, setShowAyunoModal] = useState<boolean>(false);
+  const [editingHours, setEditingHours] = useState<string>('');
   // Macro/field alerts deshabilitadas globalmente
   const alertsOn = false;
 
@@ -226,6 +230,69 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     
     return () => clearInterval(interval);
   }, [ayunoIniciado]);
+
+  // Funciones para editor manual de ayuno
+  const abrirEditorAyuno = useCallback(() => {
+    setEditingHours(String(horasAyuno.toFixed(1)));
+    setShowAyunoModal(true);
+  }, [horasAyuno]);
+
+  const cancelarAyuno = useCallback(() => {
+    // Resetear todo a 0
+    setAyunoIniciado(null);
+    setHorasAyuno(0);
+    setShowAyunoModal(false);
+    
+    // Actualizar en appState
+    const currentLog = appState.log[selectedDate] || {};
+    const newLog = {
+      ...currentLog,
+      ayuno_h_iniciado: undefined,
+      ayuno_h_completado: 0
+    };
+    
+    updateAppState({
+      ...appState,
+      log: { ...appState.log, [selectedDate]: newLog }
+    });
+    
+    showToast('❌ Ayuno cancelado');
+  }, [selectedDate, appState, updateAppState, showToast]);
+
+  const guardarAyunoManual = useCallback(() => {
+    const horas = parseFloat(editingHours);
+    
+    if (isNaN(horas) || horas < 0 || horas > 48) {
+      showToast('⚠️ Ingresa un valor entre 0 y 48 horas');
+      return;
+    }
+    
+    setAyunoIniciado(null);
+    setHorasAyuno(horas);
+    setShowAyunoModal(false);
+    
+    // Actualizar en appState
+    const currentLog = appState.log[selectedDate] || {};
+    const newLog = {
+      ...currentLog,
+      ayuno_h_iniciado: undefined,
+      ayuno_h_completado: horas
+    };
+    
+    updateAppState({
+      ...appState,
+      log: { ...appState.log, [selectedDate]: newLog }
+    });
+    
+    const metaAyuno = appState.metas?.ayuno_h_dia || 14;
+    const emoji = horas >= metaAyuno ? '🎉' : '✅';
+    showToast(`${emoji} Ayuno registrado: ${horas.toFixed(1)}h`);
+  }, [editingHours, selectedDate, appState, updateAppState, showToast]);
+
+  const abrirRegistroManual = useCallback(() => {
+    setEditingHours('0');
+    setShowAyunoModal(true);
+  }, []);
 
   // Mobile detection to apply a two-step flow on phones
   // Use a slightly broader width to include larger phones but avoid tablets
@@ -787,24 +854,20 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
         </div>
 
         {/* Sección de ayuno intermitente */}
-        <div className="ayuno-section">
+        <div className={`ayuno-section ${horasAyuno >= (appState.metas?.ayuno_h_dia || 14) ? 'meta-achieved' : ''}`}>
           <div className="ayuno-header">
             <span className="ayuno-emoji">⏰</span>
             <span className="ayuno-title">Ayuno Intermitente</span>
-            <span className="ayuno-meta">Meta: {appState.metas?.ayuno_h_dia || 14}h</span>
+            <span className={`ayuno-meta ${horasAyuno >= (appState.metas?.ayuno_h_dia || 14) ? 'meta-achieved' : ''}`}>
+              Meta: {appState.metas?.ayuno_h_dia || 14}h
+              {horasAyuno >= (appState.metas?.ayuno_h_dia || 14) && ' ✨'}
+            </span>
           </div>
           
           <div className="ayuno-controls">
-            {!ayunoIniciado ? (
-              <>
-                {horasAyuno > 0 && (
-                  <div className="ayuno-completed">
-                    <span className="ayuno-result">
-                      Completado hoy: {horasAyuno.toFixed(1)}h
-                      {horasAyuno >= (appState.metas?.ayuno_h_dia || 14) && ' 🎉'}
-                    </span>
-                  </div>
-                )}
+            {!ayunoIniciado && horasAyuno === 0 && (
+              // Estado: Sin ayuno
+              <div className="ayuno-empty">
                 <button 
                   className="ayuno-btn ayuno-start"
                   onClick={iniciarAyuno}
@@ -812,8 +875,46 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                 >
                   <span>▶️ Iniciar ayuno</span>
                 </button>
-              </>
-            ) : (
+                <button 
+                  className="ayuno-btn ayuno-manual"
+                  onClick={abrirRegistroManual}
+                  aria-label="Registrar ayuno manualmente"
+                >
+                  <span>✏️ Registrar manualmente</span>
+                </button>
+              </div>
+            )}
+            
+            {!ayunoIniciado && horasAyuno > 0 && (
+              // Estado: Ayuno completado
+              <div className="ayuno-completed-state">
+                <div className="ayuno-completed">
+                  <span className="ayuno-result">
+                    Completado hoy: {horasAyuno.toFixed(1)}h
+                    {horasAyuno >= (appState.metas?.ayuno_h_dia || 14) && ' 🎉'}
+                  </span>
+                </div>
+                <div className="ayuno-actions">
+                  <button 
+                    className="ayuno-btn ayuno-start"
+                    onClick={iniciarAyuno}
+                    aria-label="Iniciar nuevo ayuno"
+                  >
+                    <span>▶️ Nuevo ayuno</span>
+                  </button>
+                  <button 
+                    className="ayuno-btn ayuno-edit"
+                    onClick={abrirEditorAyuno}
+                    aria-label="Editar horas de ayuno"
+                  >
+                    <span>✏️ Editar</span>
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {ayunoIniciado && (
+              // Estado: Ayuno en curso
               <div className="ayuno-active">
                 <div className="ayuno-status">
                   <span className="ayuno-current">
@@ -828,13 +929,22 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                     />
                   </div>
                 </div>
-                <button 
-                  className="ayuno-btn ayuno-stop"
-                  onClick={terminarAyuno}
-                  aria-label="Terminar ayuno intermitente"
-                >
-                  <span>⏹️ Terminar</span>
-                </button>
+                <div className="ayuno-actions">
+                  <button 
+                    className="ayuno-btn ayuno-stop"
+                    onClick={terminarAyuno}
+                    aria-label="Terminar ayuno intermitente"
+                  >
+                    <span>⏹️ Terminar</span>
+                  </button>
+                  <button 
+                    className="ayuno-btn ayuno-edit"
+                    onClick={abrirEditorAyuno}
+                    aria-label="Editar ayuno en curso"
+                  >
+                    <span>✏️ Editar</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -842,6 +952,64 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
         {/* Acciones rápidas removidas por solicitud (copiar día completo y favoritos) */}
       </div>
+
+      {/* Modal para editar ayuno manualmente */}
+      {showAyunoModal && (
+        <div className="modal-overlay-final" onClick={() => setShowAyunoModal(false)}>
+          <div className="modal-content-final ayuno-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-final">
+              <h3>✏️ Editar Ayuno</h3>
+              <button 
+                className="close-btn-final"
+                onClick={() => setShowAyunoModal(false)}
+                aria-label="Cerrar modal"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="field-group">
+                <label className="field-label">Horas completadas:</label>
+                <div className="input-with-unit">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="48"
+                    value={editingHours}
+                    onChange={(e) => setEditingHours(e.target.value)}
+                    placeholder="Ej: 16.5"
+                    className="ayuno-input"
+                    autoFocus
+                  />
+                  <span className="field-unit">horas</span>
+                </div>
+                <p className="field-hint">
+                  Ingresa un valor entre 0 y 48 horas. Usa 0 para cancelar el ayuno.
+                </p>
+              </div>
+            </div>
+            
+            <div className="modal-actions">
+              <button 
+                className="ayuno-btn ayuno-cancel"
+                onClick={cancelarAyuno}
+                aria-label="Cancelar ayuno completamente"
+              >
+                <span>❌ Cancelar ayuno (0h)</span>
+              </button>
+              <button 
+                className="ayuno-btn ayuno-save"
+                onClick={guardarAyunoManual}
+                aria-label="Guardar horas de ayuno"
+              >
+                <span>💾 Guardar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Se eliminaron scanner y sugerencias; acciones compactas arriba */}
 
