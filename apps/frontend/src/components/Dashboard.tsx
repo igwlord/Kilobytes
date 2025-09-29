@@ -112,6 +112,7 @@ const Dashboard: React.FC = () => {
 
   const saveDebounce = useRef<number | null>(null);
   const cloudLoadedRef = useRef(false);
+  const isInitialLoadRef = useRef(true);
 
   // Require auth. If not logged, go to home
   useEffect(() => {
@@ -132,12 +133,16 @@ const Dashboard: React.FC = () => {
           const cloud = await loadUserState(user.uid);
           if (cloud) {
             data = cloud;
-            // Migración: asegurar que fastingSessions existe
+            // Migración: asegurar que fastingSessions existe SIN guardar automáticamente
             if (!data.fastingSessions) {
               data.fastingSessions = [];
               console.log('[dashboard] migrated: added empty fastingSessions array');
+              // Guardar la migración de vuelta a la nube SOLO UNA VEZ
+              saveUserState(user.uid, data).catch(e => 
+                console.warn('[dashboard] migration save failed:', e)
+              );
             }
-            localStorage.setItem('kiloByteData', JSON.stringify(cloud));
+            localStorage.setItem('kiloByteData', JSON.stringify(data));
           }
           cloudLoadedRef.current = true;
         }
@@ -145,12 +150,15 @@ const Dashboard: React.FC = () => {
         console.warn('[dashboard] cloud load failed, will use local', e);
       }
       if (data) {
-        // Migración local también
+        // Migración local también (sin duplicar si ya se migró arriba)
         if (!data.fastingSessions) {
           data.fastingSessions = [];
           console.log('[dashboard] local migration: added empty fastingSessions array');
         }
+        isInitialLoadRef.current = true; // Mark as initial load to prevent autosave
         setAppState(data);
+        isInitialLoadRef.current = false; // Reset flag after initial load
+        isInitialLoadRef.current = false; // Ya no es carga inicial
         const today = new Date().toISOString().split('T')[0];
         const todayLog = data.log?.[today];
         if (todayLog) {
@@ -188,7 +196,8 @@ const Dashboard: React.FC = () => {
     setAppState(newState);
     localStorage.setItem('kiloByteData', JSON.stringify(newState));
     // Try cloud save but don't fail if Firestore is not enabled
-    if (user) {
+    // SKIP autosave during initial load to prevent overwriting cloud data
+    if (user && !isInitialLoadRef.current) {
       setSaveStatus({ show: true, variant: 'saving' });
       saveUserState(user.uid, newState)
         .then(() => setSaveStatus({ show: true, variant: 'success' }))
