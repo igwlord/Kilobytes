@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './Perfil.css';
+import type { AppState } from '../interfaces/AppState';
 
-type PerfilModel = {
+type PerfilForm = {
   nombre: string;
   peso: number;
   altura_cm: number;
@@ -10,65 +11,63 @@ type PerfilModel = {
   actividad: string; // factor as string e.g. "1.375"
   theme: 'dark' | 'light' | string;
 };
-// Accept a broader app state shape coming from Dashboard (actividad can be number or string)
-type PerfilInput = {
-  nombre?: string;
-  peso?: number;
-  altura_cm?: number;
-  edad?: number;
-  genero?: 'masculino' | 'femenino';
-  actividad?: number | string;
-  theme?: 'dark' | 'light' | string;
-};
-type AppStateLite = { perfil?: PerfilInput; metas?: unknown; log?: unknown };
 
 interface PerfilProps {
-  appState: AppStateLite;
-  updateAppState: (newState: unknown) => void;
+  appState: AppState;
+  updateAppState: (newState: AppState) => void;
 }
 
 const Perfil: React.FC<PerfilProps> = ({ appState, updateAppState }) => {
-  const [perfil, setPerfil] = useState<PerfilModel>({
-    nombre: '',
-    peso: 70,
-    altura_cm: 175,
-    edad: 30,
-    genero: 'masculino',
-    actividad: '1.375',
-    theme: 'dark'
-  });
+  const buildInitialPerfil = (): PerfilForm => {
+    const perfilState = appState.perfil;
+    return {
+      nombre: perfilState.nombre ?? '',
+      peso: perfilState.peso ?? 70,
+      altura_cm: perfilState.altura_cm ?? 175,
+      edad: perfilState.edad ?? 30,
+      genero: perfilState.genero ?? 'masculino',
+      actividad: String(perfilState.actividad ?? 1.375),
+      theme: perfilState.theme ?? 'dark'
+    };
+  };
+
+  const [perfil, setPerfil] = useState<PerfilForm>(buildInitialPerfil);
   // Local input states to avoid forcing 0 when user clears the field
-  const [pesoStr, setPesoStr] = useState<string>('70');
-  const [alturaStr, setAlturaStr] = useState<string>('175');
-  const [edadStr, setEdadStr] = useState<string>('30');
+  const [pesoStr, setPesoStr] = useState<string>(() => String(appState.perfil.peso ?? '70'));
+  const [alturaStr, setAlturaStr] = useState<string>(() => String(appState.perfil.altura_cm ?? '175'));
+  const [edadStr, setEdadStr] = useState<string>(() => String(appState.perfil.edad ?? '30'));
 
   useEffect(() => {
-    if (appState.perfil) {
-      const actividad = appState.perfil.actividad;
-      const actividadStr = typeof actividad === 'number' ? String(actividad) : (actividad || '1.375');
-      setPerfil({
-        nombre: appState.perfil.nombre ?? '',
-        peso: (appState.perfil.peso as number) ?? 70,
-        altura_cm: (appState.perfil.altura_cm as number) ?? 175,
-        edad: (appState.perfil.edad as number) ?? 30,
-        genero: (appState.perfil.genero as 'masculino' | 'femenino') ?? 'masculino',
-        actividad: actividadStr,
-        theme: (appState.perfil.theme as string) ?? 'dark'
-      });
-      // Sync input strings with current values
-      setPesoStr(String((appState.perfil.peso as number) ?? 70));
-      setAlturaStr(String((appState.perfil.altura_cm as number) ?? 175));
-      setEdadStr(String((appState.perfil.edad as number) ?? 30));
-    }
+    const perfilState = appState.perfil;
+    setPerfil({
+      nombre: perfilState.nombre ?? '',
+      peso: perfilState.peso ?? 70,
+      altura_cm: perfilState.altura_cm ?? 175,
+      edad: perfilState.edad ?? 30,
+      genero: perfilState.genero ?? 'masculino',
+      actividad: String(perfilState.actividad ?? 1.375),
+      theme: perfilState.theme ?? 'dark'
+    });
+    // Sync input strings with current values
+    setPesoStr(String(perfilState.peso ?? 70));
+    setAlturaStr(String(perfilState.altura_cm ?? 175));
+    setEdadStr(String(perfilState.edad ?? 30));
   }, [appState.perfil]);
 
-  const actualizarCampo = (campo: keyof PerfilModel, valor: PerfilModel[keyof PerfilModel]) => {
+  const actualizarCampo = (campo: keyof PerfilForm, valor: PerfilForm[keyof PerfilForm]) => {
     const nuevoPerfil = { ...perfil, [campo]: valor };
     setPerfil(nuevoPerfil);
     
-    const newState = {
+    const actividadNum = Number.parseFloat(String(nuevoPerfil.actividad || appState.perfil.actividad));
+    const actividadSafe = Number.isFinite(actividadNum) ? actividadNum : appState.perfil.actividad;
+
+    const newState: AppState = {
       ...appState,
-      perfil: nuevoPerfil
+      perfil: {
+        ...appState.perfil,
+        ...nuevoPerfil,
+        actividad: actividadSafe,
+      },
     };
     
     updateAppState(newState);

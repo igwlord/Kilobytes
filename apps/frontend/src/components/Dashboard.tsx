@@ -21,8 +21,6 @@ import { loadUserState, saveUserState } from '../utils/cloudSync';
 import SaveStatus from './SaveStatus';
 import type { AppState, DayLog, DayLogMap } from '../interfaces/AppState';
 
-type AppStateLike = AppState; // For SettingsModal prop compatibility
-
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -305,7 +303,7 @@ const Dashboard: React.FC = () => {
           <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
             <RegistroNew 
               appState={appState} 
-              updateAppState={(ns) => updateAppState(ns as unknown as AppState)} 
+              updateAppState={updateAppState} 
               showToast={showToast} 
             />
           </Suspense>
@@ -313,7 +311,7 @@ const Dashboard: React.FC = () => {
       case 'calendario':
         return (
           <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
-            <Calendario appState={appState} updateAppState={updateAppState as unknown as (s: unknown) => void} />
+            <Calendario appState={appState} />
           </Suspense>
         );
       case 'progreso':
@@ -326,8 +324,8 @@ const Dashboard: React.FC = () => {
         return (
           <Suspense fallback={<div style={{ padding: 16 }}><Spinner tight /></div>}>
             <SettingsPage
-              appState={appState as AppStateLike}
-              updateAppState={(ns: unknown) => updateAppState(ns as AppState)}
+              appState={appState}
+              updateAppState={updateAppState}
               showToast={showToast}
               onShowOnboarding={() => setShowOverlay(true)}
             />

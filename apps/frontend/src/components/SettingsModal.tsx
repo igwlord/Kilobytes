@@ -1,46 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import './SettingsModal.css';
 import Spinner from './Spinner';
-
-type Totals = { kcal: number; prot: number; carbs: number; grasa: number };
-type DayLogMin = { totals?: Totals; sueno_h?: number; ayuno_h?: number; agua_ml_consumida?: number };
-type Goals = {
-  kcal: number;
-  prote_g_dia: number;
-  grasa_g_dia: number;
-  carbs_g_dia: number;
-  agua_ml: number;
-  pasos_dia: number;
-  peso_objetivo: number;
-  ejercicio_min?: number;
-  comidas_saludables?: number;
-  ayuno_h_dia?: number;
-};
-interface AppStateLike {
-  perfil: {
-    nombre: string;
-    peso: number;
-    altura_cm: number;
-    edad: number;
-    genero: 'masculino' | 'femenino';
-    actividad: number;
-    exclusiones: string[];
-    objetivo: string;
-    theme: string;
-    peso_inicial?: number;
-    desbloquearRecetas?: boolean;
-    silenciarNotificaciones?: boolean;
-    mostrarAlertasMacros?: boolean;
-  };
-  metas: Goals;
-  log: Record<string, DayLogMin>;
-}
+import { useAuth } from '../utils/auth';
+import { saveUserState } from '../utils/cloudSync';
+import type { AppState } from '../interfaces/AppState';
 
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
-  appState: AppStateLike;
-  updateAppState: (newState: unknown) => void;
+  appState: AppState;
+  updateAppState: (newState: AppState) => void;
   showToast: (message: string) => void;
   onShowOnboarding?: () => void;
 }
@@ -53,6 +22,7 @@ const THEMES: { id: ThemeId; label: string; className: string; hint?: string }[]
 ];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, updateAppState, showToast, onShowOnboarding }) => {
+  const { user } = useAuth();
   // Nombre ahora se edita únicamente en la pantalla Perfil
   // Map legacy 'dark'/'light' to new defaults (dark->uva, light->banana)
   const mapLegacy = (t?: string): ThemeId => (t === 'light' ? 'banana' : t === 'dark' ? 'uva' : (t as ThemeId) || 'uva');
@@ -97,7 +67,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
       perfil: { ...appState.perfil, theme: id }
     };
     updateAppState(newState);
-  try { localStorage.setItem('kiloByteData', JSON.stringify(newState)); } catch { /* ignore storage errors */ }
+    try { localStorage.setItem('kiloByteData', JSON.stringify(newState)); } catch { /* ignore storage errors */ }
+    if (user) {
+      saveUserState(user.uid, newState).catch(e => console.warn('[settings-modal] theme cloud save failed, localStorage OK', e));
+    }
     showToast('Tema aplicado 🎨');
   };
 
@@ -109,7 +82,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
     };
     updateAppState(newState);
     applyTheme(theme);
-    localStorage.setItem('kiloByteData', JSON.stringify(newState));
+    try { localStorage.setItem('kiloByteData', JSON.stringify(newState)); } catch { /* ignore */ }
+    if (user) {
+      saveUserState(user.uid, newState).catch(e => console.warn('[settings-modal] save profile cloud save failed, localStorage OK', e));
+    }
     showToast('Configuración guardada ✅');
     onClose();
   };
@@ -159,11 +135,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, appState, 
       try {
         const raw = JSON.parse(String(ev.target?.result || '{}'));
         const imported = raw?.data ? raw.data : raw; // accept wrapped or plain
-        const newState = imported as AppStateLike;
+        const newState = imported as AppState;
         if (!newState?.perfil || !newState?.metas || !newState?.log) throw new Error('Formato inválido');
         updateAppState(newState);
-        localStorage.setItem('kiloByteData', JSON.stringify(newState));
+        try { localStorage.setItem('kiloByteData', JSON.stringify(newState)); } catch { /* ignore */ }
         applyTheme(mapLegacy(newState.perfil?.theme));
+        if (user) {
+          saveUserState(user.uid, newState).catch(e => console.warn('[settings-modal] import cloud save failed, localStorage OK', e));
+        }
         showToast('Datos importados ✅');
         onClose();
       } catch (err) {

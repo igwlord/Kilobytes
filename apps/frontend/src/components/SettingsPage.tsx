@@ -8,7 +8,7 @@ import type { AppState } from '../interfaces/AppState';
 
 interface SettingsPageProps {
   appState: AppState;
-  updateAppState: (newState: unknown) => void;
+  updateAppState: (newState: AppState) => void;
   showToast: (message: string) => void;
   onShowOnboarding?: () => void;
 }

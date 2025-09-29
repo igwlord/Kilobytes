@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
 import './Calendario.css';
-
-// Minimal, permissive app state types used by this component (read-only rendering)
-type Totals = { kcal: number; prot?: number; carbs?: number; grasa?: number };
-type DayLogMin = { totals?: Totals };
-type AppStateLite = {
-  metas?: { kcal?: number };
-  log?: Record<string, DayLogMin>;
-};
+import type { AppState } from '../interfaces/AppState';
 
 interface CalendarioProps {
-  appState: AppStateLite;
-  updateAppState?: (newState: unknown) => void; // not used here, kept optional for prop compatibility
+  appState: AppState;
+  updateAppState?: (newState: AppState) => void; // not used here, kept optional for prop compatibility
 }
 
 const Calendario: React.FC<CalendarioProps> = ({ appState }) => {

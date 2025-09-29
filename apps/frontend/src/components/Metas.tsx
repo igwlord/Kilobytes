@@ -1,48 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import './Metas.css';
+import type { AppState, Metas as MetasState } from '../interfaces/AppState';
 
-type PerfilLite = { peso?: number; peso_inicial?: number };
-type MetasLite = {
-  peso_objetivo?: number;
-  agua_ml?: number;
-  pasos_dia?: number;
-  ejercicio_min?: number;
-  comidas_saludables?: number;
-};
-type AppStateLite = { perfil?: PerfilLite; metas?: MetasLite };
+type CustomMetas = Required<Pick<MetasState, 'agua_ml' | 'pasos_dia' | 'ejercicio_min' | 'comidas_saludables'>>;
 
 interface MetasProps {
-  appState: AppStateLite;
-  updateAppState: (newState: AppStateLite) => void;
+  appState: AppState;
+  updateAppState: (newState: AppState) => void;
   showToast: (message: string) => void;
 }
 
 const Metas: React.FC<MetasProps> = ({ appState, updateAppState, showToast }) => {
-  const [pesoObjetivo, setPesoObjetivo] = useState(65);
-  const [metasPersonalizadas, setMetasPersonalizadas] = useState<Required<Pick<MetasLite, 'agua_ml' | 'pasos_dia' | 'ejercicio_min' | 'comidas_saludables'>>>(
-    {
-    agua_ml: 2000,
-    pasos_dia: 8000,
-    ejercicio_min: 30,
-    comidas_saludables: 5
-    }
-  );
+  const [pesoObjetivo, setPesoObjetivo] = useState<number>(appState.metas.peso_objetivo ?? 65);
+  const [metasPersonalizadas, setMetasPersonalizadas] = useState<CustomMetas>({
+    agua_ml: appState.metas.agua_ml ?? 2000,
+    pasos_dia: appState.metas.pasos_dia ?? 8000,
+    ejercicio_min: appState.metas.ejercicio_min ?? 30,
+    comidas_saludables: appState.metas.comidas_saludables ?? 5,
+  });
 
   useEffect(() => {
-    if (appState.metas) {
-      setPesoObjetivo(appState.metas.peso_objetivo || 65);
-      setMetasPersonalizadas({
-        agua_ml: appState.metas.agua_ml || 2000,
-        pasos_dia: appState.metas.pasos_dia || 8000,
-        ejercicio_min: appState.metas.ejercicio_min || 30,
-        comidas_saludables: appState.metas.comidas_saludables || 5
-      });
-    }
+    setPesoObjetivo(appState.metas.peso_objetivo ?? 65);
+    setMetasPersonalizadas({
+      agua_ml: appState.metas.agua_ml ?? 2000,
+      pasos_dia: appState.metas.pasos_dia ?? 8000,
+      ejercicio_min: appState.metas.ejercicio_min ?? 30,
+      comidas_saludables: appState.metas.comidas_saludables ?? 5,
+    });
   }, [appState.metas]);
 
   const calcularProgresosPeso = () => {
-    const pesoActual = appState.perfil?.peso || 70;
-    const pesoInicial = appState.perfil?.peso_inicial || pesoActual + 5; // Simulamos peso inicial
+    const pesoActual = appState.perfil.peso || 70;
+    const pesoInicial = appState.perfil.peso_inicial || pesoActual + 5; // Simulamos peso inicial
     
     if (pesoInicial === pesoObjetivo) return 100;
     
@@ -55,7 +44,7 @@ const Metas: React.FC<MetasProps> = ({ appState, updateAppState, showToast }) =>
   const actualizarPesoObjetivo = (nuevoPeso: number) => {
     setPesoObjetivo(nuevoPeso);
     
-    const newState = {
+    const newState: AppState = {
       ...appState,
       metas: {
         ...appState.metas,
@@ -75,7 +64,7 @@ const Metas: React.FC<MetasProps> = ({ appState, updateAppState, showToast }) =>
     const nuevasMetas = { ...metasPersonalizadas, [campo]: valor };
     setMetasPersonalizadas(nuevasMetas);
     
-    const newState = {
+    const newState: AppState = {
       ...appState,
       metas: {
         ...appState.metas,
