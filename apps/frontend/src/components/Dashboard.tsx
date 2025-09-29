@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 // Settings moved from modal to a dedicated page section
@@ -16,6 +16,9 @@ import './Dashboard.css';
 import OnboardingOverlay from './OnboardingOverlay';
 import OnboardingGuide from './OnboardingGuide';
 import Spinner from './Spinner';
+import { useAuth } from '../utils/auth';
+import { loadUserState, saveUserState } from '../utils/cloudSync';
+import SaveStatus from './SaveStatus';
 
 interface UserProfile {
   nombre: string;
@@ -63,10 +66,12 @@ type DayLogMap = { [date: string]: DayLogMin };
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [activeSection, setActiveSection] = useState('inicio');
   const [toast, setToast] = useState({ message: '', isVisible: false });
   // Settings is now a page, not a modal
   const [showOverlay, setShowOverlay] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<{ show: boolean; variant: 'success' | 'error' | 'saving' }>({ show: false, variant: 'success' });
   
   const [appState, setAppState] = useState<AppState>({
     perfil: {
@@ -105,17 +110,37 @@ const Dashboard: React.FC = () => {
     ayuno_h: 0
   });
 
-  useEffect(() => {
-    // Load user data from localStorage
-    const userData = localStorage.getItem('kiloByteData');
-    if (userData) {
-      try {
-        const data = JSON.parse(userData);
-        setAppState(data);
-        
-        // Theme is applied in App on load; keep single source of truth
+  const saveDebounce = useRef<number | null>(null);
+  const cloudLoadedRef = useRef(false);
 
-        // Calculate current progress from today's log
+  // Require auth. If not logged, go to home
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      navigate('/');
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    // Load user data (cloud preferred) once user is known
+    if (!user) return;
+    (async () => {
+      const userData = localStorage.getItem('kiloByteData');
+      let data = userData ? JSON.parse(userData) : null;
+      try {
+        if (!cloudLoadedRef.current) {
+          const cloud = await loadUserState(user.uid);
+          if (cloud) {
+            data = cloud;
+            localStorage.setItem('kiloByteData', JSON.stringify(cloud));
+          }
+          cloudLoadedRef.current = true;
+        }
+      } catch (e) {
+        console.warn('[dashboard] cloud load failed, will use local', e);
+      }
+      if (data) {
+        setAppState(data);
         const today = new Date().toISOString().split('T')[0];
         const todayLog = data.log?.[today];
         if (todayLog) {
@@ -130,14 +155,9 @@ const Dashboard: React.FC = () => {
             agua: todayLog.agua_ml_consumida ?? prev.agua ?? 0,
           }));
         }
-      } catch (error) {
-        console.error('Error loading user data:', error);
-        navigate('/');
       }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
+    })();
+  }, [user]);
 
   // Decide if overlay should show on first entry to dashboard
   useEffect(() => {
@@ -153,6 +173,16 @@ const Dashboard: React.FC = () => {
   const updateAppState = (newState: AppState) => {
     setAppState(newState);
     localStorage.setItem('kiloByteData', JSON.stringify(newState));
+    // Try cloud save but don't fail if Firestore is not enabled
+    if (user) {
+      setSaveStatus({ show: true, variant: 'saving' });
+      saveUserState(user.uid, newState)
+        .then(() => setSaveStatus({ show: true, variant: 'success' }))
+        .catch(e => {
+          console.warn('[dashboard] cloud save failed, but localStorage OK', e);
+          setSaveStatus({ show: true, variant: 'success' }); // Show success since localStorage worked
+        });
+    }
     
     // Update current progress if today's log changed
     const today = new Date().toISOString().split('T')[0];
@@ -170,6 +200,45 @@ const Dashboard: React.FC = () => {
       }));
     }
   };
+
+  // Global autosave when localStorage 'kiloByteData' changes (e.g., from Settings or Registro components)
+  useEffect(() => {
+    if (!user) return;
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'kiloByteData' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          setAppState(parsed);
+          // Try immediate save on external localStorage changes, but don't block
+          if (user) {
+            saveUserState(user.uid, parsed).catch(err => {
+              console.warn('[dashboard] storage listener cloud save failed, localStorage OK', err);
+            });
+          }
+        } catch (err) {
+          console.warn('[dashboard] storage listener parse failed', err);
+        }
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [user]);
+
+  // Fallback autosave if some component updates state directly
+  useEffect(() => {
+    if (!user) return;
+    if (saveDebounce.current) window.clearTimeout(saveDebounce.current);
+    saveDebounce.current = window.setTimeout(() => {
+      try {
+        saveUserState(user.uid, appState);
+      } catch (e) {
+        console.warn('[dashboard] autosave effect error', e);
+      }
+    }, 2000);
+    return () => {
+      if (saveDebounce.current) window.clearTimeout(saveDebounce.current);
+    };
+  }, [appState, user]);
 
   const showToast = (message: string) => {
     if (appState.perfil?.silenciarNotificaciones) return;
@@ -396,6 +465,10 @@ const Dashboard: React.FC = () => {
                     setCurrentProgress(p => ({ ...p, agua: ml }));
                     setAppState({ ...appState, log: newLog });
                     localStorage.setItem('kiloByteData', JSON.stringify({ ...appState, log: newLog }));
+                    // Try immediate save for water tracking, but don't block UI
+                    if (user) {
+                      saveUserState(user.uid, { ...appState, log: newLog }).catch(e => console.warn('[water] cloud save failed, localStorage OK', e));
+                    }
                   }}
                 />
               </div>
@@ -452,7 +525,7 @@ const Dashboard: React.FC = () => {
     <div className="dashboard">
       <Navigation activeSection={activeSection} onNavigate={navigateToSection} />
       <main className="dashboard-main">
-        {renderContent()}
+        {authLoading ? <div style={{ padding: 16 }}><Spinner tight label="Cargando…"/></div> : renderContent()}
       </main>
       {showOverlay && (
         <OnboardingOverlay 
@@ -468,6 +541,7 @@ const Dashboard: React.FC = () => {
         />
       )}
       {/* Settings now integrated as a section; no modal here */}
+      <SaveStatus show={saveStatus.show} variant={saveStatus.variant} />
     </div>
   );
 };

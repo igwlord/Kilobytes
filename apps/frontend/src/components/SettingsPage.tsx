@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './SettingsModal.css';
 import './SettingsPage.css';
+import { signOutUser, useAuth } from '../utils/auth';
+import { useNavigate } from 'react-router-dom';
+import { saveUserState } from '../utils/cloudSync';
 
 type Totals = { kcal: number; prot: number; carbs: number; grasa: number };
 type DayLogMin = { totals?: Totals; sueno_h?: number; ayuno_h?: number; agua_ml_consumida?: number };
@@ -50,6 +53,8 @@ const THEMES: { id: ThemeId; label: string; className: string; hint?: string }[]
 ];
 
 const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, showToast, onShowOnboarding }) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   // Map legacy 'dark'/'light' to new defaults (dark->uva, light->banana)
   const mapLegacy = (t?: string): ThemeId => (t === 'light' ? 'banana' : t === 'dark' ? 'uva' : (t as ThemeId) || 'uva');
   const [theme, setTheme] = useState<ThemeId>(mapLegacy(appState.perfil?.theme));
@@ -79,7 +84,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
     applyTheme(id);
     const newState = { ...appState, perfil: { ...appState.perfil, theme: id } };
     updateAppState(newState);
-  try { localStorage.setItem('kiloByteData', JSON.stringify(newState)); } catch { /* ignore storage errors */ }
+    try { localStorage.setItem('kiloByteData', JSON.stringify(newState)); } catch { /* ignore storage errors */ }
+    // Try cloud save for theme changes, but don't block UI
+    if (user) {
+      saveUserState(user.uid, newState).catch(e => console.warn('[settings] theme cloud save failed, localStorage OK', e));
+    }
     showToast('Tema aplicado 🎨');
   };
 
@@ -126,6 +135,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
         updateAppState(newState);
         localStorage.setItem('kiloByteData', JSON.stringify(newState));
         applyTheme(mapLegacy(newState.perfil?.theme));
+        // Try cloud save for import, but don't block UI
+        if (user) {
+          saveUserState(user.uid, newState).catch(e => console.warn('[settings] import cloud save failed, localStorage OK', e));
+        }
         showToast('Datos importados ✅');
       } catch (err) {
         console.error(err);
@@ -149,6 +162,21 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
     const newState = { ...appState, perfil: { ...appState.perfil, silenciarNotificaciones: next } };
     updateAppState(newState);
     try { localStorage.setItem('kiloByteData', JSON.stringify(newState)); } catch { /* ignore */ }
+    // Try cloud save for notification settings, but don't block UI
+    if (user) {
+      saveUserState(user.uid, newState).catch(e => console.warn('[settings] mute cloud save failed, localStorage OK', e));
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOutUser();
+  try { localStorage.removeItem('kiloByteData'); } catch { /* ignore */ }
+      navigate('/');
+    } catch (e) {
+      console.warn('No se pudo cerrar sesión', e);
+      showToast('No se pudo cerrar sesión');
+    }
   };
 
   return (
@@ -213,6 +241,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
         <h3 className="settings-block-title">Guía de inicio</h3>
         <p className="hint">Podés volver a ver la guía cuando quieras. Se muestra como una tarjeta emergente sobre la pantalla actual.</p>
         <button className="btn settings-btn" onClick={openOnboarding}>🎯 Ver guía de inicio</button>
+      </div>
+
+      <div className="card settings-block">
+        <h3 className="settings-block-title">Cuenta</h3>
+        <button className="btn btn-secondary" onClick={handleSignOut}>
+          Cerrar sesión (Google)
+        </button>
       </div>
     </div>
   );

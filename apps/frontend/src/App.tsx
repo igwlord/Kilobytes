@@ -1,5 +1,5 @@
 // React import not needed explicitly with JSX transform; keep types implicit
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Welcome from './components/Welcome';
 import Dashboard from './components/Dashboard';
@@ -41,6 +41,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </div>
