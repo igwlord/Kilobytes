@@ -164,10 +164,10 @@ const Dashboard: React.FC = () => {
     const seen = localStorage.getItem('kiloByteOnboardingSeen') === '1';
     const today = new Date().toISOString().split('T')[0];
     const hasUserData = hasData(appState.log?.[today]);
-    const isMobile = window.innerWidth <= 768; // Detectar móvil
     
-    // Show overlay only if first time AND no data logged today AND not mobile
-    if (!seen && !hasUserData && !isMobile) {
+    // Show overlay only if first time AND no data logged today
+    // CSS will handle hiding it on mobile devices
+    if (!seen && !hasUserData) {
       setShowOverlay(true);
     } else {
       setShowOverlay(false);

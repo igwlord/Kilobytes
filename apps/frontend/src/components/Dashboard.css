@@ -277,3 +277,14 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* Ocultar overlay de onboarding en móviles */
+@media (max-width: 768px) {
+  .onboarding-overlay {
+    display: none !important;
+  }
+  /* Ocultar la tarjeta de bienvenida en móviles */
+  .onboarding-card {
+    display: none !important;
+  }
+}

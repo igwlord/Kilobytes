@@ -289,10 +289,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     showToast(`${emoji} Ayuno registrado: ${horas.toFixed(1)}h`);
   }, [editingHours, selectedDate, appState, updateAppState, showToast]);
 
-  const abrirRegistroManual = useCallback(() => {
-    setEditingHours('0');
-    setShowAyunoModal(true);
-  }, []);
+  // Nota: el flujo manual ahora se edita desde el botón "Editar" (abrirEditorAyuno)
 
   // Mobile detection to apply a two-step flow on phones
   // Use a slightly broader width to include larger phones but avoid tablets
@@ -871,16 +868,16 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                 <button 
                   className="ayuno-btn ayuno-start"
                   onClick={iniciarAyuno}
-                  aria-label="Iniciar ayuno intermitente"
+                  aria-label="Comenzar ayuno intermitente"
                 >
-                  <span>▶️ Iniciar ayuno</span>
+                  <span>▶️ Comenzar ayuno</span>
                 </button>
                 <button 
-                  className="ayuno-btn ayuno-manual"
-                  onClick={abrirRegistroManual}
-                  aria-label="Registrar ayuno manualmente"
+                  className="ayuno-btn ayuno-edit"
+                  onClick={abrirEditorAyuno}
+                  aria-label="Editar horas de ayuno"
                 >
-                  <span>✏️ Registrar manualmente</span>
+                  <span>✏️ Editar</span>
                 </button>
               </div>
             )}
@@ -898,9 +895,9 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                   <button 
                     className="ayuno-btn ayuno-start"
                     onClick={iniciarAyuno}
-                    aria-label="Iniciar nuevo ayuno"
+                    aria-label="Comenzar nuevo ayuno"
                   >
-                    <span>▶️ Nuevo ayuno</span>
+                    <span>▶️ Comenzar ayuno</span>
                   </button>
                   <button 
                     className="ayuno-btn ayuno-edit"
