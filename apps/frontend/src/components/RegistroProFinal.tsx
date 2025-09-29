@@ -52,6 +52,14 @@ interface GoalsMin {
   ayuno_h_dia?: number;
 }
 
+interface FastingSession {
+  id: string;
+  start: string; // ISO
+  end?: string;  // ISO
+  source?: 'timer' | 'manual';
+  edited?: boolean;
+}
+
 interface AppStateLike {
   perfil?: {
     theme?: string;
@@ -60,6 +68,7 @@ interface AppStateLike {
   };
   metas: GoalsMin;
   log: Record<string, Partial<DayLog> | undefined>;
+  fastingSessions?: FastingSession[];
 }
 
 interface RegistroProps {
@@ -135,6 +144,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   // Estados para ayuno intermitente
   const [ayunoIniciado, setAyunoIniciado] = useState<string | null>(null);
   const [horasAyuno, setHorasAyuno] = useState<number>(0);
+  const [sessions, setSessions] = useState<FastingSession[]>(() => appState.fastingSessions || []);
   
   // Estados para editor manual de ayuno
   const [showAyunoModal, setShowAyunoModal] = useState<boolean>(false);
@@ -157,79 +167,86 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   }, []);
 
   // Funciones de ayuno intermitente
+  // Helpers de intersección día-sesión
+  const dayWindow = (date: string) => {
+    const d = parseLocalDate(date);
+    const start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0);
+    const end = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 24, 0, 0);
+    return { start, end };
+  };
+  const overlapMs = (aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) => {
+    const start = aStart > bStart ? aStart : bStart;
+    const end = aEnd < bEnd ? aEnd : bEnd;
+    const ms = end.getTime() - start.getTime();
+    return Math.max(0, ms);
+  };
+  const hoursForDate = useCallback((date: string, sessionsList: FastingSession[]) => {
+    const { start: dStart, end: dEnd } = dayWindow(date);
+    let totalMs = 0;
+    for (const s of sessionsList) {
+      const sStart = new Date(s.start);
+      const sEnd = new Date(s.end ?? new Date().toISOString());
+      totalMs += overlapMs(sStart, sEnd, dStart, dEnd);
+    }
+    return totalMs / (1000 * 60 * 60);
+  }, []);
+
+  // Guard basado en sesiones: solo una activa
+  const getActiveSession = useCallback(() => sessions.find(s => !s.end), [sessions]);
+
+  const persistSessions = useCallback((next: FastingSession[]) => {
+    setSessions(next);
+    updateAppState({ ...appState, fastingSessions: next });
+  }, [appState, updateAppState]);
+
   const iniciarAyuno = useCallback(() => {
-    const timestamp = new Date().toISOString();
-    setAyunoIniciado(timestamp);
-    
-    // Actualizar en appState
-    const currentLog = appState.log[selectedDate] || {};
-    const newLog = {
-      ...currentLog,
-      ayuno_h_iniciado: timestamp,
-      ayuno_h_completado: undefined // resetear si había uno previo
-    };
-    
-    updateAppState({
-      ...appState,
-      log: { ...appState.log, [selectedDate]: newLog }
-    });
-    
+    const active = getActiveSession();
+    const nowIso = new Date().toISOString();
+    if (active) {
+      // Resolver conflicto: cerrar actual y abrir nueva (rápido), con opción a editar más tarde
+      const closed: FastingSession = { ...active, end: nowIso };
+      const nextActive: FastingSession = { id: crypto.randomUUID(), start: nowIso, source: 'timer' };
+      const next = sessions.map(s => s.id === active.id ? closed : s).concat(nextActive);
+      persistSessions(next);
+      setAyunoIniciado(nextActive.start);
+      showToast('🔄 Se cerró el ayuno en curso y se inició uno nuevo');
+      return;
+    }
+    const newSession: FastingSession = { id: crypto.randomUUID(), start: nowIso, source: 'timer' };
+    persistSessions([...(sessions || []), newSession]);
+    setAyunoIniciado(newSession.start);
     showToast('⏰ Ayuno iniciado!');
-  }, [selectedDate, appState, updateAppState, showToast]);
+  }, [sessions, getActiveSession, persistSessions, showToast]);
 
   const terminarAyuno = useCallback(() => {
-    if (!ayunoIniciado) return;
-    
-    const ahora = new Date();
-    const inicio = new Date(ayunoIniciado);
-    const horasCompletadas = (ahora.getTime() - inicio.getTime()) / (1000 * 60 * 60);
-    
+    const active = getActiveSession();
+    if (!active) return;
+    const nowIso = new Date().toISOString();
+    const next = sessions.map(s => s.id === active.id ? { ...s, end: nowIso } : s);
+    persistSessions(next);
     setAyunoIniciado(null);
-    setHorasAyuno(horasCompletadas);
-    
-    // Actualizar en appState
-    const currentLog = appState.log[selectedDate] || {};
-    const newLog = {
-      ...currentLog,
-      ayuno_h_iniciado: undefined,
-      ayuno_h_completado: horasCompletadas
-    };
-    
-    updateAppState({
-      ...appState,
-      log: { ...appState.log, [selectedDate]: newLog }
-    });
-    
+    const durHrs = (new Date(nowIso).getTime() - new Date(active.start).getTime()) / (1000 * 60 * 60);
     const metaAyuno = appState.metas?.ayuno_h_dia || 14;
-    const emoji = horasCompletadas >= metaAyuno ? '🎉' : '⏰';
-    showToast(`${emoji} Ayuno completado: ${horasCompletadas.toFixed(1)}h`);
-  }, [ayunoIniciado, selectedDate, appState, updateAppState, showToast]);
+    const emoji = durHrs >= metaAyuno ? '🎉' : '⏰';
+    showToast(`${emoji} Ayuno completado: ${durHrs.toFixed(1)}h`);
+  }, [getActiveSession, sessions, persistSessions, appState.metas?.ayuno_h_dia, showToast]);
 
-  // Efecto para cargar estado de ayuno del día seleccionado
+  // Cargar estado inicial desde sesiones
   useEffect(() => {
-    const dayLog = appState.log[selectedDate];
-    if (dayLog?.ayuno_h_iniciado) {
-      setAyunoIniciado(dayLog.ayuno_h_iniciado);
-      setHorasAyuno(0);
-    } else {
-      setAyunoIniciado(null);
-      setHorasAyuno(dayLog?.ayuno_h_completado || 0);
-    }
-  }, [selectedDate, appState.log]);
+    const active = (appState.fastingSessions || []).find(s => !s.end) || null;
+    setSessions(appState.fastingSessions || []);
+    setAyunoIniciado(active?.start || null);
+    setHorasAyuno(hoursForDate(selectedDate, appState.fastingSessions || []));
+  }, [appState.fastingSessions, selectedDate, hoursForDate]);
 
   // Calcular horas transcurridas en tiempo real
   useEffect(() => {
-    if (!ayunoIniciado) return;
-    
+    // Actualizar horas del día actual en tiempo real cada minuto
     const interval = setInterval(() => {
-      const ahora = new Date();
-      const inicio = new Date(ayunoIniciado);
-      const horasTranscurridas = (ahora.getTime() - inicio.getTime()) / (1000 * 60 * 60);
-      setHorasAyuno(horasTranscurridas);
-    }, 60000); // actualizar cada minuto
-    
+      setHorasAyuno(hoursForDate(selectedDate, sessions));
+    }, 60000);
     return () => clearInterval(interval);
-  }, [ayunoIniciado]);
+  }, [selectedDate, sessions, hoursForDate]);
 
   // Funciones para editor manual de ayuno
   const abrirEditorAyuno = useCallback(() => {
@@ -238,26 +255,21 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   }, [horasAyuno]);
 
   const cancelarAyuno = useCallback(() => {
-    // Resetear todo a 0
+    // Si hay sesión activa, cerrarla en 0h (mismo start=end) o eliminarla
+    const active = getActiveSession();
+    if (active) {
+      const nowIso = new Date().toISOString();
+      const dur = new Date(nowIso).getTime() - new Date(active.start).getTime();
+      const next = dur <= 0
+        ? sessions.filter(s => s.id !== active.id)
+        : sessions.map(s => s.id === active.id ? { ...s, end: nowIso } : s);
+      persistSessions(next);
+    }
     setAyunoIniciado(null);
-    setHorasAyuno(0);
+    setHorasAyuno(hoursForDate(selectedDate, sessions));
     setShowAyunoModal(false);
-    
-    // Actualizar en appState
-    const currentLog = appState.log[selectedDate] || {};
-    const newLog = {
-      ...currentLog,
-      ayuno_h_iniciado: undefined,
-      ayuno_h_completado: 0
-    };
-    
-    updateAppState({
-      ...appState,
-      log: { ...appState.log, [selectedDate]: newLog }
-    });
-    
     showToast('❌ Ayuno cancelado');
-  }, [selectedDate, appState, updateAppState, showToast]);
+  }, [getActiveSession, sessions, persistSessions, selectedDate, hoursForDate, showToast]);
 
   const guardarAyunoManual = useCallback(() => {
     const horas = parseFloat(editingHours);

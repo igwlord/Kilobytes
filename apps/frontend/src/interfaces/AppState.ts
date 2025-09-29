@@ -56,6 +56,18 @@ export interface AppState {
   profile: UserProfile;
   metas: Metas;
   log: { [date: string]: DayLog };
+  /**
+   * Sesiones de ayuno a nivel global. Cada sesión tiene un inicio y un fin opcional
+   * (si está en curso). La vista por día calcula horas como intersección de cada sesión
+   * con la ventana del día [00:00, 24:00).
+   */
+  fastingSessions?: Array<{
+    id: string;
+    start: string; // ISO datetime
+    end?: string;  // ISO datetime si está cerrada
+    source?: 'timer' | 'manual';
+    edited?: boolean;
+  }>;
   preferences: {
     theme: 'dark' | 'light';
     notifications: boolean;

@@ -328,6 +328,18 @@
 				"apps/frontend"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Build Frontend",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build",
+				"--prefix",
+				"apps/frontend"
+			],
+			"group": "build"
 		}
 	]
 }
