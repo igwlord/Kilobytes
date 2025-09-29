@@ -132,6 +132,11 @@ const Dashboard: React.FC = () => {
           const cloud = await loadUserState(user.uid);
           if (cloud) {
             data = cloud;
+            // Migración: asegurar que fastingSessions existe
+            if (!data.fastingSessions) {
+              data.fastingSessions = [];
+              console.log('[dashboard] migrated: added empty fastingSessions array');
+            }
             localStorage.setItem('kiloByteData', JSON.stringify(cloud));
           }
           cloudLoadedRef.current = true;
@@ -140,6 +145,11 @@ const Dashboard: React.FC = () => {
         console.warn('[dashboard] cloud load failed, will use local', e);
       }
       if (data) {
+        // Migración local también
+        if (!data.fastingSessions) {
+          data.fastingSessions = [];
+          console.log('[dashboard] local migration: added empty fastingSessions array');
+        }
         setAppState(data);
         const today = new Date().toISOString().split('T')[0];
         const todayLog = data.log?.[today];

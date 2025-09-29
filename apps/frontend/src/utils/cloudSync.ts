@@ -34,7 +34,15 @@ export async function loadUserState(uid: string): Promise<CloudState | null> {
       // Buscar el campo appState en lugar de state
       const state = doc.fields?.appState?.stringValue;
       console.log('[cloud] loaded state from Firestore');
-      return state ? JSON.parse(state) : null;
+      const parsedState = state ? JSON.parse(state) : null;
+      
+      // Migración: asegurar que fastingSessions existe
+      if (parsedState && !parsedState.fastingSessions) {
+        parsedState.fastingSessions = [];
+        console.log('[cloud] migrated: added empty fastingSessions array');
+      }
+      
+      return parsedState;
     } else if (response.status === 404) {
       console.log('[cloud] no state found, first login');
       return null;

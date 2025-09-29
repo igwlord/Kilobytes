@@ -180,7 +180,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
     const ms = end.getTime() - start.getTime();
     return Math.max(0, ms);
   };
-  const hoursForDate = useCallback((date: string, sessionsList: FastingSession[]) => {
+  const hoursForDate = useCallback((date: string, sessionsList: FastingSession[] = []) => {
     const { start: dStart, end: dEnd } = dayWindow(date);
     let totalMs = 0;
     for (const s of sessionsList) {
@@ -192,7 +192,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   }, []);
 
   // Guard basado en sesiones: solo una activa
-  const getActiveSession = useCallback(() => sessions.find(s => !s.end), [sessions]);
+  const getActiveSession = useCallback(() => (sessions || []).find(s => !s.end), [sessions]);
 
   const persistSessions = useCallback((next: FastingSession[]) => {
     setSessions(next);
