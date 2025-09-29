@@ -63,6 +63,7 @@ const Metas: React.FC<MetasProps> = ({ appState, updateAppState, showToast }) =>
       }
     };
     
+    console.log('[metas] Actualizando peso objetivo:', nuevoPeso);
     updateAppState(newState);
     showToast('Meta de peso actualizada ✅');
   };
@@ -82,6 +83,7 @@ const Metas: React.FC<MetasProps> = ({ appState, updateAppState, showToast }) =>
       }
     };
     
+    console.log('[metas] Actualizando meta personalizada:', campo, valor);
     updateAppState(newState);
     showToast('Meta actualizada ✅');
   };
