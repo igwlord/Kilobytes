@@ -17,7 +17,7 @@ interface ProgresoProps {
   appState: AppState;
 }
 
-type Section = 'resumen' | 'peso' | 'tendencias' | 'recetas' | 'tips' | null;
+type Section = 'resumen' | 'peso' | 'tendencias' | 'recetas' | 'tips' | 'glosario' | null;
 type KPIKey = 'kcal' | 'prot' | 'carbs' | 'grasa' | 'agua' | 'sueno' | 'ayuno';
 
 const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
@@ -221,7 +221,6 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
   const [openMealGroups, setOpenMealGroups] = useState<Record<string, boolean>>({ Desayuno: true, Almuerzo: false, Cena: false, Snack: false });
   const toggleMeal = (k: string) => setOpenMealGroups(s => ({ ...s, [k]: !s[k] }));
   const [search, setSearch] = useState('');
-  const [showGlossary, setShowGlossary] = useState(false);
   type GlossCat = 'macros' | 'hábitos' | 'microbiota' | 'entrenamiento' | 'metabólico' | 'planificación';
   type GlossaryTerm = { t: string; d: string; cat: GlossCat };
   const glossaryCats: Array<{key: GlossCat; label: string}> = [
@@ -302,13 +301,13 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
       {/* Resumen impactante */}
       <div className="progress-card collapsible">
         <div className="collapsible-header">
-          <h2 className="card-title">Resumen (últimos {rangeDays} días)</h2>
+          <h2 className="card-title">Resumen 📊</h2>
           <button className={`collapse-toggle ${openSection==='resumen'?'open':''}`} onClick={()=> setOpenSection(s=> s==='resumen'? null : 'resumen')} aria-label="Alternar">
             ▾
           </button>
         </div>
         {openSection==='resumen' && (
-          <p className="card-help">Promedio de adherencia a tus metas clave. Te muestra qué tan cerca estuviste de tus objetivos de calorías, proteínas e hidratación.</p>
+          <p className="card-help">Promedio de adherencia a tus metas clave en los últimos {rangeDays} días. Te muestra qué tan cerca estuviste de tus objetivos de calorías, proteínas e hidratación.</p>
         )}
         {openSection==='resumen' && (
           <div className="kpi-grid-impact">
@@ -333,7 +332,7 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
       {/* Gráfico de peso (colapsable) */}
       <div className="progress-card collapsible">
         <div className="collapsible-header">
-          <h2 className="card-title">Peso Corporal (kg)</h2>
+          <h2 className="card-title">Peso corporal⚖️</h2>
           <button
             className={`collapse-toggle ${openSection === 'peso' ? 'open' : ''}`}
             onClick={() => setOpenSection(prev => (prev === 'peso' ? null : 'peso'))}
@@ -422,7 +421,7 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
       {/* Tendencias detalladas (dinámicas por selección) */}
       <div className="progress-card collapsible">
         <div className="collapsible-header">
-          <h2 className="card-title">Tendencias (últimos {rangeDays} días)</h2>
+          <h2 className="card-title">Tendencias 📈</h2>
           <button
             className={`collapse-toggle ${openSection === 'tendencias' ? 'open' : ''}`}
             onClick={() => setOpenSection(prev => (prev === 'tendencias' ? null : 'tendencias'))}
@@ -433,7 +432,7 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
         </div>
         {openSection === 'tendencias' && (
         <>
-        <p className="card-help">Barras diarias comparadas con tus metas. Verde = dentro del rango ideal (90–110%). Amarillo = aceptable (70–130%).</p>
+        <p className="card-help">Barras diarias (últimos {rangeDays} días) comparadas con tus metas. Verde = dentro del rango ideal (90–110%). Amarillo = aceptable (70–130%).</p>
         <div className="trends-summary">
           {(['kcal','prot'] as KPIKey[]).map(k => (
             <div key={k} className="trend-stat">
@@ -472,10 +471,10 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
         )}
       </div>
 
-      {/* Recetas recomendadas según plan */}
+      {/* Recetas según plan */}
       <div className="progress-card collapsible">
         <div className="collapsible-header">
-          <h2 className="card-title">Recetas recomendadas</h2>
+          <h2 className="card-title">Recetas 🍳</h2>
           <button
             className={`collapse-toggle ${openSection === 'recetas' ? 'open' : ''}`}
             onClick={() => setOpenSection(prev => (prev === 'recetas' ? null : 'recetas'))}
@@ -554,10 +553,10 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
           </div>
         )}
       </div>
-      {/* Consejos e información (glosario se abre en modal) */}
+      {/* Consejos e información */}
       <div className="progress-card collapsible">
         <div className="collapsible-header">
-          <h2 className="card-title">Consejos e info</h2>
+          <h2 className="card-title">tips/Info💡</h2>
           <button
             className={`collapse-toggle ${openSection === 'tips' ? 'open' : ''}`}
             onClick={() => setOpenSection(prev => (prev === 'tips' ? null : 'tips'))}
@@ -601,72 +600,74 @@ const Progreso: React.FC<ProgresoProps> = ({ appState }) => {
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 12 }}>
-              <button className="btn btn-secondary" onClick={()=> setShowGlossary(true)}>📚 Abrir glosario</button>
-            </div>
           </div>
         )}
       </div>
 
-      {/* Modal de glosario */}
-      {showGlossary && (
-        <div className="recipe-modal-overlay" onClick={()=> setShowGlossary(false)}>
-          <div className="recipe-modal" onClick={(e)=> e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Glosario de términos">
-            <div className="recipe-modal-header">
-              <h3>Glosario</h3>
-              <button className="close-btn" onClick={()=> setShowGlossary(false)} aria-label="Cerrar">×</button>
-            </div>
-            <div className="recipe-modal-body">
-              <div className="glossary-controls">
-                <input className="g-search" placeholder="Buscar término…" value={gQuery} onChange={e=> setGQuery(e.target.value)} />
-                <div className="g-filters" role="tablist" aria-label="Categorías del glosario">
-                  <button className={`g-pill ${gCat==='todos'?'active':''}`} role="tab" aria-selected={gCat==='todos'} onClick={()=> setGCat('todos')}>Todos</button>
-                  {glossaryCats.map(c => (
-                    <button key={c.key} className={`g-pill ${gCat===c.key?'active':''}`} role="tab" aria-selected={gCat===c.key} onClick={()=> setGCat(c.key)}>{c.label}</button>
-                  ))}
-                </div>
+      {/* Glosario como sección propia */}
+      <div className="progress-card collapsible">
+        <div className="collapsible-header">
+          <h2 className="card-title">Glosario 📝</h2>
+          <button
+            className={`collapse-toggle ${openSection === 'glosario' ? 'open' : ''}`}
+            onClick={() => setOpenSection(prev => (prev === 'glosario' ? null : 'glosario'))}
+            aria-label={openSection === 'glosario' ? 'Colapsar' : 'Expandir'}
+          >
+            ▾
+          </button>
+        </div>
+        {openSection === 'glosario' && (
+          <div className="tips-content">
+            <p className="card-help">Buscá términos y filtrá por categoría para entender mejor los conceptos clave de nutrición, hábitos y entrenamiento.</p>
+            <div className="glossary-controls">
+              <input className="g-search" placeholder="Buscar término…" value={gQuery} onChange={e=> setGQuery(e.target.value)} />
+              <div className="g-filters" role="tablist" aria-label="Categorías del glosario">
+                <button className={`g-pill ${gCat==='todos'?'active':''}`} role="tab" aria-selected={gCat==='todos'} onClick={()=> setGCat('todos')}>Todos</button>
+                {glossaryCats.map(c => (
+                  <button key={c.key} className={`g-pill ${gCat===c.key?'active':''}`} role="tab" aria-selected={gCat===c.key} onClick={()=> setGCat(c.key)}>{c.label}</button>
+                ))}
               </div>
+            </div>
 
-              {(() => {
-                const search = (gQuery||'').toLowerCase();
-                const match = (x: GlossaryTerm) => !search || x.t.toLowerCase().includes(search) || x.d.toLowerCase().includes(search);
-                const base = GLOSSARY.filter(match);
-                if (gCat !== 'todos') {
-                  const list = base.filter(x=> x.cat===gCat);
-                  return (
-                    <div className="glossary-grid">
-                      {list.map((g,i)=> (
-                        <div key={i} className="glossary-item">
-                          <div className="g-term">{g.t}</div>
-                          <div className="g-desc">{g.d}</div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }
-                const byCat = glossaryCats.map(c => ({ cat: c, items: base.filter(x=> x.cat===c.key) })).filter(section=> section.items.length);
+            {(() => {
+              const search = (gQuery||'').toLowerCase();
+              const match = (x: GlossaryTerm) => !search || x.t.toLowerCase().includes(search) || x.d.toLowerCase().includes(search);
+              const base = GLOSSARY.filter(match);
+              if (gCat !== 'todos') {
+                const list = base.filter(x=> x.cat===gCat);
                 return (
-                  <div>
-                    {byCat.map(section => (
-                      <div key={section.cat.key} className="g-section">
-                        <h4 className="g-section-title">{section.cat.label}</h4>
-                        <div className="glossary-grid">
-                          {section.items.map((g,i)=> (
-                            <div key={i} className="glossary-item">
-                              <div className="g-term">{g.t}</div>
-                              <div className="g-desc">{g.d}</div>
-                            </div>
-                          ))}
-                        </div>
+                  <div className="glossary-grid">
+                    {list.map((g,i)=> (
+                      <div key={i} className="glossary-item">
+                        <div className="g-term">{g.t}</div>
+                        <div className="g-desc">{g.d}</div>
                       </div>
                     ))}
                   </div>
                 );
-              })()}
-            </div>
+              }
+              const byCat = glossaryCats.map(c => ({ cat: c, items: base.filter(x=> x.cat===c.key) })).filter(section=> section.items.length);
+              return (
+                <div>
+                  {byCat.map(section => (
+                    <div key={section.cat.key} className="g-section">
+                      <h4 className="g-section-title">{section.cat.label}</h4>
+                      <div className="glossary-grid">
+                        {section.items.map((g,i)=> (
+                          <div key={i} className="glossary-item">
+                            <div className="g-term">{g.t}</div>
+                            <div className="g-desc">{g.d}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
