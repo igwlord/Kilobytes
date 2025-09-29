@@ -19,50 +19,9 @@ import Spinner from './Spinner';
 import { useAuth } from '../utils/auth';
 import { loadUserState, saveUserState } from '../utils/cloudSync';
 import SaveStatus from './SaveStatus';
+import type { AppState, DayLog, DayLogMap } from '../interfaces/AppState';
 
-interface UserProfile {
-  nombre: string;
-  peso: number;
-  altura_cm: number;
-  edad: number;
-  genero: 'masculino' | 'femenino';
-  actividad: number;
-  exclusiones: string[];
-  objetivo: string;
-  theme: string;
-  peso_inicial?: number;
-  desbloquearRecetas?: boolean;
-  silenciarNotificaciones?: boolean;
-}
-
-interface Goals {
-  kcal: number;
-  prote_g_dia: number;
-  grasa_g_dia: number;
-  carbs_g_dia: number;
-  agua_ml: number;
-  pasos_dia: number;
-  peso_objetivo: number;
-  ejercicio_min?: number;
-  comidas_saludables?: number;
-  ayuno_h_dia?: number;
-}
-
-interface DayLogMin {
-  totals?: { kcal: number; prot: number; carbs: number; grasa: number };
-  sueno_h?: number;
-  ayuno_h?: number;
-  agua_ml_consumida?: number;
-}
-
-interface AppState {
-  perfil: UserProfile;
-  metas: Goals;
-  log: { [date: string]: DayLogMin };
-}
 type AppStateLike = AppState; // For SettingsModal prop compatibility
-
-type DayLogMap = { [date: string]: DayLogMin };
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -158,7 +117,6 @@ const Dashboard: React.FC = () => {
         isInitialLoadRef.current = true; // Mark as initial load to prevent autosave
         setAppState(data);
         isInitialLoadRef.current = false; // Reset flag after initial load
-        isInitialLoadRef.current = false; // Ya no es carga inicial
         const today = new Date().toISOString().split('T')[0];
         const todayLog = data.log?.[today];
         if (todayLog) {
@@ -288,7 +246,7 @@ const Dashboard: React.FC = () => {
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
   };
-  const hasData = (dl?: DayLogMin) => {
+  const hasData = (dl?: DayLog) => {
     if (!dl) return false;
     return (dl.totals?.kcal ?? 0) > 0 || (dl.agua_ml_consumida ?? 0) > 0 || (dl.sueno_h ?? 0) > 0 || (dl.ayuno_h ?? 0) > 0;
   };

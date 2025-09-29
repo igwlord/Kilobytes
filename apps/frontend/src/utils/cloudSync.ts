@@ -1,9 +1,51 @@
 // Switch to REST API to bypass WebChannel 400 errors
 import { initFirebase } from './firebase';
+import type { AppState } from '../interfaces/AppState';
 
 const COLLECTION = 'users';
 
-export type CloudState = unknown; // we store the same shape as local 'kiloByteData'
+export type CloudState = AppState; // Use the official AppState interface
+
+// Data validation and migration helper
+function validateAndMigrateState(data: unknown): AppState | null {
+  if (!data || typeof data !== 'object') return null;
+  
+  try {
+    const state = data as Partial<AppState>;
+    
+    // Build a new validated state
+    const result: AppState = {
+      perfil: state.perfil || {
+        nombre: '',
+        peso: 70,
+        altura_cm: 175,
+        edad: 30,
+        genero: 'masculino',
+        actividad: 1.375,
+        exclusiones: [],
+        objetivo: 'mantener',
+        theme: 'dark'
+      },
+      metas: state.metas || {
+        kcal: 2000,
+        prote_g_dia: 140,
+        grasa_g_dia: 60,
+        carbs_g_dia: 225,
+        agua_ml: 2000,
+        pasos_dia: 8000,
+        peso_objetivo: 65
+      },
+      log: state.log || {},
+      fastingSessions: state.fastingSessions || []
+    };
+    
+    console.log('[cloud] data validated and migrated successfully');
+    return result;
+  } catch (e) {
+    console.warn('[cloud] validation failed:', e);
+    return null;
+  }
+}
 
 async function getFirebaseToken(): Promise<string> {
   const { auth } = initFirebase();
@@ -36,13 +78,8 @@ export async function loadUserState(uid: string): Promise<CloudState | null> {
       console.log('[cloud] loaded state from Firestore');
       const parsedState = state ? JSON.parse(state) : null;
       
-      // Migración: asegurar que fastingSessions existe
-      if (parsedState && !parsedState.fastingSessions) {
-        parsedState.fastingSessions = [];
-        console.log('[cloud] migrated: added empty fastingSessions array');
-      }
-      
-      return parsedState;
+      // Use validation and migration function
+      return validateAndMigrateState(parsedState);
     } else if (response.status === 404) {
       console.log('[cloud] no state found, first login');
       return null;

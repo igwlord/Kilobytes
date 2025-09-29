@@ -4,42 +4,10 @@ import './SettingsPage.css';
 import { signOutUser, useAuth } from '../utils/auth';
 import { useNavigate } from 'react-router-dom';
 import { saveUserState } from '../utils/cloudSync';
-
-type Totals = { kcal: number; prot: number; carbs: number; grasa: number };
-type DayLogMin = { totals?: Totals; sueno_h?: number; ayuno_h?: number; agua_ml_consumida?: number };
-type Goals = {
-  kcal: number;
-  prote_g_dia: number;
-  grasa_g_dia: number;
-  carbs_g_dia: number;
-  agua_ml: number;
-  pasos_dia: number;
-  peso_objetivo: number;
-  ejercicio_min?: number;
-  comidas_saludables?: number;
-  ayuno_h_dia?: number;
-};
-interface AppStateLike {
-  perfil: {
-    nombre: string;
-    peso: number;
-    altura_cm: number;
-    edad: number;
-    genero: 'masculino' | 'femenino';
-    actividad: number;
-    exclusiones: string[];
-    objetivo: string;
-    theme: string;
-    peso_inicial?: number;
-    desbloquearRecetas?: boolean;
-    silenciarNotificaciones?: boolean;
-  };
-  metas: Goals;
-  log: Record<string, DayLogMin>;
-}
+import type { AppState } from '../interfaces/AppState';
 
 interface SettingsPageProps {
-  appState: AppStateLike;
+  appState: AppState;
   updateAppState: (newState: unknown) => void;
   showToast: (message: string) => void;
   onShowOnboarding?: () => void;
@@ -130,7 +98,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
       try {
         const raw = JSON.parse(String(ev.target?.result || '{}'));
         const imported = raw?.data ? raw.data : raw;
-        const newState = imported as AppStateLike;
+        const newState = imported as AppState;
         if (!newState?.perfil || !newState?.metas || !newState?.log) throw new Error('Formato inválido');
         updateAppState(newState);
         localStorage.setItem('kiloByteData', JSON.stringify(newState));

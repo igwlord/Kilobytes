@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 // Lazy-load food database utilities on demand to improve initial bundle size
 import type { FoodItem } from '../data/foodDatabaseNew';
+import type { AppState, DayLog, FastingSession, FoodLog } from '../interfaces/AppState';
 import './RegistroProFinal.css';
 import Spinner from './Spinner';
 
@@ -20,76 +21,10 @@ interface FoodEntry {
   hora?: string; // HH:MM opcional
 }
 
-// Estructuras mínimas usadas por este componente
-interface DayTotals { kcal: number; prot: number; carbs: number; grasa: number }
-interface DayLog {
-  peso_kg?: number;
-  agua_ml: number;
-  pasos: number;
-  ejercicio_min: number;
-  ayuno_h_iniciado?: string; // timestamp de inicio del ayuno
-  ayuno_h_completado?: number; // horas de ayuno completadas
-  comidas: {
-    desayuno: LoggedFood[];
-    almuerzo: LoggedFood[];
-    merienda: LoggedFood[];
-    cena: LoggedFood[];
-    snack: LoggedFood[];
-  };
-  totals: DayTotals;
-}
-
-interface GoalsMin {
-  kcal: number;
-  prote_g_dia: number;
-  grasa_g_dia: number;
-  carbs_g_dia: number;
-  agua_ml: number;
-  pasos_dia: number;
-  peso_objetivo: number;
-  ejercicio_min?: number;
-  comidas_saludables?: number;
-  ayuno_h_dia?: number;
-}
-
-interface FastingSession {
-  id: string;
-  start: string; // ISO
-  end?: string;  // ISO
-  source?: 'timer' | 'manual';
-  edited?: boolean;
-}
-
-interface AppStateLike {
-  perfil?: {
-    theme?: string;
-    nombre?: string;
-    mostrarAlertasMacros?: boolean;
-  };
-  metas: GoalsMin;
-  log: Record<string, Partial<DayLog> | undefined>;
-  fastingSessions?: FastingSession[];
-}
-
 interface RegistroProps {
-  appState: AppStateLike;
-  updateAppState: (newState: AppStateLike) => void;
+  appState: AppState;
+  updateAppState: (newState: AppState) => void;
   showToast: (message: string) => void;
-}
-
-// Forma en la que se guarda cada alimento dentro del log diario (por comida)
-interface LoggedFood {
-  id: string;
-  nombre: string;
-  emoji?: string;
-  cantidad_g: number;
-  kcal: number;
-  prot_g: number;
-  carbs_g: number;
-  grasa_g: number;
-  units?: number;
-  unit_name?: string;
-  hora?: string;
 }
 
 // Local date helpers to avoid UTC shifts when using YYYY-MM-DD
@@ -648,11 +583,11 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
 
     // Organizar por comidas
     const mealGroups: {
-      desayuno: LoggedFood[];
-      almuerzo: LoggedFood[];
-      merienda: LoggedFood[];
-      cena: LoggedFood[];
-      snack: LoggedFood[];
+      desayuno: FoodLog[];
+      almuerzo: FoodLog[];
+      merienda: FoodLog[];
+      cena: FoodLog[];
+      snack: FoodLog[];
     } = {
       desayuno: [],
       almuerzo: [],
@@ -729,7 +664,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
       return;
     }
   const mealKey = meal as keyof DayLog['comidas'];
-  const foods = srcLog.comidas?.[mealKey] as LoggedFood[] | undefined;
+  const foods = srcLog.comidas?.[mealKey] as FoodLog[] | undefined;
     if (!foods || foods.length === 0) {
       showToast('ℹ️ Esa comida no existe en el día elegido');
       return;

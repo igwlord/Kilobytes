@@ -1,48 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { computeGoals, type Objetivo, type Intensidad } from '../utils/goalsEngine';
+import type { AppState, UserProfile, Metas } from '../interfaces/AppState';
 import './Plan.css';
 
 interface PlanProps {
   appState: AppState;
   updateAppState: (newState: AppState) => void;
   showToast: (message: string) => void;
-}
-
-interface DayLogMin {
-  totals?: { kcal: number; prot: number; carbs: number; grasa: number };
-  sueno_h?: number;
-  ayuno_h?: number;
-}
-
-interface UserProfile {
-  nombre: string;
-  peso: number;
-  altura_cm: number;
-  edad: number;
-  genero: 'masculino' | 'femenino';
-  actividad: number;
-  exclusiones: string[];
-  objetivo: string;
-  theme: string;
-}
-
-interface Goals {
-  kcal: number;
-  prote_g_dia: number;
-  grasa_g_dia: number;
-  carbs_g_dia: number;
-  agua_ml: number;
-  pasos_dia: number;
-  peso_objetivo: number;
-  ejercicio_min?: number;
-  comidas_saludables?: number;
-  ayuno_h_dia?: number; // objetivo de horas de ayuno diario
-}
-
-interface AppState {
-  perfil: UserProfile;
-  metas: Goals;
-  log: { [date: string]: DayLogMin };
 }
 
 const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
@@ -166,7 +130,7 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
       perfil: { ...appState.perfil, ...patch },
     });
   };
-  const persistMetas = (patch: Partial<Goals>) => {
+  const persistMetas = (patch: Partial<Metas>) => {
     console.log('💾 persistMetas called with patch:', patch);
     updateAppState({
       ...appState,
