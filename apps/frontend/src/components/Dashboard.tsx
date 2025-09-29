@@ -133,20 +133,24 @@ const Dashboard: React.FC = () => {
     })();
   }, [user]);
 
-  // Decide if overlay should show on first entry to dashboard
+  // Decide if overlay should show on first entry to dashboard, without flicker
   useEffect(() => {
     const seen = localStorage.getItem('kiloByteOnboardingSeen') === '1';
+    if (seen) { setShowOverlay(false); return; }
+    // Si el usuario ya tiene datos históricos (no solo hoy), no mostrar overlay
+    const hasHistorical = (() => {
+      const keys = Object.keys(appState.log || {});
+      for (const k of keys) {
+        if (hasData(appState.log?.[k])) return true;
+      }
+      return false;
+    })();
+    if (hasHistorical) { setShowOverlay(false); return; }
+    // Si no hay históricos, evaluamos el día de hoy
     const today = new Date().toISOString().split('T')[0];
     const hasUserData = hasData(appState.log?.[today]);
-    
-    // Show overlay only if first time AND no data logged today
-    // CSS will handle hiding it on mobile devices
-    if (!seen && !hasUserData) {
-      setShowOverlay(true);
-    } else {
-      setShowOverlay(false);
-    }
-  }, [appState]);
+    setShowOverlay(!hasUserData);
+  }, [appState.log, appState.perfil?.nombre]);
 
   const updateAppState = (newState: AppState) => {
     setAppState(newState);

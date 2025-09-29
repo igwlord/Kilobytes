@@ -14,8 +14,11 @@ const OnboardingOverlay: React.FC<Props> = ({ goToSection, onDismiss, nombre }) 
     onDismiss();
   };
 
+  // No renderizar si ya fue marcada como vista
+  if (localStorage.getItem('kiloByteOnboardingSeen') === '1') return null;
+
   return (
-    <div className="onboarding-overlay" role="dialog" aria-modal="true" aria-label="Guía de inicio">
+    <div className="onboarding-overlay" role="dialog" aria-modal="true" aria-label="Guía de inicio" onKeyDown={(e) => { if (e.key === 'Escape') { localStorage.setItem('kiloByteOnboardingSeen', '1'); onDismiss(); } }}>
       <div className="onboarding-modal">
         <h2>¡Bienvenido{nombre ? `, ${nombre}` : ''} a KiloByte!</h2>
   <p>Dejá la app lista en 1 paso: completá tus datos y objetivos dentro de Plan y Metas.</p>

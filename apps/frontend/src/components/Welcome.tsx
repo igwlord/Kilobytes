@@ -42,24 +42,28 @@ const Welcome: React.FC = () => {
       }
     }
 
-    // Secuencia: 1) título aparece por fade-in (CSS); 2) luego se tipea el slogan
-    // Disparamos el typewriter del slogan tras un pequeño delay
-  const fullSlogan = 'Cero calorías, 100% productividad.';
+    // Secuencia: 1) título fade-in; 2) typewriter del slogan (o versión sin animación si reduced-motion)
+    const fullSlogan = 'Cero calorías, 100% productividad.';
+    const reduceMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setAnimationComplete(true); // habilita el fade-in del título
-    let i = 0;
-    window.setTimeout(() => {
-      typingTimerRef.current = window.setInterval(() => {
-        i++;
-        setTypedSlogan(fullSlogan.slice(0, i));
-        if (i >= fullSlogan.length) {
-          if (typingTimerRef.current) window.clearInterval(typingTimerRef.current);
-        }
-      }, 45);
-      // caret del slogan
-      caretTimerRef.current = window.setInterval(() => {
-        setSloganCaretVisible((v) => !v);
-      }, 520);
-    }, 600);
+    if (reduceMotion) {
+      setTypedSlogan(fullSlogan);
+    } else {
+      let i = 0;
+      window.setTimeout(() => {
+        typingTimerRef.current = window.setInterval(() => {
+          i++;
+          setTypedSlogan(fullSlogan.slice(0, i));
+          if (i >= fullSlogan.length) {
+            if (typingTimerRef.current) window.clearInterval(typingTimerRef.current);
+          }
+        }, 45);
+        // caret del slogan
+        caretTimerRef.current = window.setInterval(() => {
+          setSloganCaretVisible((v) => !v);
+        }, 520);
+      }, 600);
+    }
 
     return () => {
       if (typingTimerRef.current) window.clearInterval(typingTimerRef.current);
