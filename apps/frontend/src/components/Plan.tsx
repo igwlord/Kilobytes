@@ -57,9 +57,15 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
   const [objetivo, setObjetivo] = useState<Objetivo>('mantener');
   const [intensidad, setIntensidad] = useState<Intensidad>('moderado');
   const [exclusiones, setExclusiones] = useState<string[]>([]);
+  // Function to get preset from hours
+  const getPresetFromHours = (hours: number): string => {
+    const map: Record<number, string> = { 12: '12/12', 14: '14/10', 16: '16/8', 18: '18/6' };
+    return map[hours] || 'custom';
+  };
+
   const [ayunoHoras, setAyunoHoras] = useState<number>(appState.metas.ayuno_h_dia ?? 14);
   const [ayunoHorasStr, setAyunoHorasStr] = useState<string>(String(appState.metas.ayuno_h_dia ?? 14));
-  const [ayunoPreset, setAyunoPreset] = useState<string>('16/8');
+  const [ayunoPreset, setAyunoPreset] = useState<string>(getPresetFromHours(appState.metas.ayuno_h_dia ?? 14));
   
   // Accordion visibility (collapsed by default on mobile)
   const isMobile = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width: 480px)').matches;
@@ -113,6 +119,7 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
       setExclusiones(appState.perfil.exclusiones || []);
       setAyunoHoras(appState.metas.ayuno_h_dia ?? 14);
       setAyunoHorasStr(String(appState.metas.ayuno_h_dia ?? 14));
+      setAyunoPreset(getPresetFromHours(appState.metas.ayuno_h_dia ?? 14));
       // Precalcular metas automáticas con la info actual
       tryComputeGoals((appState.perfil.objetivo as Objetivo) || 'mantener', intensidad);
     }
