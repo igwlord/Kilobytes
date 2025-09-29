@@ -128,6 +128,22 @@ const Plan: React.FC<PlanProps> = ({ appState, updateAppState, showToast }) => {
     }
   }, [appState, intensidad, tryComputeGoals]);
 
+  // useEffect separado para sincronizar valores de ayuno cuando cambia desde otro componente
+  useEffect(() => {
+    const savedAyuno = appState.metas.ayuno_h_dia ?? 14;
+    console.log('🔄 Plan.tsx ayuno sync effect - appState.metas.ayuno_h_dia:', savedAyuno);
+    
+    // Solo actualizar si el valor es diferente al estado local
+    if (ayunoHoras !== savedAyuno) {
+      console.log('🎯 Syncing ayuno values - from:', ayunoHoras, 'to:', savedAyuno);
+      setAyunoHoras(savedAyuno);
+      setAyunoHorasStr(String(savedAyuno));
+      const newPreset = getPresetFromHours(savedAyuno);
+      console.log('🎯 Setting ayunoPreset to:', newPreset);
+      setAyunoPreset(newPreset);
+    }
+  }, [appState.metas.ayuno_h_dia, ayunoHoras]);
+
   // Helpers
   const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
   const commitNumber = (
