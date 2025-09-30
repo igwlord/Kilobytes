@@ -20,13 +20,29 @@ const Welcome: React.FC = () => {
 
   useEffect(() => {
     // Si hay sesión, intentar cargar y navegar a dashboard
-    if (user) {
+    if (user && !loading) {
+      console.log('[welcome] Usuario autenticado detectado:', user.email);
       (async () => {
         try {
+          setLoading(true);
           const cloud = await loadUserState(user.uid);
           if (cloud) {
             localStorage.setItem('kiloByteData', JSON.stringify(cloud));
+            console.log('[welcome] Datos de nube cargados');
+          } else {
+            // Si no hay datos en nube, subir los datos locales si existen
+            const local = localStorage.getItem('kiloByteData');
+            if (local) {
+              try { 
+                await saveUserState(user.uid, JSON.parse(local)); 
+                console.log('[welcome] Datos locales subidos a la nube');
+              } catch (e) { 
+                console.warn('No se pudo subir estado local inicial', e); 
+              }
+            }
           }
+        } catch (error) {
+          console.error('[welcome] Error cargando datos del usuario:', error);
         } finally {
           navigate('/dashboard');
         }
@@ -70,7 +86,7 @@ const Welcome: React.FC = () => {
       if (typingTimerRef.current) window.clearInterval(typingTimerRef.current);
       if (caretTimerRef.current) window.clearInterval(caretTimerRef.current);
     };
-  }, [navigate, user]);
+  }, [navigate, user, loading]);
 
   const validarNombre = (nombre: string) => {
     return nombre.length >= 2 && nombre.length <= 20 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre);
@@ -137,6 +153,20 @@ const Welcome: React.FC = () => {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
+      
+      // Detectar si es móvil
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+        || window.innerWidth <= 768;
+      
+      if (isMobile) {
+        // En móviles, signInWithGoogle inicia el redirect pero no retorna user
+        console.log('[welcome] Iniciando login con redirect para móvil');
+        await signInWithGoogle();
+        // El redirect manejará el resto, no llegamos aquí
+        return;
+      }
+      
+      // Flujo normal para desktop
       const u = await signInWithGoogle();
       
       // Validar que realmente se completó el login

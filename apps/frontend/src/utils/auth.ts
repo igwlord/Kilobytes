@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
-import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut } from 'firebase/auth';
 import type { User } from 'firebase/auth';
 import { initFirebase } from './firebase';
+
+// Detectar si estamos en móvil para usar redirect en lugar de popup
+const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+    || window.innerWidth <= 768;
+};
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -10,6 +16,19 @@ export function useAuth() {
   useEffect(() => {
     const { auth } = initFirebase();
     console.log('[auth] init, listening for auth state changes');
+    
+    // Verificar si hay un resultado de redirect pendiente
+    getRedirectResult(auth).then((result) => {
+      if (result?.user) {
+        console.log('[auth] Redirect login success for', result.user.email);
+        setUser(result.user);
+      }
+    }).catch((error) => {
+      console.error('[auth] Error processing redirect result:', error);
+    }).finally(() => {
+      setLoading(false);
+    });
+
     const unsub = onAuthStateChanged(auth, (u: User | null) => {
       setUser(u);
       setLoading(false);
@@ -23,6 +42,21 @@ export function useAuth() {
 
 export async function signInWithGoogle(): Promise<User> {
   const { auth, provider } = initFirebase();
+  
+  // En móviles usar redirect, en desktop usar popup
+  if (isMobileDevice()) {
+    console.log('[auth] Mobile detected, using redirect flow');
+    try {
+      await signInWithRedirect(auth, provider);
+      // En redirect no hay respuesta inmediata, el resultado se maneja en useAuth
+      return new Promise(() => {}); // Este promise no se resuelve, el redirect maneja el flujo
+    } catch (error) {
+      console.error('[auth] Error en signInWithRedirect:', error);
+      throw error;
+    }
+  }
+  
+  // Flujo original para desktop
   try {
     const res = await signInWithPopup(auth, provider);
     
