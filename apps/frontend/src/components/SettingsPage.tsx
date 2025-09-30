@@ -3,8 +3,8 @@ import './SettingsModal.css';
 import './SettingsPage.css';
 import { signOutUser, useAuth } from '../utils/auth';
 import { useNavigate } from 'react-router-dom';
-import { saveUserState } from '../utils/cloudSync';
-import type { AppState } from '../interfaces/AppState';
+import { saveUserState, loadUserState } from '../utils/cloudSync';
+import type { AppState, DayLog } from '../interfaces/AppState';
 
 interface SettingsPageProps {
   appState: AppState;
@@ -27,7 +27,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
   const mapLegacy = (t?: string): ThemeId => (t === 'light' ? 'banana' : t === 'dark' ? 'uva' : (t as ThemeId) || 'uva');
   const [theme, setTheme] = useState<ThemeId>(mapLegacy(appState.perfil?.theme));
   const [muteToasts, setMuteToasts] = useState(!!appState.perfil?.silenciarNotificaciones);
-  const [busy, setBusy] = useState<'export' | 'import' | null>(null);
+  const [busy, setBusy] = useState<'force' | 'restore' | null>(null);
+  const [done, setDone] = useState<'force' | 'restore' | null>(null);
 
   useEffect(() => {
     setTheme(mapLegacy(appState.perfil?.theme));
@@ -60,62 +61,76 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
     showToast('Tema aplicado 🎨');
   };
 
-  const exportData = () => {
-    if (busy) return;
-    setBusy('export');
-    const dt = new Date();
-    const yyyy = dt.getFullYear();
-    const mm = String(dt.getMonth() + 1).padStart(2, '0');
-    const dd = String(dt.getDate()).padStart(2, '0');
-    const hh = String(dt.getHours()).padStart(2, '0');
-    const mi = String(dt.getMinutes()).padStart(2, '0');
-    const ss = String(dt.getSeconds()).padStart(2, '0');
-    const dayName = dt.toLocaleDateString('es-AR', { weekday: 'long' });
-    const user = (appState.perfil?.nombre || 'Usuario').replace(/\s+/g, '_');
-
-    const payload = { app: 'KiloByte', exportedAt: dt.toISOString(), exportedDayName: dayName, exportedBy: appState.perfil?.nombre || 'Usuario', data: appState };
-    const dataStr = JSON.stringify(payload, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `kilobyte_backup_${user}_${yyyy}-${mm}-${dd}_${hh}-${mi}-${ss}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    showToast('Backup exportado ✅');
-    setBusy(null);
+  // Merge helper: cloud-first strategy (perfil/metas: nube gana; logs: más entradas; sesiones: prioriza nube)
+  const countFoods = (dl?: DayLog) => {
+    if (!dl) return 0;
+    const m = dl.comidas;
+    return (m.desayuno?.length || 0) + (m.almuerzo?.length || 0) + (m.merienda?.length || 0) + (m.cena?.length || 0) + (m.snack?.length || 0);
+  };
+  const mergeStatesCloudFirst = (cloud: AppState | null, local: AppState): AppState => {
+    if (!cloud) return local;
+    const perfil = { ...local.perfil, ...cloud.perfil };
+    const metas = { ...local.metas, ...cloud.metas };
+    const resultLog: AppState['log'] = { ...local.log };
+    Object.entries(cloud.log || {}).forEach(([key, cloudDay]) => {
+      const localDay = resultLog[key];
+      if (!localDay) {
+        resultLog[key] = cloudDay as DayLog;
+      } else {
+        resultLog[key] = countFoods(cloudDay as DayLog) >= countFoods(localDay as DayLog) ? (cloudDay as DayLog) : localDay;
+      }
+    });
+    const cloudIds = new Set((cloud.fastingSessions || []).map(s => s.id));
+    const mergedSessions = [
+      ...(cloud.fastingSessions || []),
+      ...(local.fastingSessions || []).filter(s => !cloudIds.has(s.id))
+    ];
+    return { ...local, ...cloud, perfil, metas, log: resultLog, fastingSessions: mergedSessions } as AppState;
   };
 
-  const onImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setBusy('import');
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const raw = JSON.parse(String(ev.target?.result || '{}'));
-        const imported = raw?.data ? raw.data : raw;
-        const newState = imported as AppState;
-        if (!newState?.perfil || !newState?.metas || !newState?.log) throw new Error('Formato inválido');
-        updateAppState(newState);
-        localStorage.setItem('kiloByteData', JSON.stringify(newState));
-        applyTheme(mapLegacy(newState.perfil?.theme));
-        // Try cloud save for import, but don't block UI
-        if (user) {
-          saveUserState(user.uid, newState).catch(e => console.warn('[settings] import cloud save failed, localStorage OK', e));
-        }
-        showToast('Datos importados ✅');
-      } catch (err) {
-        console.error(err);
-        showToast('Error al importar datos ❌');
-      } finally {
-        setBusy(null);
-      }
-    };
-    reader.readAsText(file);
+  const forceSync = async () => {
+    if (busy || done) return;
+    if (!user) { showToast('Iniciá sesión para sincronizar'); return; }
+    setBusy('force');
+    try {
+      const cloud = await loadUserState(user.uid);
+      const merged = mergeStatesCloudFirst(cloud, appState);
+      updateAppState(merged);
+      localStorage.setItem('kiloByteData', JSON.stringify(merged));
+      await saveUserState(user.uid, merged);
+      setDone('force');
+      showToast('Sincronizado con la nube ✅');
+    } catch (e) {
+      console.warn('Force sync failed', e);
+      showToast('Error al sincronizar ❌');
+    } finally {
+      setBusy(null);
+      setTimeout(() => setDone(null), 1500);
+    }
+  };
+
+  const restoreFromBackup = async () => {
+    if (busy || done) return;
+    if (!user) { showToast('Iniciá sesión para restaurar'); return; }
+    setBusy('restore');
+    try {
+      const raw = localStorage.getItem('kiloByteDataBackup');
+      if (!raw) { showToast('No hay backup local disponible'); return; }
+      const backup = JSON.parse(raw) as AppState;
+      const cloud = await loadUserState(user.uid);
+      const merged = mergeStatesCloudFirst(cloud, backup);
+      updateAppState(merged);
+      localStorage.setItem('kiloByteData', JSON.stringify(merged));
+      await saveUserState(user.uid, merged);
+      setDone('restore');
+      showToast('Backup restaurado y sincronizado ✅');
+    } catch (e) {
+      console.warn('Restore failed', e);
+      showToast('Error al restaurar ❌');
+    } finally {
+      setBusy(null);
+      setTimeout(() => setDone(null), 1500);
+    }
   };
 
   const openOnboarding = () => {
@@ -192,17 +207,16 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appState, updateAppState, s
       </div>
 
       <div className="card settings-block">
-        <h3 className="settings-block-title">Respaldo de datos</h3>
-        <div className="backup-row">
-          <button className="btn btn-primary" onClick={exportData} disabled={busy === 'export'}>
-            {busy === 'export' ? 'Guardando…' : '💾 Guardar datos'}
+        <h3 className="settings-block-title">Sincronización y recuperación</h3>
+        <div className="backup-row" style={{ gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button className={`btn btn-primary ${done==='force' ? 'done' : ''}`} onClick={forceSync} disabled={busy !== null}>
+            {busy === 'force' ? 'Sincronizando…' : (done === 'force' ? '✅ Sincronizado' : '� Forzar sincronización')}
           </button>
-          <label className="btn btn-secondary" htmlFor="import-json" style={{ cursor: 'pointer' }}>
-            {busy === 'import' ? 'Cargando…' : '📥 Cargar datos'}
-          </label>
-          <input id="import-json" type="file" accept="application/json" onChange={onImportFile} style={{ display: 'none' }} />
+          <button className={`btn btn-secondary ${done==='restore' ? 'done' : ''}`} onClick={restoreFromBackup} disabled={busy !== null}>
+            {busy === 'restore' ? 'Restaurando…' : (done === 'restore' ? '✅ Restaurado' : '� Restaurar desde backup')}
+          </button>
         </div>
-        <p className="hint">El archivo incluye fecha y hora en el nombre.</p>
+        <p className="hint">El backup local se crea automáticamente antes de cada guardado en la nube.</p>
       </div>
 
       <div className="card settings-block">

@@ -166,6 +166,15 @@ function getProjectId(): string {
   return import.meta.env.VITE_FIREBASE_PROJECT_ID || 'kilobyte-ab90b';
 }
 
+// Firestore REST body type for document fields
+type FirestoreFieldsBody = {
+  fields: {
+    appState: { stringValue: string };
+    updatedAt: { timestampValue: string };
+  };
+  currentDocument?: { updateTime: string };
+};
+
 export async function loadUserState(uid: string): Promise<CloudState | null> {
   try {
     const token = await getFirebaseToken();
@@ -205,34 +214,139 @@ export async function loadUserState(uid: string): Promise<CloudState | null> {
   }
 }
 
+function countFoods(dl: DayLog | undefined): number {
+  if (!dl) return 0;
+  const m = dl.comidas || ({} as DayLog['comidas']);
+  return (m.desayuno?.length || 0) + (m.almuerzo?.length || 0) + (m.merienda?.length || 0) + (m.cena?.length || 0) + (m.snack?.length || 0);
+}
+
+function mergeStatesCloudFirst(cloud: CloudState | null, local: CloudState): CloudState {
+  if (!cloud) return local;
+  // Cloud gana en perfil y metas
+  const perfil = { ...local.perfil, ...cloud.perfil };
+  const metas = { ...local.metas, ...cloud.metas };
+
+  // Merge de logs por día: mantener todos los días; en conflicto, elegir el que tenga más entradas de comida (o cloud si empate)
+  const resultLog: CloudState['log'] = { ...local.log };
+  Object.entries(cloud.log || {}).forEach(([key, cloudDay]) => {
+    const localDay = resultLog[key];
+    if (!localDay) {
+      resultLog[key] = cloudDay;
+    } else {
+      const c = countFoods(cloudDay);
+      const l = countFoods(localDay);
+      resultLog[key] = c >= l ? cloudDay : localDay;
+    }
+  });
+
+  // Merge de sesiones de ayuno por id, priorizando cloud
+  const cloudIds = new Set((cloud.fastingSessions || []).map(s => s.id));
+  const mergedSessions = [
+    ...(cloud.fastingSessions || []),
+    ...(local.fastingSessions || []).filter(s => !cloudIds.has(s.id))
+  ];
+
+  return {
+    ...local,
+    ...cloud, // por si hay campos nuevos añadidos
+    perfil,
+    metas,
+    log: resultLog,
+    fastingSessions: mergedSessions
+  } as CloudState;
+}
+
 export async function saveUserState(uid: string, state: CloudState) {
   try {
     const token = await getFirebaseToken();
     // Usar solo el UID como document ID, sin el :appState
     const url = `https://firestore.googleapis.com/v1/projects/${getProjectId()}/databases/(default)/documents/${COLLECTION}/${uid}`;
-    
-    const body = {
+
+    // Backup local antes de subir
+    try {
+      localStorage.setItem('kiloByteDataBackup', JSON.stringify(state));
+      localStorage.setItem('kiloByteDataBackupAt', new Date().toISOString());
+    } catch (err) {
+      console.warn('[cloud] backup to localStorage failed', err);
+    }
+
+    // 1) Leer la versión actual en nube para hacer merge y tomar updateTime
+    const getResp = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+    let cloudState: CloudState | null = null;
+    let updateTime: string | undefined = undefined;
+    if (getResp.ok) {
+      const doc = await getResp.json();
+      const stateStr = doc.fields?.appState?.stringValue as string | undefined;
+      cloudState = stateStr ? validateAndMigrateState(JSON.parse(stateStr)) : null;
+      updateTime = doc.updateTime as string | undefined;
+    }
+
+    // 2) Merge cloud-first
+    const merged = mergeStatesCloudFirst(cloudState, state);
+
+    // 3) Intentar PATCH con precondición de updateTime si existe
+    const body: FirestoreFieldsBody = {
       fields: {
-        appState: { stringValue: JSON.stringify(state) },
+        appState: { stringValue: JSON.stringify(merged) },
         updatedAt: { timestampValue: new Date().toISOString() }
       }
     };
-    
-    const response = await fetch(url, {
+    if (updateTime) {
+      body.currentDocument = { updateTime };
+    }
+
+    let resp = await fetch(url, {
       method: 'PATCH',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
-    
-    if (response.ok) {
+
+    // 409/412: condición fallida → reintentar una vez leyendo nube, re-mergiendo
+    if (!resp.ok && (resp.status === 409 || resp.status === 412)) {
+      console.warn('[cloud] precondition failed, reloading and retrying merge');
+      const again = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (again.ok) {
+        const doc2 = await again.json();
+        const st = doc2.fields?.appState?.stringValue as string | undefined;
+        const cloud2 = st ? validateAndMigrateState(JSON.parse(st)) : null;
+        const merged2 = mergeStatesCloudFirst(cloud2, state);
+        const body2: FirestoreFieldsBody = {
+          fields: {
+            appState: { stringValue: JSON.stringify(merged2) },
+            updatedAt: { timestampValue: new Date().toISOString() }
+          },
+          currentDocument: { updateTime: doc2.updateTime as string }
+        };
+        resp = await fetch(url, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body2)
+        });
+      }
+    }
+
+    if (resp.ok) {
       console.log('[cloud] saved state to Firestore');
-    } else if (response.status === 403) {
-      const errorText = await response.text();
+    } else if (resp.status === 403) {
+      const errorText = await resp.text();
       console.warn('[cloud] Error 403 al guardar:', errorText);
       console.warn('[cloud] Datos guardados solo en localStorage');
-      // No throw error para que la app siga funcionando
+    } else if (resp.status === 404) {
+      // Documento no existe aún → crear sin precondición
+      const createResp = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields: {
+            appState: { stringValue: JSON.stringify(state) },
+            updatedAt: { timestampValue: new Date().toISOString() }
+          }
+        })
+      });
+      if (createResp.ok) console.log('[cloud] created new state in Firestore');
+      else throw new Error(`HTTP ${createResp.status}: ${await createResp.text()}`);
     } else {
-      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
     }
   } catch (e) {
     console.warn('[cloud] save error', e);
