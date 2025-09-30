@@ -65,6 +65,17 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
   type FoodDBModule = typeof import('../data/foodDatabaseNew');
   const [foodApi, setFoodApi] = useState<FoodDBModule | null>(null);
   const [loadingFoodApi, setLoadingFoodApi] = useState(false);
+  // Estado para prevenir ghosting/flashing del modal
+  const [modalVisible, setModalVisible] = useState(false);
+  
+  // Controlar apertura del modal con delay para prevenir flashing
+  useEffect(() => {
+    if (activeModal === 'add-food' || activeModal === 'edit-food') {
+      setModalVisible(true);
+    } else {
+      setModalVisible(false);
+    }
+  }, [activeModal]);
   // Entradas personalizadas como strings para permitir vacío mientras se edita
   const [customGrams, setCustomGrams] = useState('');
   const [customUnits, setCustomUnits] = useState('');
@@ -1080,8 +1091,8 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
       </div>
 
       {/* Modal para agregar/editar comida */}
-      {(activeModal === 'add-food' || activeModal === 'edit-food') && (
-        <div className="modal-overlay-final" role="dialog" aria-modal="true" aria-labelledby="add-food-title" onClick={() => { setActiveModal(null); setEditingEntry(null); }}>
+      {modalVisible && (activeModal === 'add-food' || activeModal === 'edit-food') && (
+        <div className="modal-overlay-final" role="dialog" aria-modal="true" aria-labelledby="add-food-title" onClick={() => { setActiveModal(null); setEditingEntry(null); setSelectedFood(null); }}>
           <div className={`modal-content-final ${selectedFood ? 'has-selected' : ''} ${isMobile && selectedFood ? 'mobile-portion' : ''}`} onClick={e => e.stopPropagation()}>
             <div className="modal-header-final">
               <div className="modal-title-section">
@@ -1119,7 +1130,7 @@ const RegistroProFinal: React.FC<RegistroProps> = ({ appState, updateAppState, s
                   </div>
                 )}
               </div>
-              <button onClick={() => { setActiveModal(null); setEditingEntry(null); }} className="modal-close-final" aria-label="Cerrar">
+              <button onClick={() => { setActiveModal(null); setEditingEntry(null); setSelectedFood(null); }} className="modal-close-final" aria-label="Cerrar">
                 <span>×</span>
               </button>
             </div>
