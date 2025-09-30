@@ -75,8 +75,17 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
+      console.log('[dashboard] No hay usuario autenticado, redirigiendo a home');
       navigate('/');
+      return;
     }
+    // Validar que el usuario tiene información completa
+    if (!user.uid || !user.email) {
+      console.warn('[dashboard] Usuario incompleto, cerrando sesión');
+      navigate('/');
+      return;
+    }
+    console.log('[dashboard] Usuario válido:', user.email);
   }, [user, authLoading, navigate]);
 
   useEffect(() => {

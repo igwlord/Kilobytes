@@ -138,6 +138,14 @@ const Welcome: React.FC = () => {
     try {
       setLoading(true);
       const u = await signInWithGoogle();
+      
+      // Validar que realmente se completó el login
+      if (!u || !u.uid || !u.email) {
+        throw new Error('Login incompleto: no se recibió información del usuario');
+      }
+      
+      console.log('[welcome] Login exitoso para', u.email);
+      
       // Primero intentamos cargar desde la nube
       const cloud = await loadUserState(u.uid);
       // Si no hay nube, recién ahí considerar subir local como primer estado
@@ -163,6 +171,7 @@ const Welcome: React.FC = () => {
       navigate('/dashboard');
     } catch (e) {
       console.warn('Fallo login con Google', e);
+      setError('Error al iniciar sesión. Intentá de nuevo.');
     } finally {
       setLoading(false);
     }
