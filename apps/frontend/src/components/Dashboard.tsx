@@ -209,7 +209,8 @@ const Dashboard: React.FC = () => {
 
   // Fallback autosave if some component updates state directly
   useEffect(() => {
-    if (!user) return;
+    // Evitar guardar durante la carga inicial para no pisar la nube con defaults
+    if (!user || isInitialLoadRef.current) return;
     if (saveDebounce.current) window.clearTimeout(saveDebounce.current);
     saveDebounce.current = window.setTimeout(() => {
       try {

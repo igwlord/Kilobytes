@@ -138,12 +138,17 @@ const Welcome: React.FC = () => {
     try {
       setLoading(true);
       const u = await signInWithGoogle();
-      // si hay datos locales, subimos como primer estado
-      const local = localStorage.getItem('kiloByteData');
-      if (local) {
-        try { await saveUserState(u.uid, JSON.parse(local)); } catch (e) { console.warn('No se pudo subir estado local inicial', e); }
-      }
+      // Primero intentamos cargar desde la nube
       const cloud = await loadUserState(u.uid);
+      // Si no hay nube, recién ahí considerar subir local como primer estado
+      if (!cloud) {
+        const local = localStorage.getItem('kiloByteData');
+        if (local) {
+          try { await saveUserState(u.uid, JSON.parse(local)); } catch (e) { console.warn('No se pudo subir estado local inicial', e); }
+        }
+      }
+      // Re-leer nube tras posible primera subida
+      const finalCloud = cloud || (await loadUserState(u.uid));
       // Solo pisar local si el cloud parece válido (tiene perfil y metas)
       const looksValid = (s: unknown): s is { perfil: { nombre?: string }; metas: unknown } => {
         if (!s || typeof s !== 'object') return false;
@@ -152,8 +157,8 @@ const Welcome: React.FC = () => {
         const hasMetas = 'metas' in o;
         return hasPerfil && hasMetas;
       };
-      if (looksValid(cloud)) {
-        localStorage.setItem('kiloByteData', JSON.stringify(cloud));
+      if (looksValid(finalCloud)) {
+        localStorage.setItem('kiloByteData', JSON.stringify(finalCloud));
       }
       navigate('/dashboard');
     } catch (e) {
