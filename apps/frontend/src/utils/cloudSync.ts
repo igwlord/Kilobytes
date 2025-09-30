@@ -260,7 +260,7 @@ export async function saveUserState(uid: string, state: CloudState) {
   try {
     const token = await getFirebaseToken();
     // Usar solo el UID como document ID, sin el :appState
-    const url = `https://firestore.googleapis.com/v1/projects/${getProjectId()}/databases/(default)/documents/${COLLECTION}/${uid}`;
+    const baseUrl = `https://firestore.googleapis.com/v1/projects/${getProjectId()}/databases/(default)/documents/${COLLECTION}/${uid}`;
 
     // Backup local antes de subir
     try {
@@ -271,7 +271,7 @@ export async function saveUserState(uid: string, state: CloudState) {
     }
 
     // 1) Leer la versión actual en nube para hacer merge y tomar updateTime
-    const getResp = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+  const getResp = await fetch(baseUrl, { headers: { 'Authorization': `Bearer ${token}` } });
     let cloudState: CloudState | null = null;
     let updateTime: string | undefined = undefined;
     if (getResp.ok) {
@@ -291,11 +291,15 @@ export async function saveUserState(uid: string, state: CloudState) {
         updatedAt: { timestampValue: new Date().toISOString() }
       }
     };
-    if (updateTime) {
-      body.currentDocument = { updateTime };
-    }
+    // Build PATCH URL with optional precondition as query param
+    const buildPatchUrl = (ut?: string) => {
+      if (!ut) return baseUrl;
+      const u = new URL(baseUrl);
+      u.searchParams.set('currentDocument.updateTime', ut);
+      return u.toString();
+    };
 
-    let resp = await fetch(url, {
+    let resp = await fetch(buildPatchUrl(updateTime), {
       method: 'PATCH',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -304,7 +308,7 @@ export async function saveUserState(uid: string, state: CloudState) {
     // 409/412: condición fallida → reintentar una vez leyendo nube, re-mergiendo
     if (!resp.ok && (resp.status === 409 || resp.status === 412)) {
       console.warn('[cloud] precondition failed, reloading and retrying merge');
-      const again = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+      const again = await fetch(baseUrl, { headers: { 'Authorization': `Bearer ${token}` } });
       if (again.ok) {
         const doc2 = await again.json();
         const st = doc2.fields?.appState?.stringValue as string | undefined;
@@ -315,9 +319,8 @@ export async function saveUserState(uid: string, state: CloudState) {
             appState: { stringValue: JSON.stringify(merged2) },
             updatedAt: { timestampValue: new Date().toISOString() }
           },
-          currentDocument: { updateTime: doc2.updateTime as string }
         };
-        resp = await fetch(url, {
+        resp = await fetch(buildPatchUrl(doc2.updateTime as string), {
           method: 'PATCH',
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify(body2)
@@ -332,16 +335,12 @@ export async function saveUserState(uid: string, state: CloudState) {
       console.warn('[cloud] Error 403 al guardar:', errorText);
       console.warn('[cloud] Datos guardados solo en localStorage');
     } else if (resp.status === 404) {
-      // Documento no existe aún → crear sin precondición
-      const createResp = await fetch(url, {
-        method: 'PATCH',
+      // Documento no existe aún → crear con POST a la colección
+      const createUrl = `https://firestore.googleapis.com/v1/projects/${getProjectId()}/databases/(default)/documents/${COLLECTION}?documentId=${encodeURIComponent(uid)}`;
+      const createResp = await fetch(createUrl, {
+        method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fields: {
-            appState: { stringValue: JSON.stringify(state) },
-            updatedAt: { timestampValue: new Date().toISOString() }
-          }
-        })
+        body: JSON.stringify({ fields: { appState: { stringValue: JSON.stringify(state) }, updatedAt: { timestampValue: new Date().toISOString() } } })
       });
       if (createResp.ok) console.log('[cloud] created new state in Firestore');
       else throw new Error(`HTTP ${createResp.status}: ${await createResp.text()}`);
