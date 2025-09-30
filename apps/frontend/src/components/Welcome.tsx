@@ -19,8 +19,14 @@ const Welcome: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
+    // No hacer nada mientras auth está cargando
+    if (loading) {
+      console.log('[welcome] Auth cargando, esperando...');
+      return;
+    }
+    
     // Si hay sesión, intentar cargar y navegar a dashboard
-    if (user && !loading) {
+    if (user) {
       console.log('[welcome] Usuario autenticado detectado:', user.email);
       (async () => {
         try {
@@ -44,18 +50,20 @@ const Welcome: React.FC = () => {
         } catch (error) {
           console.error('[welcome] Error cargando datos del usuario:', error);
         } finally {
+          console.log('[welcome] Navegando a dashboard');
           navigate('/dashboard');
         }
       })();
       return;
-    } else {
-      const savedData = localStorage.getItem('kiloByteData');
-      if (savedData) {
-        const data = JSON.parse(savedData);
-        if (data.perfil?.nombre) {
-          // Mantener compat local si no hay login aún
-          // No navegamos automáticamente sin login
-        }
+    }
+    
+    // Si no hay usuario autenticado, continuar con la lógica normal de Welcome
+    const savedData = localStorage.getItem('kiloByteData');
+    if (savedData) {
+      const data = JSON.parse(savedData);
+      if (data.perfil?.nombre) {
+        // Mantener compat local si no hay login aún
+        // No navegamos automáticamente sin login
       }
     }
 

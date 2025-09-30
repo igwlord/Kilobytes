@@ -73,18 +73,25 @@ const Dashboard: React.FC = () => {
 
   // Require auth. If not logged, go to home
   useEffect(() => {
-    if (authLoading) return;
+    // No redirigir mientras auth está cargando
+    if (authLoading) {
+      console.log('[dashboard] Auth cargando, esperando...');
+      return;
+    }
+    
     if (!user) {
       console.log('[dashboard] No hay usuario autenticado, redirigiendo a home');
       navigate('/');
       return;
     }
+    
     // Validar que el usuario tiene información completa
     if (!user.uid || !user.email) {
-      console.warn('[dashboard] Usuario incompleto, cerrando sesión');
+      console.warn('[dashboard] Usuario incompleto, redirigiendo a home');
       navigate('/');
       return;
     }
+    
     console.log('[dashboard] Usuario válido:', user.email);
   }, [user, authLoading, navigate]);
 

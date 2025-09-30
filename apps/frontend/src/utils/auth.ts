@@ -21,18 +21,16 @@ export function useAuth() {
     getRedirectResult(auth).then((result) => {
       if (result?.user) {
         console.log('[auth] Redirect login success for', result.user.email);
-        setUser(result.user);
+        // setUser se llamará automáticamente por onAuthStateChanged
       }
     }).catch((error) => {
       console.error('[auth] Error processing redirect result:', error);
-    }).finally(() => {
-      setLoading(false);
     });
 
     const unsub = onAuthStateChanged(auth, (u: User | null) => {
+      console.log('[auth] state change:', u ? `logged in as ${u.email}` : 'logged out');
       setUser(u);
       setLoading(false);
-      console.log('[auth] state change:', u ? `logged in as ${u.email}` : 'logged out');
     });
     return () => unsub();
   }, []);
