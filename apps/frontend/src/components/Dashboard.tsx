@@ -73,80 +73,72 @@ const Dashboard: React.FC = () => {
 
   // Require auth. If not logged, go to home
   useEffect(() => {
-    // No redirigir mientras auth está cargando
-    if (authLoading) {
-      console.log('[dashboard] Auth cargando, esperando...');
-      return;
-    }
-    
-    if (!user) {
+    // Solo redirigir si auth ya terminó de cargar y no hay usuario
+    if (!authLoading && !user) {
       console.log('[dashboard] No hay usuario autenticado, redirigiendo a home');
       navigate('/');
       return;
     }
     
-    // Validar que el usuario tiene información completa
-    if (!user.uid || !user.email) {
-      console.warn('[dashboard] Usuario incompleto, redirigiendo a home');
-      navigate('/');
-      return;
+    if (user) {
+      console.log('[dashboard] Usuario válido:', user.email);
     }
-    
-    console.log('[dashboard] Usuario válido:', user.email);
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    // Load user data (cloud preferred) once user is known
-    if (!user) return;
-    (async () => {
-      const userData = localStorage.getItem('kiloByteData');
-      let data = userData ? JSON.parse(userData) : null;
-      try {
-        if (!cloudLoadedRef.current) {
-          const cloud = await loadUserState(user.uid);
-          if (cloud) {
-            data = cloud;
-            // Migración: asegurar que fastingSessions existe SIN guardar automáticamente
-            if (!data.fastingSessions) {
-              data.fastingSessions = [];
-              console.log('[dashboard] migrated: added empty fastingSessions array');
-              // Guardar la migración de vuelta a la nube SOLO UNA VEZ
-              saveUserState(user.uid, data).catch(e => 
-                console.warn('[dashboard] migration save failed:', e)
-              );
+    // Cargar datos una sola vez cuando se detecte el usuario o cuando no hay usuario
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false;
+      
+      (async () => {
+        const userData = localStorage.getItem('kiloByteData');
+        let data = userData ? JSON.parse(userData) : null;
+        
+        // Si hay usuario, intentar cargar desde la nube
+        if (user && !cloudLoadedRef.current) {
+          try {
+            console.log('[dashboard] Cargando datos de la nube para', user.email);
+            const cloud = await loadUserState(user.uid);
+            if (cloud) {
+              data = cloud;
+              localStorage.setItem('kiloByteData', JSON.stringify(data));
+              console.log('[dashboard] Datos de nube cargados');
+            } else {
+              console.log('[dashboard] No hay datos en la nube, usando local');
             }
-            localStorage.setItem('kiloByteData', JSON.stringify(data));
+            cloudLoadedRef.current = true;
+          } catch (e) {
+            console.warn('[dashboard] Error cargando nube, usando local:', e);
           }
-          cloudLoadedRef.current = true;
         }
-      } catch (e) {
-        console.warn('[dashboard] cloud load failed, will use local', e);
-      }
-      if (data) {
-        // Migración local también (sin duplicar si ya se migró arriba)
-        if (!data.fastingSessions) {
-          data.fastingSessions = [];
-          console.log('[dashboard] local migration: added empty fastingSessions array');
+        
+        // Usar datos (local o nube)
+        if (data) {
+          // Migración simple
+          if (!data.fastingSessions) {
+            data.fastingSessions = [];
+          }
+          setAppState(data);
+          localStorage.setItem('kiloByteData', JSON.stringify(data));
+          
+          // Actualizar progreso del día actual
+          const today = new Date().toISOString().split('T')[0];
+          const todayLog = data.log?.[today];
+          if (todayLog) {
+            setCurrentProgress(prev => ({
+              ...prev,
+              kcal: todayLog.totals?.kcal || 0,
+              proteinas: todayLog.totals?.prot || 0,
+              carbs: todayLog.totals?.carbs || 0,
+              grasas: todayLog.totals?.grasa || 0,
+              sueno_h: todayLog.sueno_h ?? prev.sueno_h ?? 0,
+              ayuno_h: todayLog.ayuno_h ?? prev.ayuno_h ?? 0,
+              agua: todayLog.agua_ml_consumida ?? prev.agua ?? 0,
+            }));
+          }
         }
-        isInitialLoadRef.current = true; // Mark as initial load to prevent autosave
-        setAppState(data);
-        isInitialLoadRef.current = false; // Reset flag after initial load
-        const today = new Date().toISOString().split('T')[0];
-        const todayLog = data.log?.[today];
-        if (todayLog) {
-          setCurrentProgress(prev => ({
-            ...prev,
-            kcal: todayLog.totals?.kcal || 0,
-            proteinas: todayLog.totals?.prot || 0,
-            carbs: todayLog.totals?.carbs || 0,
-            grasas: todayLog.totals?.grasa || 0,
-            sueno_h: todayLog.sueno_h ?? prev.sueno_h ?? 0,
-            ayuno_h: todayLog.ayuno_h ?? prev.ayuno_h ?? 0,
-            agua: todayLog.agua_ml_consumida ?? prev.agua ?? 0,
-          }));
-        }
-      }
-    })();
+      })();
+    }
   }, [user]);
 
   // Decide if overlay should show on first entry to dashboard, without flicker

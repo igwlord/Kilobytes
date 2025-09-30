@@ -1,274 +1,120 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Welcome.css';
-// Spinner replaced by PlateLoader for a more playful feel
-import PlateLoader from './PlateLoader';
 import { signInWithGoogle, useAuth } from '../utils/auth';
 import { loadUserState, saveUserState } from '../utils/cloudSync';
 
 const Welcome: React.FC = () => {
-  const [nombre, setNombre] = useState('');
-  const [error, setError] = useState('');
-  const [animationComplete, setAnimationComplete] = useState(false);
-  const [typedSlogan, setTypedSlogan] = useState('');
-  const [sloganCaretVisible, setSloganCaretVisible] = useState(true);
   const [loading, setLoading] = useState(false);
-  const typingTimerRef = useRef<number | null>(null);
-  const caretTimerRef = useRef<number | null>(null);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    // No hacer nada mientras auth está cargando
-    if (loading) {
-      console.log('[welcome] Auth cargando, esperando...');
-      return;
-    }
+    if (authLoading) return;
     
-    // Si hay sesión, intentar cargar y navegar a dashboard
     if (user) {
-      console.log('[welcome] Usuario autenticado detectado:', user.email);
+      console.log('[welcome] Usuario detectado:', user.email);
       (async () => {
         try {
           setLoading(true);
-          const cloud = await loadUserState(user.uid);
-          if (cloud) {
-            localStorage.setItem('kiloByteData', JSON.stringify(cloud));
-            console.log('[welcome] Datos de nube cargados');
+          const cloudData = await loadUserState(user.uid);
+          if (cloudData) {
+            localStorage.setItem('kiloByteData', JSON.stringify(cloudData));
+            console.log('[welcome] Datos cargados desde la nube');
           } else {
-            // Si no hay datos en nube, subir los datos locales si existen
-            const local = localStorage.getItem('kiloByteData');
-            if (local) {
-              try { 
-                await saveUserState(user.uid, JSON.parse(local)); 
-                console.log('[welcome] Datos locales subidos a la nube');
-              } catch (e) { 
-                console.warn('No se pudo subir estado local inicial', e); 
-              }
-            }
+            const initialData = {
+              perfil: { 
+                nombre: user.displayName || user.email?.split('@')[0] || 'Usuario', 
+                peso: 70, 
+                altura_cm: 175, 
+                edad: 30, 
+                genero: "masculino" as const, 
+                actividad: 1.375, 
+                exclusiones: [], 
+                objetivo: "mantener" as const, 
+                theme: 'dark' 
+              },
+              metas: { 
+                peso_objetivo: 65, 
+                kcal: 2000, 
+                prote_g_dia: 140, 
+                grasa_g_dia: 60, 
+                carbs_g_dia: 225, 
+                agua_ml: 2000, 
+                pasos_dia: 8000 
+              },
+              log: {}
+            };
+            localStorage.setItem('kiloByteData', JSON.stringify(initialData));
+            await saveUserState(user.uid, initialData);
+            console.log('[welcome] Datos iniciales creados y guardados en la nube');
           }
         } catch (error) {
-          console.error('[welcome] Error cargando datos del usuario:', error);
+          console.error('[welcome] Error cargando datos:', error);
         } finally {
-          console.log('[welcome] Navegando a dashboard');
           navigate('/dashboard');
         }
       })();
-      return;
     }
-    
-    // Si no hay usuario autenticado, continuar con la lógica normal de Welcome
-    const savedData = localStorage.getItem('kiloByteData');
-    if (savedData) {
-      const data = JSON.parse(savedData);
-      if (data.perfil?.nombre) {
-        // Mantener compat local si no hay login aún
-        // No navegamos automáticamente sin login
-      }
-    }
-
-    // Secuencia: 1) título fade-in; 2) typewriter del slogan (o versión sin animación si reduced-motion)
-    const fullSlogan = 'Cero calorías, 100% productividad.';
-    const reduceMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setAnimationComplete(true); // habilita el fade-in del título
-    if (reduceMotion) {
-      setTypedSlogan(fullSlogan);
-    } else {
-      let i = 0;
-      window.setTimeout(() => {
-        typingTimerRef.current = window.setInterval(() => {
-          i++;
-          setTypedSlogan(fullSlogan.slice(0, i));
-          if (i >= fullSlogan.length) {
-            if (typingTimerRef.current) window.clearInterval(typingTimerRef.current);
-          }
-        }, 45);
-        // caret del slogan
-        caretTimerRef.current = window.setInterval(() => {
-          setSloganCaretVisible((v) => !v);
-        }, 520);
-      }, 600);
-    }
-
-    return () => {
-      if (typingTimerRef.current) window.clearInterval(typingTimerRef.current);
-      if (caretTimerRef.current) window.clearInterval(caretTimerRef.current);
-    };
-  }, [navigate, user, loading]);
-
-  const validarNombre = (nombre: string) => {
-    return nombre.length >= 2 && nombre.length <= 20 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre);
-  };
-
-  const handleEnterApp = () => {
-    if (loading) return;
-    const nombreTrimmed = nombre.trim();
-    
-    if (!nombreTrimmed) {
-      setError('¡Por favor, ingresa tu nombre!');
-      return;
-    }
-
-    if (!validarNombre(nombreTrimmed)) {
-      setError('Tu nombre debe tener 2-20 caracteres y solo letras');
-      return;
-    }
-
-    setError('');
-
-  // Guardar nombre y datos iniciales
-  setLoading(true);
-    const data = {
-      perfil: { 
-        nombre: nombreTrimmed, 
-        peso: 70, 
-        altura_cm: 175, 
-        edad: 30, 
-        genero: "masculino", 
-        actividad: "1.375", 
-        exclusiones: [], 
-        objetivo: "mantener", 
-        theme: 'dark' 
-      },
-      metas: { 
-        peso_objetivo: 65, 
-        kcal: 2000, 
-        prote_g_dia: 140, 
-        grasa_g_dia: 60, 
-        carbs_g_dia: 225, 
-        agua_ml: 2000, 
-        pasos_dia: 8000 
-      },
-      log: {}
-    };
-
-    try {
-      localStorage.setItem('kiloByteData', JSON.stringify(data));
-    } finally {
-      // Breve delay visual para que se vea el spinner si la navegación es muy rápida
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 150);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleEnterApp();
-    }
-  };
+  }, [user, authLoading, navigate]);
 
   const handleGoogleLogin = async () => {
+    setLoading(true);
+    setError('');
+    
     try {
-      setLoading(true);
-      
-      // Detectar si es móvil
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
-        || window.innerWidth <= 768;
-      
-      if (isMobile) {
-        // En móviles, signInWithGoogle inicia el redirect pero no retorna user
-        console.log('[welcome] Iniciando login con redirect para móvil');
-        await signInWithGoogle();
-        // El redirect manejará el resto, no llegamos aquí
-        return;
+      console.log('[welcome] Iniciando login con Google');
+      await signInWithGoogle();
+    } catch (e: unknown) {
+      console.error('[welcome] Error en login:', e);
+      const error = e as Error;
+      if (error.message !== 'Login cancelado') {
+        setError('Error al iniciar sesión con Google. Intenta de nuevo.');
       }
-      
-      // Flujo normal para desktop
-      const u = await signInWithGoogle();
-      
-      // Validar que realmente se completó el login
-      if (!u || !u.uid || !u.email) {
-        throw new Error('Login incompleto: no se recibió información del usuario');
-      }
-      
-      console.log('[welcome] Login exitoso para', u.email);
-      
-      // Primero intentamos cargar desde la nube
-      const cloud = await loadUserState(u.uid);
-      // Si no hay nube, recién ahí considerar subir local como primer estado
-      if (!cloud) {
-        const local = localStorage.getItem('kiloByteData');
-        if (local) {
-          try { await saveUserState(u.uid, JSON.parse(local)); } catch (e) { console.warn('No se pudo subir estado local inicial', e); }
-        }
-      }
-      // Re-leer nube tras posible primera subida
-      const finalCloud = cloud || (await loadUserState(u.uid));
-      // Solo pisar local si el cloud parece válido (tiene perfil y metas)
-      const looksValid = (s: unknown): s is { perfil: { nombre?: string }; metas: unknown } => {
-        if (!s || typeof s !== 'object') return false;
-        const o = s as Record<string, unknown>;
-        const hasPerfil = 'perfil' in o && typeof o.perfil === 'object' && o.perfil !== null;
-        const hasMetas = 'metas' in o;
-        return hasPerfil && hasMetas;
-      };
-      if (looksValid(finalCloud)) {
-        localStorage.setItem('kiloByteData', JSON.stringify(finalCloud));
-      }
-      navigate('/dashboard');
-    } catch (e) {
-      console.warn('Fallo login con Google', e);
-      setError('Error al iniciar sesión. Intentá de nuevo.');
-    } finally {
       setLoading(false);
     }
   };
 
+  if (authLoading) {
+    return (
+      <div className="welcome-container">
+        <div className="welcome-content">
+          <div className="loading-spinner">Verificando sesión...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="welcome-container">
       <div className="welcome-content">
-        <h1 className={`kb-title ${animationComplete ? 'fade-in' : ''}`} aria-label="KiloByte">
-          KiloByte
-        </h1>
-        <p className="slogan" aria-label="Slogan">
-          <span className="slogan-text">{typedSlogan}</span>
-          <span className={`slogan-caret ${sloganCaretVisible ? 'visible' : ''}`} aria-hidden="true">|</span>
-        </p>
+        {/* Título con estilo dorado original */}
+        <h1 className="kb-title fade-in">KiloByte</h1>
+        <p className="slogan">Cero calorías, 100% productividad.</p>
 
-        {/* Botón de Google como método principal */}
+        {/* Botón Google con el estilo anterior (logo + hover check) */}
         <button
-          onClick={handleGoogleLogin}
           className="google-btn"
-          disabled={loading || authLoading}
-          aria-label="Entrar con Gmail"
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          aria-label="Continuar con Google"
         >
-          {loading || authLoading ? (
-            <PlateLoader tight label="Conectando…" />
-          ) : (
-            <>
-              <span className="google-logo" aria-hidden>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48">
-                  <path fill="#FFC107" d="M43.611 20.083h-1.611V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12S17.373 12 24 12c3.059 0 5.842 1.158 7.961 3.039l5.657-5.657C34.676 6.053 29.623 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.651-.389-3.917z"/>
-                  <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 16.23 18.961 12 24 12c3.059 0 5.842 1.158 7.961 3.039l5.657-5.657C34.676 6.053 29.623 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
-                  <path fill="#4CAF50" d="M24 44c5.176 0 9.86-1.978 13.409-5.197l-6.197-5.238C29.142 35.201 26.68 36 24 36c-5.204 0-9.62-3.317-11.278-7.952l-6.53 5.027C9.5 39.556 16.227 44 24 44z"/>
-                  <path fill="#1976D2" d="M43.611 20.083h-1.611V20H24v8h11.303c-.793 2.239-2.279 4.166-4.18 5.565l.003-.002 6.197 5.238C35.043 40.19 40 34.667 40 24c0-1.341-.138-2.651-.389-3.917z"/>
-                </svg>
-              </span>
-              <span>Entrar con Gmail</span>
-              <span className="hover-check" aria-hidden>✅</span>
-            </>
-          )}
+          <span className="google-logo" aria-hidden>
+            <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.826 31.756 29.356 35 24 35c-7.18 0-13-5.82-13-13s5.82-13 13-13c3.313 0 6.332 1.234 8.634 3.266l5.657-5.657C34.676 3.043 29.59 1 24 1 11.85 1 2 10.85 2 23s9.85 22 22 22 22-9.85 22-22c0-1.473-.152-2.91-.389-4.917z"/>
+              <path fill="#FF3D00" d="M6.306 14.691l6.571 4.816C14.407 15.163 18.834 12 24 12c3.313 0 6.332 1.234 8.634 3.266l5.657-5.657C34.676 3.043 29.59 1 24 1 15.318 1 7.889 5.676 4.053 12.308l2.253 2.383z"/>
+              <path fill="#4CAF50" d="M24 45c5.268 0 10.085-2.018 13.71-5.312l-6.324-5.354C29.101 35.862 26.671 37 24 37c-5.33 0-9.779-3.29-11.43-7.927l-6.5 5.02C9.836 40.63 16.357 45 24 45z"/>
+              <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-1.103 3.178-3.57 5.669-6.616 7.019l6.324 5.354C37.69 38.74 42 32.667 42 23c0-1.473-.152-2.91-.389-4.917z"/>
+            </svg>
+          </span>
+          <span>{loading ? 'Iniciando sesión…' : 'Continuar con Google'}</span>
+          <span className="hover-check" aria-hidden>✓</span>
         </button>
 
-        <p className="trust-text" aria-live="polite">No te preocupes, no vamos a espiarte el almuerzo 🍔.</p>
+        {error && <p className="error-message" role="alert">{error}</p>}
 
-        {/* flujo local anterior opcional, oculto por ahora */}
-        <div className="input-group" style={{ display: 'none' }}>
-          <input
-            type="text"
-            placeholder="Ingresa tu nombre..."
-            value={nombre}
-            onChange={(e) => {
-              setNombre(e.target.value);
-              setError('');
-            }}
-            onKeyPress={handleKeyPress}
-            className="name-input"
-          />
-          {error && <p className="error-message">{error}</p>}
-          <button onClick={handleEnterApp} className="start-button" disabled={loading}>Comenzar</button>
-        </div>
+        <p className="trust-text">Tus datos se sincronizan automáticamente en la nube</p>
       </div>
     </div>
   );
