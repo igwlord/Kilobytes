@@ -23,42 +23,38 @@ export function useAuth() {
     const { auth } = initFirebase();
     console.log('[auth] init, listening for auth state changes');
     
-    let redirectChecked = false;
+    let isSubscribed = true;
     
-    // CRÍTICO: Verificar redirect ANTES de onAuthStateChanged
+    // Primero: Verificar si hay resultado de redirect (solo pasa en móviles al volver de Google)
     getRedirectResult(auth)
       .then((result) => {
-        redirectChecked = true;
+        if (!isSubscribed) return;
+        
         if (result?.user) {
           console.log('[auth] ✅ Redirect login success for', result.user.email);
           console.log('[auth] User UID:', result.user.uid);
-          // setUser y setLoading se llamarán por onAuthStateChanged
         } else {
-          console.log('[auth] No redirect result (normal on first load)');
+          console.log('[auth] No redirect result (primera carga normal)');
         }
       })
       .catch((error) => {
-        redirectChecked = true;
+        if (!isSubscribed) return;
         console.error('[auth] ❌ Error processing redirect result:', error);
       });
 
+    // Segundo: Escuchar cambios de auth (funciona tanto en desktop como móvil)
     const unsub = onAuthStateChanged(auth, (u: User | null) => {
-      // Solo actualizar cuando el redirect ya fue verificado
-      if (redirectChecked || !loading) {
-        console.log('[auth] state change:', u ? `logged in as ${u.email}` : 'logged out');
-        setUser(u);
-        setLoading(false);
-      } else {
-        // Primera vez, esperar a que se verifique el redirect
-        setTimeout(() => {
-          console.log('[auth] state change (delayed):', u ? `logged in as ${u.email}` : 'logged out');
-          setUser(u);
-          setLoading(false);
-        }, 100);
-      }
+      if (!isSubscribed) return;
+      
+      console.log('[auth] 🔄 state change:', u ? `logged in as ${u.email}` : 'logged out');
+      setUser(u);
+      setLoading(false);
     });
     
-    return () => unsub();
+    return () => {
+      isSubscribed = false;
+      unsub();
+    };
   }, []);
 
   return { user, loading };
