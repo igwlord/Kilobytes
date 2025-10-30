@@ -7,21 +7,30 @@ import { loadUserState, saveUserState } from '../utils/cloudSync';
 const Welcome: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [redirectInProgress, setRedirectInProgress] = useState(false);
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (authLoading) return;
+    // NO hacer nada mientras auth está cargando
+    if (authLoading) {
+      console.log('[welcome] Esperando auth...');
+      return;
+    }
     
+    // Si hay usuario, cargar datos y navegar
     if (user) {
-      console.log('[welcome] Usuario detectado:', user.email);
+      console.log('[welcome] ✅ Usuario detectado:', user.email);
+      console.log('[welcome] UID:', user.uid);
+      console.log('[welcome] Iniciando carga de datos y navegación...');
+      
       (async () => {
         try {
           setLoading(true);
           const cloudData = await loadUserState(user.uid);
           if (cloudData) {
             localStorage.setItem('kiloByteData', JSON.stringify(cloudData));
-            console.log('[welcome] Datos cargados desde la nube');
+            console.log('[welcome] ✅ Datos cargados desde la nube');
           } else {
             const initialData = {
               perfil: { 
@@ -48,14 +57,18 @@ const Welcome: React.FC = () => {
             };
             localStorage.setItem('kiloByteData', JSON.stringify(initialData));
             await saveUserState(user.uid, initialData);
-            console.log('[welcome] Datos iniciales creados y guardados en la nube');
+            console.log('[welcome] ✅ Datos iniciales creados y guardados en la nube');
           }
+          console.log('[welcome] 🚀 Navegando a dashboard...');
+          navigate('/dashboard');
         } catch (error) {
-          console.error('[welcome] Error cargando datos:', error);
-        } finally {
+          console.error('[welcome] ❌ Error cargando datos:', error);
+          // Navegar de todas formas para no bloquear al usuario
           navigate('/dashboard');
         }
       })();
+    } else {
+      console.log('[welcome] No hay usuario, mostrando pantalla de login');
     }
   }, [user, authLoading, navigate]);
 
@@ -65,7 +78,23 @@ const Welcome: React.FC = () => {
     
     try {
       console.log('[welcome] Iniciando login con Google');
-      await signInWithGoogle();
+      console.log('[welcome] User Agent:', navigator.userAgent);
+      console.log('[welcome] Window width:', window.innerWidth);
+      console.log('[welcome] Has touch:', 'ontouchstart' in window);
+      
+      const result = await signInWithGoogle();
+      
+      // Si es móvil, el redirect ya se inició y la página se recargará
+      // No necesitamos hacer nada más aquí
+      if (result === 'REDIRECT_INITIATED') {
+        console.log('[welcome] Redirect iniciado, esperando respuesta de Google...');
+        setRedirectInProgress(true);
+        // Mantener loading true, la página se va a recargar
+        return;
+      }
+      
+      // Si es desktop con popup, el useEffect manejará la navegación
+      console.log('[welcome] Login exitoso en desktop');
     } catch (e: unknown) {
       console.error('[welcome] Error en login:', e);
       const error = e as Error;
@@ -73,14 +102,17 @@ const Welcome: React.FC = () => {
         setError('Error al iniciar sesión con Google. Intenta de nuevo.');
       }
       setLoading(false);
+      setRedirectInProgress(false);
     }
   };
 
-  if (authLoading) {
+  if (authLoading || loading) {
     return (
       <div className="welcome-container">
         <div className="welcome-content">
-          <div className="loading-spinner">Verificando sesión...</div>
+          <div className="loading-spinner">
+            {redirectInProgress ? 'Procesando autenticación...' : 'Verificando sesión...'}
+          </div>
         </div>
       </div>
     );
@@ -108,7 +140,13 @@ const Welcome: React.FC = () => {
               <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-1.103 3.178-3.57 5.669-6.616 7.019l6.324 5.354C37.69 38.74 42 32.667 42 23c0-1.473-.152-2.91-.389-4.917z"/>
             </svg>
           </span>
-          <span>{loading ? 'Iniciando sesión…' : 'Continuar con Google'}</span>
+          <span>
+            {redirectInProgress 
+              ? 'Redirigiendo a Google…' 
+              : loading 
+                ? 'Iniciando sesión…' 
+                : 'Continuar con Google'}
+          </span>
           <span className="hover-check" aria-hidden>✓</span>
         </button>
 
